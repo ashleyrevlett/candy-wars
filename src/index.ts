@@ -1,148 +1,9 @@
 const prompt = require('prompt-sync')({sigint: true});
 
-type SpiceType = 'Nutmeg' | 'Pepper' | 'Cinnamon'
-type TransactionType = 'Buy' | 'Sell'
-type CityName = 'Los Angeles' | 'New York' | 'New Orleans'
-type NumberRange = { min: number, max: number }
-
-const priceRanges = {
-  'Pepper': { min: 10, max: 60},
-  'Cinnamon': { min: 200, max: 500},
-  'Nutmeg': { min: 600, max: 1000},
-}
-
-const quantityRanges = {
-  'Pepper': { min: 100, max: 300},
-  'Cinnamon': { min: 40, max: 100},
-  'Nutmeg': { min: 5, max: 30},
-}
-
-const volatility : NumberRange = {
-  min: 0.05,
-  max: 0.25
-}
-
-const dateOptions : Intl.DateTimeFormatOptions = {
-  weekday: 'long',
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric'
-}
-
-class Spice {
-  price: number
-  quantity: number
-  name: SpiceType
-  priceRange: NumberRange
-  quantityRange: NumberRange
-  constructor(name : SpiceType, price?: number, quantity?: number) {
-    this.name = name
-    this.priceRange = priceRanges[name]
-    this.quantityRange = quantityRanges[name]
-    this.price = price ? price : Math.floor(Math.random() * (this.priceRange.max - this.priceRange.min + 1)) + this.priceRange.min
-    this.quantity = quantity ? quantity : Math.floor(Math.random() * (this.quantityRange.max - this.quantityRange.min + 1)) + this.quantityRange.min
-  }
-  simulateTrade() {
-    const plusOrMinus = Math.random() < 0.5 ? -1 : 1
-    const percentChange = (Math.random() * (volatility.max - volatility.min) + volatility.min) * plusOrMinus
-    this.price += Math.floor(this.price * percentChange)
-    this.price = Math.min( Math.max(this.priceRange.min, this.price), this.priceRange.max)
-    this.quantity += Math.floor(this.quantity * percentChange)
-    this.quantity = Math.max(this.quantityRange.min, this.quantity)
-  }
-  describe() {
-    console.log(`${this.name} – Price: $${this.price.toLocaleString()}, Qty: ${this.quantity}`)
-  }
-}
-
-class Location {
-  name: CityName
-  broker : Broker
-  constructor(name : CityName, brokerName : string) {
-    this.name = name
-    this.broker = new Broker(brokerName, 1000)
-  }
-  describe() {
-    console.log(`\n#### Current Location: ${this.name} - Broker ${this.broker.name} ($${this.broker.cash.toLocaleString()}) ####`)
-    this.broker.inventory.forEach(spice => spice.describe())
-  }
-}
-
-abstract class Entity {
-  name : string
-  cash : number
-  inventory : Array<Spice> = []
-
-  constructor(name: string, cash: number){
-    this.name = name
-    this.cash = cash
-    this.inventory = this.initInventory()
-  }
-
-  abstract initInventory() : Array<Spice>
-
-  getPrice(spiceName : SpiceType) {
-    const spice = this.inventory.find(spice => spice.name == spiceName)
-    return spice ? spice.price : 0
-  }
-
-  getQuantity(spiceName : SpiceType) {
-    const spice = this.inventory.find(spice => spice.name == spiceName)
-    return spice ? spice.quantity : 0
-  }
-
-  sell (spiceName : SpiceType, quantity : number, price : number) {
-    const mySpice = this.inventory.find(spice => spice.name == spiceName)
-    if (!mySpice || quantity > mySpice.quantity) return 0
-    mySpice.quantity -= quantity
-    this.cash += quantity * price
-  }
-
-  buy (spiceName : SpiceType, quantity : number, price : number) {
-    let mySpice = this.inventory.find(spice => spice.name == spiceName)
-    if (!mySpice) {
-      mySpice = new Spice(spiceName, price, quantity)
-      this.inventory.push(mySpice)
-    } else {
-      mySpice.quantity += quantity
-      mySpice.price = price
-    }
-    this.cash -= quantity * price
-  }
-
-  describe() {
-    console.log(`\n#### ${this.name}: $${this.cash.toLocaleString()}`)
-    if (this.inventory.length == 0 ) console.log("Empty Inventory")
-    this.inventory.forEach(spice => spice.describe())
-  }
-}
-
-
-class Broker extends Entity {
-  initInventory() {
-    const inventory = [
-      new Spice('Pepper'),
-      new Spice('Cinnamon'),
-      new Spice('Nutmeg'),
-    ]
-    return inventory
-  }
-  randomizeCash() {
-    const maxChange = 0.3
-    const minChange = 0.1
-    const plusOrMinus = Math.random() < 0.5 ? -1 : 1
-    const percentChange = (Math.random() * (maxChange - minChange) + minChange) * plusOrMinus
-    this.cash += Math.floor(this.cash * percentChange)
-    this.cash = Math.max(300, this.cash)
-  }
-}
-
-class Player extends Entity {
-  initInventory() {
-    const inventory : Array<Spice> = []
-    return inventory
-  }
-}
+import { SpiceType, TransactionType } from './types'
+import { Location } from './models/Location'
+import { Broker } from './models/Broker'
+import { Player } from './models/Player'
 
 class Game {
   player : Player
@@ -167,7 +28,9 @@ class Game {
 
   doTurn() {
     while (true) {
+      const dateOptions : Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
       console.log(`\nDate: ${this.currentDay.toLocaleDateString("en-US", dateOptions)}`)
+
       this.player.describe()
       this.currentLocation.describe()
 
