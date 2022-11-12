@@ -1,22 +1,54 @@
 const prompt = require('prompt-sync')({sigint: true});
 
-type NumberRange = { min: number, max: number }
 type SpiceType = 'Nutmeg' | 'Pepper' | 'Cinnamon'
-type CityName = 'Los Angeles' | 'New York' | 'New Orleans'
 type TransactionType = 'Buy' | 'Sell'
+type CityName = 'Los Angeles' | 'New York' | 'New Orleans'
+type NumberRange = { min: number, max: number }
+
+const priceRanges = {
+  'Pepper': { min: 10, max: 60},
+  'Cinnamon': { min: 200, max: 500},
+  'Nutmeg': { min: 600, max: 1000},
+}
+
+const quantityRanges = {
+  'Pepper': { min: 100, max: 300},
+  'Cinnamon': { min: 40, max: 100},
+  'Nutmeg': { min: 5, max: 30},
+}
+
+const volatility : NumberRange = {
+  min: 0.05,
+  max: 0.25
+}
+
+const dateOptions : Intl.DateTimeFormatOptions = {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}
 
 class Spice {
   price: number
   quantity: number
   name: SpiceType
+  priceRange: NumberRange
+  quantityRange: NumberRange
   constructor(name : SpiceType, price?: number, quantity?: number) {
-    const minPrice = 2
-    const maxPrice = 20
-    const minQty = 1
-    const maxQty = 10
     this.name = name
-    this.price = price ? price : Math.floor(Math.random() * (maxPrice - minPrice + 1)) + minPrice
-    this.quantity = quantity ? quantity : Math.floor(Math.random() * (maxQty - minQty + 1)) + minQty
+    this.priceRange = priceRanges[name]
+    this.quantityRange = quantityRanges[name]
+    this.price = price ? price : Math.floor(Math.random() * (this.priceRange.max - this.priceRange.min + 1)) + this.priceRange.min
+    this.quantity = quantity ? quantity : Math.floor(Math.random() * (this.quantityRange.max - this.quantityRange.min + 1)) + this.quantityRange.min
+  }
+  simulateTrade() {
+    const plusOrMinus = Math.random() < 0.5 ? -1 : 1
+    const percentChange = (Math.random() * (volatility.max - volatility.min) + volatility.min) * plusOrMinus
+    this.price += Math.floor(this.price * percentChange)
+    this.price = Math.min( Math.max(this.priceRange.min, this.price), this.priceRange.max)
+    this.quantity += Math.floor(this.quantity * percentChange)
+    this.quantity = Math.max(this.quantityRange.min, this.quantity)
   }
   describe() {
     console.log(`${this.name} – Price: $${this.price.toLocaleString()}, Qty: ${this.quantity}`)
@@ -31,7 +63,7 @@ class Location {
     this.broker = new Broker(brokerName, 1000)
   }
   describe() {
-    console.log(`\n#### Location: ${this.name} - ${this.broker.name} ($${this.broker.cash.toLocaleString()}) ####`)
+    console.log(`\n#### Current Location: ${this.name} - Broker ${this.broker.name} ($${this.broker.cash.toLocaleString()}) ####`)
     this.broker.inventory.forEach(spice => spice.describe())
   }
 }
@@ -89,14 +121,19 @@ abstract class Entity {
 class Broker extends Entity {
   initInventory() {
     const inventory = [
-      new Spice('Pepper', this.randomNumber({ min: 1, max: 10}), this.randomNumber({ min: 100, max: 200})),
-      new Spice('Cinnamon', this.randomNumber({ min: 10, max: 50}), this.randomNumber({ min: 30, max: 100})),
-      new Spice('Nutmeg', this.randomNumber({ min: 50, max: 200}), this.randomNumber({ min: 0, max: 20})),
+      new Spice('Pepper'),
+      new Spice('Cinnamon'),
+      new Spice('Nutmeg'),
     ]
     return inventory
   }
-  randomNumber( range: NumberRange ) {
-    return Math.floor(Math.random() * range.max) + range.min;
+  randomizeCash() {
+    const maxChange = 0.3
+    const minChange = 0.1
+    const plusOrMinus = Math.random() < 0.5 ? -1 : 1
+    const percentChange = (Math.random() * (maxChange - minChange) + minChange) * plusOrMinus
+    this.cash += Math.floor(this.cash * percentChange)
+    this.cash = Math.max(300, this.cash)
   }
 }
 
@@ -111,10 +148,12 @@ class Game {
   player : Player
   locations = Game.initLocations()
   currentLocation : Location
+  currentDay : Date
 
   constructor() {
     this.player = new Player('Jane', 1000)
     this.currentLocation = this.locations[0]
+    this.currentDay = new Date('January 1, 1572 12:00:00')
     this.doTurn()
   }
 
@@ -128,6 +167,7 @@ class Game {
 
   doTurn() {
     while (true) {
+      console.log(`\nDate: ${this.currentDay.toLocaleDateString("en-US", dateOptions)}`)
       this.player.describe()
       this.currentLocation.describe()
 
@@ -135,32 +175,46 @@ class Game {
       console.log("[1] Travel to new city")
       console.log("[2] Buy Spice")
       console.log("[3] Sell Spice")
+      console.log("[4] Wait 1 Day")
 
       const nextMove = Number(prompt("Enter a number from above: "))
       switch(nextMove) {
         case 1:
           this.travelMenu()
-          break;
+          break
         case 2:
           this.buyMenu()
-          break;
+          break
         case 3:
           this.sellMenu()
-          break;
+          break
+        case 4:
+          this.nextDay()
+          break
         default:
-          // code block
       }
     }
+  }
+
+  nextDay() {
+    console.log("... another day has begun ...")
+    this.locations.forEach(location => {
+      location.broker.inventory.forEach(spice => {
+        spice.simulateTrade()
+      });
+      location.broker.randomizeCash()
+    });
+    this.currentDay.setDate(this.currentDay.getDate() + 1)
   }
 
   travelMenu() {
     console.log("\nAvailable Cities:")
     this.locations.forEach((city, index) => {
       const msg = city.name == this.currentLocation.name ? ' (You are here) ' : ''
-      console.log(`[${index}] ${city.name} ${msg}`)
+      console.log(`[${index + 1}] ${city.name} ${msg}`)
     });
     const cityIndex = Number(prompt("\nEnter a number from above to go to that city: "))
-    this.travelTo(this.locations[cityIndex])
+    this.travelTo(this.locations[cityIndex - 1])
   }
 
   buyMenu() {
@@ -171,11 +225,11 @@ class Game {
     console.log(`\n${this.currentLocation.name} Prices:`)
     console.log("Spice\t\tPrice\tQty")
     this.currentLocation.broker.inventory.forEach((spice, index) => {
-      console.log(`[${index}] ${spice.name} \t$${spice.price.toLocaleString()}\t${spice.quantity}`)
+      console.log(`[${index + 1}] ${spice.name} \t$${spice.price.toLocaleString()}\t${spice.quantity}`)
     })
     const spiceIndex = Number(prompt("\nEnter a number from above to choose a spice: "))
     const qty = Number(prompt("\nEnter a quantity to buy: "))
-    this.buy(this.currentLocation.broker.inventory[spiceIndex].name, qty)
+    this.buy(this.currentLocation.broker.inventory[spiceIndex - 1].name, qty)
   }
 
   sellMenu() {
@@ -187,11 +241,11 @@ class Game {
     console.log("Name\t\tQty\tPaid\tAsking Price")
     this.player.inventory.forEach((spice, index) => {
       const brokerPrice = this.currentLocation.broker.getPrice(spice.name)
-      console.log(`[${index}] ${spice.name} \t${spice.quantity}\t$${spice.price.toLocaleString()}\t$${brokerPrice.toLocaleString()}`)
+      console.log(`[${index + 1}] ${spice.name} \t${spice.quantity}\t$${spice.price.toLocaleString()}\t$${brokerPrice.toLocaleString()}`)
     })
     const spiceIndex = Number(prompt("\nEnter a number from above to choose a spice: "))
     const qty = Number(prompt("\nEnter a quantity to sell: "))
-    this.sell(this.player.inventory[spiceIndex].name, qty)
+    this.sell(this.player.inventory[spiceIndex - 1].name, qty)
   }
 
   canTrade(transaction: TransactionType, broker: Broker, spiceType: SpiceType, quantity: number) {
@@ -243,6 +297,7 @@ class Game {
     }
     console.log(`\n!!! Traveling from ${this.currentLocation.name} to ${location.name}...`)
     this.currentLocation = location
+    this.nextDay()
   }
 }
 
