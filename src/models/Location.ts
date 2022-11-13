@@ -8,8 +8,4 @@ export class Location {
     this.name = name
     this.broker = new Broker(brokerName, 1000)
   }
-  describe() {
-    console.log(`\n#### Current Location: ${this.name} - Broker ${this.broker.name} ($${this.broker.cash.toLocaleString()}) ####`)
-    this.broker.inventory.forEach(spice => spice.describe())
-  }
 }

@@ -43,10 +43,4 @@ export abstract class Entity {
     }
     this.cash -= quantity * price
   }
-
-  describe() {
-    console.log(`\n#### ${this.name}: $${this.cash.toLocaleString()}`)
-    if (this.inventory.length == 0 ) console.log("Empty Inventory")
-    this.inventory.forEach(spice => spice.describe())
-  }
 }

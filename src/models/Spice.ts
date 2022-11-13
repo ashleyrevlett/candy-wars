@@ -38,7 +38,4 @@ export class Spice {
     this.quantity += Math.floor(this.quantity * percentChange)
     this.quantity = Math.max(this.quantityRange.min, this.quantity)
   }
-  describe() {
-    console.log(`${this.name} – Price: $${this.price.toLocaleString()}, Qty: ${this.quantity}`)
-  }
 }
