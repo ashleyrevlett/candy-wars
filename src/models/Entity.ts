@@ -26,7 +26,8 @@ export abstract class Entity {
 
   sell (spiceName : SpiceType, quantity : number, price : number) {
     const mySpice = this.inventory.find(spice => spice.name == spiceName)
-    if (!mySpice || quantity > mySpice.quantity) return 0
+    if (!mySpice || quantity > mySpice.quantity)
+      return
     mySpice.quantity -= quantity
     this.cash += quantity * price
   }

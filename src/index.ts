@@ -6,15 +6,13 @@ import { Broker } from './models/Broker'
 import { Player } from './models/Player'
 
 class Game {
-  player : Player
+  player : Player = new Player('Jane', 1000)
   locations = Game.initLocations()
-  currentLocation : Location
-  currentDay : Date
+  currentLocation : Location = this.locations[0]
+  currentDay : Date = new Date('January 1, 1572 12:00:00')
+  dateOptions : Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
 
   constructor() {
-    this.player = new Player('Jane', 1000)
-    this.currentLocation = this.locations[0]
-    this.currentDay = new Date('January 1, 1572 12:00:00')
     this.doTurn()
   }
 
@@ -28,8 +26,7 @@ class Game {
 
   doTurn() {
     while (true) {
-      const dateOptions : Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-      console.log(`\nDate: ${this.currentDay.toLocaleDateString("en-US", dateOptions)}`)
+      console.log(`\nDate: ${this.currentDay.toLocaleDateString("en-US", this.dateOptions)}`)
 
       this.player.describe()
       this.currentLocation.describe()
@@ -60,7 +57,7 @@ class Game {
   }
 
   nextDay() {
-    console.log("... another day has begun ...")
+    console.log("Another day has begun ...")
     this.locations.forEach(location => {
       location.broker.inventory.forEach(spice => {
         spice.simulateTrade()
@@ -92,7 +89,12 @@ class Game {
     })
     const spiceIndex = Number(prompt("\nEnter a number from above to choose a spice: "))
     const qty = Number(prompt("\nEnter a quantity to buy: "))
-    this.buy(this.currentLocation.broker.inventory[spiceIndex - 1].name, qty)
+    const spice = this.currentLocation.broker.inventory[spiceIndex - 1]?.name
+    if (!spice) {
+      console.log("Invalid selection")
+      return
+    }
+    this.buy(spice, qty)
   }
 
   sellMenu() {
@@ -107,6 +109,11 @@ class Game {
       console.log(`[${index + 1}] ${spice.name} \t${spice.quantity}\t$${spice.price.toLocaleString()}\t$${brokerPrice.toLocaleString()}`)
     })
     const spiceIndex = Number(prompt("\nEnter a number from above to choose a spice: "))
+    const spice = this.player.inventory[spiceIndex - 1]?.name
+    if (!spice) {
+      console.log("Invalid selection")
+      return
+    }
     const qty = Number(prompt("\nEnter a quantity to sell: "))
     this.sell(this.player.inventory[spiceIndex - 1].name, qty)
   }
@@ -136,21 +143,19 @@ class Game {
   buy(spice : SpiceType, quantity : number) {
     if (!this.canTrade('Buy', this.currentLocation.broker, spice, quantity))
       return
-    const broker = this.currentLocation.broker
-    const price = broker.getPrice(spice)
-    broker.sell(spice, quantity, price)
+    const price = this.currentLocation.broker.getPrice(spice)
+    this.currentLocation.broker.sell(spice, quantity, price)
     this.player.buy(spice, quantity, price)
-    console.log(`\n!!! ${this.player.name} bought ${quantity} ${spice} from ${broker.name} for a total of $${(quantity * price).toLocaleString()}`)
+    console.log(`\n!!! ${this.player.name} bought ${quantity} ${spice} from ${this.currentLocation.broker.name} for a total of $${(quantity * price).toLocaleString()}`)
   }
 
   sell(spice : SpiceType, quantity : number) {
     if (!this.canTrade('Sell', this.currentLocation.broker, spice, quantity))
       return
-    const broker = this.currentLocation.broker
-    const price = broker.getPrice(spice)
-    broker.buy(spice, quantity, price)
+    const price = this.currentLocation.broker.getPrice(spice)
+    this.currentLocation.broker.buy(spice, quantity, price)
     this.player.sell(spice, quantity, price)
-    console.log(`\n!!! ${this.player.name} sold ${quantity} ${spice} to ${broker.name} for a total of $${(quantity * price).toLocaleString()}`)
+    console.log(`\n!!! ${this.player.name} sold ${quantity} ${spice} to ${this.currentLocation.broker.name} for a total of $${(quantity * price).toLocaleString()}`)
   }
 
   travelTo(location : Location) {
