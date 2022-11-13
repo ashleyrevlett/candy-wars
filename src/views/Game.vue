@@ -5,10 +5,12 @@ import { Player } from '../models/Player'
 import { Broker } from '../models/Broker'
 
 import InventoryItem from '../components/InventoryItem.vue';
+import StatsBox from '../components/StatsBox.vue';
 
 export default {
   components: {
-    InventoryItem
+    InventoryItem,
+    StatsBox
   },
   data() {
     return {
@@ -34,6 +36,7 @@ export default {
       const newLocation = this.locations[index]
       console.log(`\n!!! Traveling from ${currentLocation.name} to ${newLocation.name}...`)
       this.currentLocationIndex = index
+      this.nextDay()
     },
     nextDay() {
       console.log("Another day has begun ...")
@@ -92,35 +95,36 @@ export default {
 
 <template>
 
-  <p>{{ currentDay.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}}</p>
-  <p>{{player.name}}: ${{player.cash.toLocaleString()}}</p>
-  <section>
-    <h4>Player Inventory</h4>
-    <InventoryItem
-      v-for="(item, index) in player.inventory"
-      :key="`item-${player.name}-${index}`"
-      :name="item.name"
-      :quantity="item.quantity"
-      :price="item.price"
-      :canSell="true"
-      @sell="(qty) => sell(item.name, qty)"
-    />
-    <p v-if="player.inventory.length == 0">Empty</p>
-  </section>
 
-  <h4>{{ currentLocation.name }} - {{ currentLocation.broker.name }} (${{currentLocation.broker.cash.toLocaleString()}})</h4>
-  <section>
-    <InventoryItem
-      v-for="(item, index) in currentLocation.broker.inventory"
-      :key="`item-${currentLocation.name}-${index}`"
-      :name="item.name"
-      :quantity="item.quantity"
-      :price="item.price"
-      :canBuy="true"
-      @buy="(qty) => buy(item.name, qty)"
-    />
-  </section>
+  <StatsBox :cash="player.cash" :day="currentDay" :location="currentLocation.name" :playerName="player.name" />
+  <div class="trade-box">
+    <section>
+      <h4>Player Inventory</h4>
+      <InventoryItem
+        v-for="(item, index) in player.inventory"
+        :key="`item-${player.name}-${index}`"
+        :name="item.name"
+        :quantity="item.quantity"
+        :price="item.price"
+        :canSell="true"
+        @sell="(qty) => sell(item.name, qty)"
+      />
+      <p v-if="player.inventory.length == 0">Empty</p>
+    </section>
 
+    <section>
+      <h4>{{ currentLocation.name }} - {{ currentLocation.broker.name }} (${{currentLocation.broker.cash.toLocaleString()}})</h4>
+      <InventoryItem
+        v-for="(item, index) in currentLocation.broker.inventory"
+        :key="`item-${currentLocation.name}-${index}`"
+        :name="item.name"
+        :quantity="item.quantity"
+        :price="item.price"
+        :canBuy="true"
+        @buy="(qty) => buy(item.name, qty)"
+      />
+    </section>
+  </div>
 
   <h4>Travel to...</h4>
   <button v-for="(location, index) in locations" :key="location.name" :disabled="currentLocation.name == location.name" @click="travelTo(index)">{{ location.name }}</button>
@@ -131,4 +135,17 @@ export default {
 
 
 <style scoped>
+.trade-box {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr;
+  grid-column-gap: 10px;
+  grid-row-gap: 0px;
+}
+
+.trade-box > section {
+  border: 1px solid black;
+  padding: 1rem;
+}
 </style>

@@ -25,10 +25,12 @@ export default defineComponent({
     sell() {
       this.$emit('sell', this.tradeQuantity)
       console.log(`Selling ${this.tradeQuantity} ${this.name}!`)
+      this.tradeQuantity = 0
     },
     buy() {
       this.$emit('buy', this.tradeQuantity)
       console.log(`Buying ${this.tradeQuantity} ${this.name}!`)
+      this.tradeQuantity = 0
     },
   }
 })
@@ -36,15 +38,33 @@ export default defineComponent({
 
 
 <template>
-  <p>
-    {{name}}: ${{price?.toLocaleString()}} x{{quantity}}
-    <div v-if="canBuy">
+  <section>
+    <p>{{name}}: ${{price?.toLocaleString()}} x{{quantity}}</p>
+    <div class="actions" v-if="canBuy">
       <input type="number" v-model="tradeQuantity" min="0" :max="quantity" />
       <button @click="buy()" :disabled="tradeQuantity <= 0">Buy</button>
     </div>
-    <div v-if="canSell">
+    <div class="actions" v-if="canSell">
       <input type="number" v-model="tradeQuantity" min="0" :max="quantity" />
       <button @click="sell()" :disabled="tradeQuantity <= 0">Sell</button>
     </div>
-  </p>
+  </section>
 </template>
+
+
+<style scoped>
+section {
+  display: flex;
+}
+
+p {
+  margin-right: 10px;
+}
+.actions {
+  margin-left: auto;
+}
+
+input[type="number"] {
+  width: 50px;
+}
+</style>
