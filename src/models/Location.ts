@@ -1,16 +1,15 @@
 import { LocationSpice } from './LocationSpice'
-import { CityName, SpiceType } from '../types'
+import { CityName, SpiceType, SPICE_ORDER } from '../types'
 
 export class Location {
   name: CityName
-  inventory : Array<LocationSpice> = [
-    new LocationSpice('Pepper'),
-    new LocationSpice('Cinnamon'),
-    new LocationSpice('Nutmeg'),
-  ]
+  inventory : Array<LocationSpice> = []
 
   constructor(name : CityName) {
     this.name = name
+    SPICE_ORDER.forEach(spice => {
+      this.inventory.push(new LocationSpice(spice))
+    });
   }
 
   getPrice(spiceName : SpiceType) {

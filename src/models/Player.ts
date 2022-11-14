@@ -1,4 +1,4 @@
-import { SpiceType } from '../types'
+import { SpiceType, SPICE_ORDER } from '../types'
 import { PlayerSpice } from './PlayerSpice'
 
 export class Player {
@@ -9,6 +9,9 @@ export class Player {
   constructor(name: string, cash: number){
     this.name = name
     this.cash = cash
+    SPICE_ORDER.forEach(spice => {
+      this.inventory.push(new PlayerSpice(spice, 0, 0))
+    });
   }
 
   getQuantity(spiceName : SpiceType) {
@@ -20,8 +23,9 @@ export class Player {
     const mySpice = this.inventory.find(spice => spice.spiceType == spiceName)
     if (!mySpice || quantity > mySpice.quantity)
       return
-    mySpice.quantity -= quantity
     this.cash += quantity * price
+    mySpice.quantity -= quantity
+    if (mySpice.quantity == 0) mySpice.price = 0
   }
 
   buy (spiceName : SpiceType, quantity : number, price : number) {
@@ -30,8 +34,7 @@ export class Player {
       mySpice = new PlayerSpice(spiceName, quantity, price)
       this.inventory.push(mySpice)
     } else {
-      mySpice.quantity += quantity
-      mySpice.price = price
+      mySpice.addQuantity(quantity, price)
     }
     this.cash -= quantity * price
   }

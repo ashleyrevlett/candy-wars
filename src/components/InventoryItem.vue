@@ -1,54 +1,45 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
+import { TransactionType } from '../types'
 
 export default defineComponent({
   props: {
     name: String,
     quantity: Number,
     price: Number,
-    canSell: Boolean,
-    canBuy: Boolean
+    transactionType: {
+      type: String as PropType<TransactionType>,
+        required: true
+    },
   },
   setup(props) {
     props.name,
     props.quantity,
     props.price,
-    props.canSell,
-    props.canBuy
+    props.transactionType
   },
-  data() {
-    return {
-      tradeQuantity : 0,
-    }
-  },
-  methods: {
-    sell() {
-      this.$emit('sell', this.tradeQuantity)
-      console.log(`Selling ${this.tradeQuantity} ${this.name}!`)
-      this.tradeQuantity = 0
-    },
-    buy() {
-      this.$emit('buy', this.tradeQuantity)
-      console.log(`Buying ${this.tradeQuantity} ${this.name}!`)
-      this.tradeQuantity = 0
-    },
-  }
 })
 </script>
 
 
 <template>
-  <section>
-    <p>{{name}}: ${{price?.toLocaleString()}} <span v-if="quantity">({{quantity}})</span></p>
-    <div class="actions" v-if="canBuy">
-      <input type="number" v-model="tradeQuantity" min="0" :max="quantity" />
-      <button @click="buy()" :disabled="tradeQuantity <= 0">Buy</button>
-    </div>
-    <div class="actions" v-if="canSell">
-      <input type="number" v-model="tradeQuantity" min="0" :max="quantity" />
-      <button @click="sell()" :disabled="tradeQuantity <= 0">Sell</button>
-    </div>
-  </section>
+  <tr>
+    <td>
+      {{name}}
+    </td>
+    <td v-if="quantity != undefined">
+      {{quantity}}
+    </td>
+    <td>
+      ${{price?.toLocaleString()}}
+    </td>
+    <td>
+      <div class="actions">
+        <button :disabled="price == undefined || price == 0" @click="$emit('order')">{{ transactionType }}</button>
+      </div>
+    </td>
+
+  </tr>
 </template>
 
 
@@ -58,16 +49,4 @@ section {
   align-items: baseline;
 }
 
-p {
-  margin-right: 10px;
-}
-.actions {
-  margin-left: auto;
-}
-
-input[type="number"] {
-  width: 50px;
-  margin-right: 3px;
-  border: 0;
-}
 </style>

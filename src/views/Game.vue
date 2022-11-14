@@ -8,16 +8,28 @@ import { Player } from '../models/Player'
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
 import LocationsBox from '../components/LocationsBox.vue';
+import OrderForm from '../components/OrderForm.vue';
+import { Spice } from '../models/Spice';
 
 export default defineComponent({
   components: {
     InventoryItem,
     StatsBox,
-    LocationsBox
+    LocationsBox,
+    OrderForm
   },
-  data() {
+  data() : {
+    activeSpice:  undefined | Spice,
+    activeTransaction: undefined | TransactionType,
+    currentDay : Date,
+    locations: Array<Location>,
+    currentLocationIndex: number,
+    player: Player
+  } {
     return {
-      currentDay :  new Date('January 1, 1572 12:00:00'),
+      activeSpice: undefined,
+      activeTransaction: undefined,
+      currentDay : new Date('January 1, 1572 12:00:00'),
       locations: [
         new Location('New York'),
         new Location('New Orleans'),
@@ -32,6 +44,24 @@ export default defineComponent({
   computed: {
     currentLocation() {
       return this.locations[this.currentLocationIndex]
+    },
+    minTransaction() {
+      if (!this.activeSpice || !this.activeTransaction) return 0
+      if (this.activeTransaction == 'Buy') {
+        return 1
+      } else if (this.activeTransaction == 'Sell' && this.player.getQuantity(this.activeSpice?.spiceType) > 0) {
+        return 1
+      }
+      return 0
+    },
+    maxTransaction() {
+      if (!this.activeSpice || !this.activeTransaction) return 0
+      if (this.activeTransaction == 'Buy') {
+        return Math.floor(this.player.cash / this.activeSpice?.price)
+      } else if (this.activeTransaction == 'Sell') {
+        return this.player.getQuantity(this.activeSpice?.spiceType)
+      }
+      return 0
     }
   },
   methods: {
@@ -41,14 +71,16 @@ export default defineComponent({
         return
       this.player.buy(spice, quantity, price)
       console.log(`\n!!! ${this.player.name} bought ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}`)
+      this.activeSpice = undefined;
+      this.activeTransaction = undefined;
     },
 
     sell(spice: SpiceType, quantity : number) {
-      if (quantity > this.player.getQuantity(spice))
-        return
       const price = this.currentLocation.getPrice(spice)
       this.player.sell(spice, quantity, price)
       console.log(`\n!!! ${this.player.name} sold ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}`)
+      this.activeSpice = undefined;
+      this.activeTransaction = undefined;
     },
 
     travelTo(index : number) {
@@ -78,6 +110,16 @@ export default defineComponent({
 
 <template>
 
+  <OrderForm
+    v-if="activeSpice != null"
+    :transaction-type="activeTransaction"
+    :spice="activeSpice"
+    :allowed-range="{ min: minTransaction, max: maxTransaction  }"
+    @buy="buy"
+    @sell="sell"
+    @closeForm="activeSpice = undefined"
+  />
+
   <div class="top-row">
     <StatsBox :cash="player.cash" :day="currentDay" />
     <LocationsBox :locations="locations" :currentLocation="currentLocation" @travelTo="travelTo" />
@@ -86,26 +128,48 @@ export default defineComponent({
   <div class="trade-box">
     <section>
       <h4>{{ currentLocation.name }}</h4>
-      <InventoryItem
-        v-for="(item, index) in currentLocation.inventory"
-        :key="`item-${currentLocation.name}-${index}`"
-        :name="item.spiceType"
-        :price="item.price"
-        :canBuy="true"
-        @buy="(qty) => buy(item.spiceType, qty)"
-      />
+      <table>
+        <thead>
+          <tr>
+            <th>Spice</th>
+            <th>Price</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <InventoryItem
+            v-for="(item, index) in currentLocation.inventory"
+            :key="`item-${currentLocation.name}-${index}`"
+            :name="item.spiceType"
+            :price="item.price"
+            transaction-type="Buy"
+            @order="activeSpice = item; activeTransaction = 'Buy'"
+          />
+        </tbody>
+      </table>
     </section>
     <section>
       <h4>Player Inventory</h4>
-      <InventoryItem
-        v-for="(item, index) in player.inventory"
-        :key="`item-${player.name}-${index}`"
-        :name="item.spiceType"
-        :quantity="item.quantity"
-        :price="item.price"
-        :canSell="true"
-        @sell="(qty) => sell(item.spiceType, qty)"
-      />
+      <table>
+        <thead>
+          <tr>
+            <th>Spice</th>
+            <th>Qty</th>
+            <th colspan="2">Avg Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <InventoryItem
+            v-for="(item, index) in player.inventory"
+            :key="`item-${player.name}-${index}`"
+            :name="item.spiceType"
+            :quantity="item.quantity"
+            :price="item.price"
+            transaction-type="Sell"
+            @order="activeSpice = item; activeTransaction = 'Sell'"
+          />
+        </tbody>
+      </table>
       <p v-if="player.inventory.length == 0">Empty</p>
     </section>
   </div>
