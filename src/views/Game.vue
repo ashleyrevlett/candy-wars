@@ -114,6 +114,7 @@ export default defineComponent({
     v-if="activeSpice != null"
     :transaction-type="activeTransaction"
     :spice="activeSpice"
+    :price="currentLocation.getPrice(activeSpice.spiceType)"
     :allowed-range="{ min: minTransaction, max: maxTransaction  }"
     @buy="buy"
     @sell="sell"

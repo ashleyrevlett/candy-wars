@@ -14,6 +14,10 @@ export default defineComponent({
       type: Object as PropType<Spice>,
       required: true
     },
+    price: {
+      type: Number,
+      required: true
+    },
     allowedRange: {
       type: Object as PropType<NumberRange>,
       required: true
@@ -47,7 +51,7 @@ export default defineComponent({
   <section>
     <button class="cancel" @click="$emit('closeForm')">X</button>
     <div>
-      {{ spice.spiceType }}: ${{ spice.price.toLocaleString() }}
+      {{ spice.spiceType }}: ${{ price.toLocaleString() }}
       <form>
         <label for="qty">Qty: </label>
         <input name="qty" type="number" v-model="tradeQuantity" :min="allowedRange.min" :max="allowedRange.max" />
