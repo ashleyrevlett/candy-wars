@@ -1,11 +1,20 @@
-import { Broker } from './Broker'
-import { CityName } from '../types'
+import { LocationSpice } from './LocationSpice'
+import { CityName, SpiceType } from '../types'
 
 export class Location {
   name: CityName
-  broker : Broker
-  constructor(name : CityName, brokerName : string) {
+  inventory : Array<LocationSpice> = [
+    new LocationSpice('Pepper'),
+    new LocationSpice('Cinnamon'),
+    new LocationSpice('Nutmeg'),
+  ]
+
+  constructor(name : CityName) {
     this.name = name
-    this.broker = new Broker(brokerName, 1000)
+  }
+
+  getPrice(spiceName : SpiceType) {
+    const spice = this.inventory.find(spice => spice.spiceType == spiceName)
+    return spice ? spice.price : 0
   }
 }

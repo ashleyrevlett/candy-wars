@@ -4,7 +4,6 @@ import { defineComponent } from 'vue'
 import { TransactionType, SpiceType } from '../types';
 import { Location } from '../models/Location'
 import { Player } from '../models/Player'
-import { Broker } from '../models/Broker'
 
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
@@ -19,13 +18,12 @@ export default defineComponent({
   data() {
     return {
       currentDay :  new Date('January 1, 1572 12:00:00'),
-      // dateOptions: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
       locations: [
-        new Location('New York', 'Jackie B.'),
-        new Location('New Orleans', 'Monique'),
-        new Location('Los Angeles', 'Mel C.'),
-        new Location('Chicago', 'Del H.'),
-        new Location('Detroit', 'Marky M.'),
+        new Location('New York'),
+        new Location('New Orleans'),
+        new Location('Los Angeles'),
+        new Location('Chicago'),
+        new Location('Detroit'),
       ],
       currentLocationIndex: 0,
       player: new Player('Jane', 1000),
@@ -37,66 +35,41 @@ export default defineComponent({
     }
   },
   methods: {
-    getLocation(index : number) {
-      return this.locations[index]
+    buy(spice: SpiceType, quantity : number) {
+      const price = this.currentLocation.getPrice(spice)
+      if (price * quantity > this.player.cash)
+        return
+      this.player.buy(spice, quantity, price)
+      console.log(`\n!!! ${this.player.name} bought ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}`)
     },
-    onTravelTo(index : number) {
+
+    sell(spice: SpiceType, quantity : number) {
+      if (quantity > this.player.getQuantity(spice))
+        return
+      const price = this.currentLocation.getPrice(spice)
+      this.player.sell(spice, quantity, price)
+      console.log(`\n!!! ${this.player.name} sold ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}`)
+    },
+
+    travelTo(index : number) {
       const currentLocation = this.locations[this.currentLocationIndex]
       const newLocation = this.locations[index]
       console.log(`\n!!! Traveling from ${currentLocation.name} to ${newLocation.name}...`)
       this.currentLocationIndex = index
       this.nextDay()
     },
+
     nextDay() {
       console.log("Another day has begun ...")
       this.locations.forEach(location => {
-        location.broker.inventory.forEach(spice => {
+        location.inventory.forEach(spice => {
           spice.simulateTrade()
         });
-        location.broker.randomizeCash()
       });
       this.currentDay.setDate(this.currentDay.getDate() + 1)
       this.currentDay = new Date(this.currentDay) // have to create new date object for vue to detect changes
     },
-    sell(spice: SpiceType, quantity : number) {
-      if (!this.canTrade('Sell', this.currentLocation.broker, spice, quantity))
-        return
-      const price = this.currentLocation.broker.getPrice(spice)
-      this.currentLocation.broker.buy(spice, quantity, price)
-      this.player.sell(spice, quantity, price)
-      console.log(`\n!!! ${this.player.name} sold ${quantity} ${spice} to ${this.currentLocation.broker.name} for a total of $${(quantity * price).toLocaleString()}`)
-    },
-    buy(spice: SpiceType, quantity : number) {
-      if (!this.canTrade('Buy', this.currentLocation.broker, spice, quantity))
-        return
-      const price = this.currentLocation.broker.getPrice(spice)
-      this.currentLocation.broker.sell(spice, quantity, price)
-      this.player.buy(spice, quantity, price)
-      console.log(`\n!!! ${this.player.name} bought ${quantity} ${spice} from ${this.currentLocation.broker.name} for a total of $${(quantity * price).toLocaleString()}`)
-    },
-    canTrade(transaction: TransactionType, broker: Broker, spiceType: SpiceType, quantity: number) {
-      let price = broker.getPrice(spiceType)
-      if (transaction == 'Buy') {
-        if (price * quantity > this.player.cash) {
-          console.log("Player doesn't have enough cash")
-          return false
-        } else if (quantity > broker.getQuantity(spiceType)) {
-          console.log("Broker doesn't have enough spice")
-          return false
-        }
-      } else {
-        if (price * quantity > broker.cash) {
-          console.log("Broker doesn't have enough cash")
-          return false
-        } else if (quantity > this.player.getQuantity(spiceType)) {
-          console.log("Player doesn't have enough spice")
-          return false
-        }
-      }
-      return true
-    }
-  },
-  mounted() {
+
   }
 })
 
@@ -107,20 +80,19 @@ export default defineComponent({
 
   <div class="top-row">
     <StatsBox :cash="player.cash" :day="currentDay" />
-    <LocationsBox :locations="locations" :currentLocation="getLocation(currentLocationIndex)" @travelTo="onTravelTo" />
+    <LocationsBox :locations="locations" :currentLocation="currentLocation" @travelTo="travelTo" />
   </div>
 
   <div class="trade-box">
     <section>
-      <h4>{{ currentLocation.name }} - {{ currentLocation.broker.name }} (${{currentLocation.broker.cash.toLocaleString()}})</h4>
+      <h4>{{ currentLocation.name }}</h4>
       <InventoryItem
-        v-for="(item, index) in currentLocation.broker.inventory"
+        v-for="(item, index) in currentLocation.inventory"
         :key="`item-${currentLocation.name}-${index}`"
-        :name="item.name"
-        :quantity="item.quantity"
+        :name="item.spiceType"
         :price="item.price"
         :canBuy="true"
-        @buy="(qty) => buy(item.name, qty)"
+        @buy="(qty) => buy(item.spiceType, qty)"
       />
     </section>
     <section>
@@ -128,11 +100,11 @@ export default defineComponent({
       <InventoryItem
         v-for="(item, index) in player.inventory"
         :key="`item-${player.name}-${index}`"
-        :name="item.name"
+        :name="item.spiceType"
         :quantity="item.quantity"
         :price="item.price"
         :canSell="true"
-        @sell="(qty) => sell(item.name, qty)"
+        @sell="(qty) => sell(item.spiceType, qty)"
       />
       <p v-if="player.inventory.length == 0">Empty</p>
     </section>

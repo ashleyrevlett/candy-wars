@@ -39,7 +39,7 @@ export default defineComponent({
 
 <template>
   <section>
-    <p>{{name}}: ${{price?.toLocaleString()}} x{{quantity}}</p>
+    <p>{{name}}: ${{price?.toLocaleString()}} <span v-if="quantity">({{quantity}})</span></p>
     <div class="actions" v-if="canBuy">
       <input type="number" v-model="tradeQuantity" min="0" :max="quantity" />
       <button @click="buy()" :disabled="tradeQuantity <= 0">Buy</button>
