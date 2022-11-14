@@ -5,14 +5,10 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   props: {
     day: Date,
-    playerName: String,
-    location: String,
     cash: Number
   },
   setup(props) {
     props.day,
-    props.playerName,
-    props.location,
     props.cash
   }
 })
@@ -22,22 +18,27 @@ export default defineComponent({
 <template>
   <section>
     <div>
-      <p>{{ location }}</p>
       <p>{{ day?.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}}</p>
     </div>
-    <p>{{playerName}}: ${{cash?.toLocaleString()}}</p>
+    <div>
+      <p class="text-green">Cash: ${{cash?.toLocaleString()}}</p>
+      <p class="text-green">Bank: 0</p>
+      <p class="text-red">Debt: 0</p>
+    </div>
   </section>
 </template>
 
 
 <style scoped>
+
 section {
-  display: flex;
-  width: 100%;
+  border: 1px solid white;
+  margin-bottom: 10px;
+  padding: 10px;
 }
 
 p {
-  margin-right: 10px;
+  margin:0
 }
 .actions {
   margin-left: auto;

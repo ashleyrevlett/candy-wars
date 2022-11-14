@@ -55,6 +55,7 @@ export default defineComponent({
 <style scoped>
 section {
   display: flex;
+  align-items: baseline;
 }
 
 p {
@@ -66,5 +67,7 @@ p {
 
 input[type="number"] {
   width: 50px;
+  margin-right: 3px;
+  border: 0;
 }
 </style>

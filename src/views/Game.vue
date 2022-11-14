@@ -1,4 +1,6 @@
 <script lang="ts">
+import { defineComponent } from 'vue'
+
 import { TransactionType, SpiceType } from '../types';
 import { Location } from '../models/Location'
 import { Player } from '../models/Player'
@@ -6,20 +8,24 @@ import { Broker } from '../models/Broker'
 
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
+import LocationsBox from '../components/LocationsBox.vue';
 
-export default {
+export default defineComponent({
   components: {
     InventoryItem,
-    StatsBox
+    StatsBox,
+    LocationsBox
   },
   data() {
     return {
-      currentDay : new Date('January 1, 1572 12:00:00'),
+      currentDay :  new Date('January 1, 1572 12:00:00'),
       // dateOptions: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
       locations: [
         new Location('New York', 'Jackie B.'),
         new Location('New Orleans', 'Monique'),
         new Location('Los Angeles', 'Mel C.'),
+        new Location('Chicago', 'Del H.'),
+        new Location('Detroit', 'Marky M.'),
       ],
       currentLocationIndex: 0,
       player: new Player('Jane', 1000),
@@ -31,7 +37,10 @@ export default {
     }
   },
   methods: {
-    travelTo(index : number) {
+    getLocation(index : number) {
+      return this.locations[index]
+    },
+    onTravelTo(index : number) {
       const currentLocation = this.locations[this.currentLocationIndex]
       const newLocation = this.locations[index]
       console.log(`\n!!! Traveling from ${currentLocation.name} to ${newLocation.name}...`)
@@ -47,6 +56,7 @@ export default {
         location.broker.randomizeCash()
       });
       this.currentDay.setDate(this.currentDay.getDate() + 1)
+      this.currentDay = new Date(this.currentDay) // have to create new date object for vue to detect changes
     },
     sell(spice: SpiceType, quantity : number) {
       if (!this.canTrade('Sell', this.currentLocation.broker, spice, quantity))
@@ -88,16 +98,31 @@ export default {
   },
   mounted() {
   }
-}
+})
 
 
 </script>
 
 <template>
 
+  <div class="top-row">
+    <StatsBox :cash="player.cash" :day="currentDay" />
+    <LocationsBox :locations="locations" :currentLocation="getLocation(currentLocationIndex)" @travelTo="onTravelTo" />
+  </div>
 
-  <StatsBox :cash="player.cash" :day="currentDay" :location="currentLocation.name" :playerName="player.name" />
   <div class="trade-box">
+    <section>
+      <h4>{{ currentLocation.name }} - {{ currentLocation.broker.name }} (${{currentLocation.broker.cash.toLocaleString()}})</h4>
+      <InventoryItem
+        v-for="(item, index) in currentLocation.broker.inventory"
+        :key="`item-${currentLocation.name}-${index}`"
+        :name="item.name"
+        :quantity="item.quantity"
+        :price="item.price"
+        :canBuy="true"
+        @buy="(qty) => buy(item.name, qty)"
+      />
+    </section>
     <section>
       <h4>Player Inventory</h4>
       <InventoryItem
@@ -111,30 +136,22 @@ export default {
       />
       <p v-if="player.inventory.length == 0">Empty</p>
     </section>
-
-    <section>
-      <h4>{{ currentLocation.name }} - {{ currentLocation.broker.name }} (${{currentLocation.broker.cash.toLocaleString()}})</h4>
-      <InventoryItem
-        v-for="(item, index) in currentLocation.broker.inventory"
-        :key="`item-${currentLocation.name}-${index}`"
-        :name="item.name"
-        :quantity="item.quantity"
-        :price="item.price"
-        :canBuy="true"
-        @buy="(qty) => buy(item.name, qty)"
-      />
-    </section>
   </div>
 
-  <h4>Travel to...</h4>
-  <button v-for="(location, index) in locations" :key="location.name" :disabled="currentLocation.name == location.name" @click="travelTo(index)">{{ location.name }}</button>
-  <br />
   <button @click="nextDay()">Wait a day</button>
 
 </template>
 
 
 <style scoped>
+
+.top-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr;
+  grid-column-gap: 10px;
+  grid-row-gap: 0px;
+}
 .trade-box {
   width: 100%;
   display: grid;
@@ -142,10 +159,11 @@ export default {
   grid-template-rows: 1fr;
   grid-column-gap: 10px;
   grid-row-gap: 0px;
+  margin-bottom: 10px;
 }
 
 .trade-box > section {
-  border: 1px solid black;
-  padding: 1rem;
+  border: 1px solid white;
+  padding: 0 1rem;
 }
 </style>
