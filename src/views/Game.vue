@@ -48,7 +48,7 @@ export default defineComponent({
     minTransaction() {
       if (!this.activeSpice || !this.activeTransaction) return 0
       if (this.activeTransaction == 'Buy') {
-        return 1
+        return Math.min(this.player.inventorySpace, 1)
       } else if (this.activeTransaction == 'Sell' && this.player.getQuantity(this.activeSpice?.spiceType) > 0) {
         return 1
       }
@@ -57,7 +57,8 @@ export default defineComponent({
     maxTransaction() {
       if (!this.activeSpice || !this.activeTransaction) return 0
       if (this.activeTransaction == 'Buy') {
-        return Math.floor(this.player.cash / this.activeSpice?.price)
+        const budgetMax = Math.floor(this.player.cash / this.activeSpice?.price)
+        return Math.min(this.player.inventorySpace, budgetMax)
       } else if (this.activeTransaction == 'Sell') {
         return this.player.getQuantity(this.activeSpice?.spiceType)
       }
@@ -150,7 +151,7 @@ export default defineComponent({
       </table>
     </section>
     <section>
-      <h4>Player Inventory</h4>
+      <h4>Player Inventory ({{ 100 - player.inventorySpace }} / 100 )</h4>
       <table>
         <thead>
           <tr>

@@ -55,7 +55,7 @@ export default defineComponent({
       <form>
         <label for="qty">Qty: </label>
         <input name="qty" type="number" v-model="tradeQuantity" :min="allowedRange.min" :max="allowedRange.max" />
-        <button type="submit" @click="(e) => { e.preventDefault(); transact() }">{{ transactionType }}</button>
+        <button :disabled="allowedRange.max == 0" type="submit" @click="(e) => { e.preventDefault(); transact() }">{{ transactionType }}</button>
       </form>
       <p>Max you can {{ transactionType?.toLowerCase() }}: <a href="/#" @click="(e) => { e.preventDefault(); tradeQuantity = allowedRange.max }">{{ allowedRange.max }}</a></p>
     </div>

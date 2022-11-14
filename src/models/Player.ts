@@ -5,10 +5,12 @@ export class Player {
   name : string
   cash : number
   inventory : Array<PlayerSpice> = []
+  inventorySpace: number
 
   constructor(name: string, cash: number){
     this.name = name
     this.cash = cash
+    this.inventorySpace = 100
     SPICE_ORDER.forEach(spice => {
       this.inventory.push(new PlayerSpice(spice, 0, 0))
     });
@@ -24,18 +26,15 @@ export class Player {
     if (!mySpice || quantity > mySpice.quantity)
       return
     this.cash += quantity * price
+    this.inventorySpace += quantity
     mySpice.quantity -= quantity
     if (mySpice.quantity == 0) mySpice.price = 0
   }
 
   buy (spiceName : SpiceType, quantity : number, price : number) {
-    let mySpice = this.inventory.find(spice => spice.spiceType == spiceName)
-    if (!mySpice) {
-      mySpice = new PlayerSpice(spiceName, quantity, price)
-      this.inventory.push(mySpice)
-    } else {
-      mySpice.addQuantity(quantity, price)
-    }
+    const mySpice = this.inventory.find(spice => spice.spiceType == spiceName)
+    mySpice?.addQuantity(quantity, price)
     this.cash -= quantity * price
+    this.inventorySpace -= quantity
   }
 }
