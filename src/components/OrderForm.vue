@@ -48,7 +48,7 @@ export default defineComponent({
 
 
 <template>
-  <section>
+  <section class="modal">
     <button class="cancel" @click="$emit('closeForm')">X</button>
     <div>
       {{ spice.spiceType }}: ${{ price.toLocaleString() }}
@@ -66,18 +66,12 @@ export default defineComponent({
 <style scoped>
 
 section {
-  border: 1px solid white;
   height: 200px;
   width: 320px;
-  background-color: black;
   display: flex;
   flex-direction: column;
-  position: fixed;
-  left: 50%;
   margin-left: -160px;
   margin-top: 100px;
-  z-index: 1;
-  box-shadow: 5px 5px rgba(66, 66, 66,.8);
 }
 
 button.cancel {

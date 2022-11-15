@@ -5,11 +5,15 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   props: {
     day: Date,
-    cash: Number
+    cash: Number,
+    debt: Number,
+    bank: Number
   },
   setup(props) {
     props.day,
     props.cash
+    props.debt
+    props.bank
   }
 })
 </script>
@@ -22,8 +26,8 @@ export default defineComponent({
     </div>
     <div>
       <p class="text-green">Cash: ${{cash?.toLocaleString()}}</p>
-      <p class="text-green">Bank: 0</p>
-      <p class="text-red">Debt: 0</p>
+      <p class="text-green">Bank: ${{bank?.toLocaleString()}}</p>
+      <p class="text-red">Debt: ${{debt?.toLocaleString()}}</p>
     </div>
   </section>
 </template>

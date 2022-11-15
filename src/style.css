@@ -100,3 +100,12 @@ input[type="number"] {
   margin-right: 3px;
   border: 0;
 }
+
+.modal {
+  border: 1px solid white;
+  background-color: black;
+  z-index: 1;
+  box-shadow: 10px 10px rgba(33, 33, 33, .8);
+  position: fixed;
+  left: 50%;
+}

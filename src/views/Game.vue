@@ -4,29 +4,35 @@ import { defineComponent } from 'vue'
 import { TransactionType, SpiceType } from '../types';
 import { Location } from '../models/Location'
 import { Player } from '../models/Player'
+import { Spice } from '../models/Spice';
 
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
 import LocationsBox from '../components/LocationsBox.vue';
 import OrderForm from '../components/OrderForm.vue';
-import { Spice } from '../models/Spice';
+import LoanForm from '../components/LoanForm.vue'
 
 export default defineComponent({
   components: {
     InventoryItem,
     StatsBox,
     LocationsBox,
-    OrderForm
+    OrderForm,
+    LoanForm
   },
   data() : {
+    showLoanForm: boolean
     activeSpice:  undefined | Spice,
     activeTransaction: undefined | TransactionType,
     currentDay : Date,
     locations: Array<Location>,
     currentLocationIndex: number,
-    player: Player
+    player: Player,
+    debt: number,
+    bank: number,
   } {
     return {
+      showLoanForm: false,
       activeSpice: undefined,
       activeTransaction: undefined,
       currentDay : new Date('January 1, 1572 12:00:00'),
@@ -39,6 +45,8 @@ export default defineComponent({
       ],
       currentLocationIndex: 0,
       player: new Player('Jane', 1000),
+      debt: 5000,
+      bank: 0
     }
   },
   computed: {
@@ -103,6 +111,16 @@ export default defineComponent({
       this.currentDay = new Date(this.currentDay) // have to create new date object for vue to detect changes
     },
 
+    payLoan(debtPayment : number) {
+      debtPayment = Math.min(this.debt, Math.min(debtPayment, this.player.cash))
+      this.debt -= debtPayment
+      this.player.cash -= debtPayment
+      this.showLoanForm = false
+    },
+
+    gotoBank() {
+    }
+
   }
 })
 
@@ -110,6 +128,14 @@ export default defineComponent({
 </script>
 
 <template>
+
+  <LoanForm
+    v-if="showLoanForm"
+    :debt="debt"
+    :max-payment="Math.min(debt, player.cash)"
+    @payLoan="payLoan"
+    @closeForm="showLoanForm = false"
+  />
 
   <OrderForm
     v-if="activeSpice != null"
@@ -123,7 +149,7 @@ export default defineComponent({
   />
 
   <div class="top-row">
-    <StatsBox :cash="player.cash" :day="currentDay" />
+    <StatsBox :cash="player.cash" :debt="debt" :bank="bank" :day="currentDay" />
     <LocationsBox :locations="locations" :currentLocation="currentLocation" @travelTo="travelTo" />
   </div>
 
@@ -176,7 +202,11 @@ export default defineComponent({
     </section>
   </div>
 
-  <button @click="nextDay()">Wait a day</button>
+  <div class="actions">
+    <button @click="nextDay()">Wait a day</button>
+    <button @click="showLoanForm = true">Pay Loan</button>
+    <button @click="gotoBank()">Go to Bank</button>
+  </div>
 
 </template>
 
@@ -203,5 +233,9 @@ export default defineComponent({
 .trade-box > section {
   border: 1px solid white;
   padding: 0 1rem;
+}
+
+.actions button {
+  margin-right: 10px;
 }
 </style>
