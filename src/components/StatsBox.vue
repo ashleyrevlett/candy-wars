@@ -1,33 +1,19 @@
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { computed } from 'vue'
 import SETTINGS from '../settings'
 
-export default defineComponent({
-  props: {
-    day: Date,
-    cash: Number,
-    debt: Number,
-    bank: Number,
-    daysSinceStart: Number
-  },
-  setup(props) {
-    props.day,
-    props.cash
-    props.debt
-    props.bank
-    props.daysSinceStart
-  },
-  computed: {
-    maxDays() {
-      return SETTINGS.maxDays
-    },
-  }
+const props = defineProps({
+  day: Date,
+  cash: Number,
+  debt: Number,
+  bank: Number,
+  daysSinceStart: Number
 })
 
+const maxDays = computed(() => SETTINGS.maxDays)
 
 </script>
-
 
 <template>
   <section>

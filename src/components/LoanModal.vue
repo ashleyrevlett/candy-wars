@@ -1,33 +1,28 @@
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 
-export default defineComponent({
-  props: {
-    debt: {
+const props = defineProps({
+  debt: {
       type: Number,
       required: true
     },
     maxPayment: {
       type: Number,
       required: true
-    },
-  },
-  setup(props) {
-    props.debt,
-    props.maxPayment
-  },
-  data() {
-    return {
-      debtPayment : 0,
     }
-  },
-  methods: {
-    payNow() {
-      this.$emit('payLoan', this.debtPayment)
-    }
-  }
 })
+
+const debtPayment = ref(0)
+
+const emit = defineEmits<{
+  (e: 'closeForm'): void
+  (e: 'payLoan', debtPayment: number): void
+}>()
+
+function payNow() {
+    emit('payLoan', debtPayment.value)
+}
 </script>
 
 

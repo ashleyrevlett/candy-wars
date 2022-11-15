@@ -1,24 +1,15 @@
-<script lang="ts">
-import { defineComponent, PropType } from 'vue'
+<script setup lang="ts">
+import { PropType } from 'vue'
 import { TransactionType } from '../types'
 
-export default defineComponent({
-  props: {
-    name: String,
-    quantity: Number,
-    price: Number,
-    disabled: Boolean,
-    transactionType: {
-      type: String as PropType<TransactionType>,
-        required: true
-    },
-  },
-  setup(props) {
-    props.name,
-    props.quantity,
-    props.price,
-    props.transactionType,
-    props.disabled
+const props = defineProps({
+  name: String,
+  quantity: Number,
+  price: Number,
+  disabled: Boolean,
+  transactionType: {
+    type: String as PropType<TransactionType>,
+    required: true
   },
 })
 </script>

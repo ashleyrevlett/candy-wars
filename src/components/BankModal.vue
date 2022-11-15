@@ -1,9 +1,8 @@
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 
-export default defineComponent({
-  props: {
+const props = defineProps({
     maxDeposit: {
       type: Number,
       required: true
@@ -12,23 +11,14 @@ export default defineComponent({
       type: Number,
       required: true
     }
-  },
-  setup(props) {
-    props.maxDeposit
-  },
-  data() {
-    return {
-      deposit : 0,
-      withdrawal : 0,
-      doDeposit: false,
-      doWithdrawal: false,
-    }
-  },
-  methods: {
-  }
 })
-</script>
 
+const deposit = ref(0)
+const withdrawal = ref(0)
+const doDeposit = ref(false)
+const doWithdrawal = ref(false)
+
+</script>
 
 <template>
   <section class="modal">

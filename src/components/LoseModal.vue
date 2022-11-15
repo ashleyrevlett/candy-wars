@@ -1,38 +1,27 @@
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { computed } from 'vue'
 import SETTINGS from '../settings'
 
-export default defineComponent({
-  props: {
-    totalDays: {
-      type: Number,
-      required: true
-    },
-    debtRemaining: {
-      type: Number,
-      required: true
-    },
-    endWorth: {
-      type: Number,
-      required: true
-    },
+const props = defineProps({
+  totalDays: {
+    type: Number,
+    required: true
   },
-  setup(props) {
-    props.totalDays,
-    props.endWorth
+  debtRemaining: {
+    type: Number,
+    required: true
   },
-  computed: {
-    startingDebt() {
-      return SETTINGS.debt
-    },
-    debtPaid() {
-      return Math.max(0, SETTINGS.debt - this.debtRemaining)
-    }
-  }
+  endWorth: {
+    type: Number,
+    required: true
+  },
 })
-</script>
 
+const startingDebt = computed(() => SETTINGS.debt)
+const debtPaid = computed(() => Math.max(0, SETTINGS.debt - props.debtRemaining))
+
+</script>
 
 <template>
   <div>
@@ -51,9 +40,7 @@ export default defineComponent({
   </div>
 </template>
 
-
 <style scoped>
-
 section {
   height: 250px;
   width: 400px;
@@ -86,5 +73,4 @@ p {
 button {
   margin: 5px 5px 0 5px;
 }
-
 </style>

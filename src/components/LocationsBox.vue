@@ -1,25 +1,22 @@
-<script lang="ts">
-import { defineComponent, PropType } from 'vue'
+<script setup lang="ts">
+import { PropType } from 'vue'
 import { Location } from '../models/Location'
 
-export default defineComponent({
-  props: {
-    locations: {
-      // provide more specific type to `Object`
-      type: Array as PropType<Array<Location>>,
-      required: true
-    },
-    currentLocation: {
-      // provide more specific type to `Object`
-      type: Location,
-      required: true
-    }
+const props = defineProps({
+  locations: {
+    type: Array as PropType<Array<Location>>,
+    required: true
   },
-  setup(props) {
-    props.locations,
-    props.currentLocation
+  currentLocation: {
+    type: Location,
+    required: true
   }
 })
+
+const emit = defineEmits<{
+  (e: 'travelTo', index: number): void
+}>()
+
 </script>
 
 
@@ -31,7 +28,7 @@ export default defineComponent({
 
     <p class="text-center bold">Travel to...</p>
     <div class="button-grid">
-      <button v-for="(location, index) in locations" :key="location.name" :disabled="currentLocation.name == location.name" @click="$emit('travelTo', index)" >{{ location.name }}</button>
+      <button v-for="(location, index) in locations" :key="location.name" :disabled="currentLocation.name == location.name" @click="emit('travelTo', index)" >{{ location.name }}</button>
     </div>
     <br />
 

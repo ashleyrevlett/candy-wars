@@ -1,29 +1,26 @@
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { computed } from 'vue'
 import SETTINGS from '../settings'
 
-export default defineComponent({
-  props: {
-    totalDays: {
-      type: Number,
-      required: true
-    },
-    endWorth: {
-      type: Number,
-      required: true
-    },
+const props = defineProps({
+  totalDays: {
+    type: Number,
+    required: true
   },
-  setup(props) {
-    props.totalDays,
-    props.endWorth
+  endWorth: {
+    type: Number,
+    required: true
   },
-  computed: {
-    debt() {
-      return SETTINGS.debt
-    },
-  }
 })
+
+const debt = computed(() =>  SETTINGS.debt)
+
+const emit = defineEmits<{
+  (e: 'restart'): void
+  (e: 'closeForm'): void
+}>()
+
 </script>
 
 
@@ -37,8 +34,8 @@ export default defineComponent({
         <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
       </div>
       <div class="flex">
-        <button @click.prevent="$emit('restart')">New Game</button>
-        <button @click.prevent="$emit('closeForm')">Keep Playing</button>
+        <button @click.prevent="emit('restart')">New Game</button>
+        <button @click.prevent="emit('closeForm')">Keep Playing</button>
       </div>
     </section>
     <div class="modal-overlay-bg"></div>

@@ -1,20 +1,11 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 
 import Intro from './views/Intro.vue'
 import Game from './views/Game.vue'
 
-export default defineComponent({
-  components: {
-    Intro,
-    Game
-  },
-  data() {
-    return {
-      showIntro: true,
-    }
-  }
-})
+let showIntro = ref(true)
+
 </script>
 
 <template>

@@ -1,19 +1,19 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
 import SETTINGS from '../settings';
 import { LocationSpice } from '../models/LocationSpice'
 
-export default defineComponent({
-  methods: {
-    getSpices() {
-      const spices : Array<LocationSpice> = Array();
-      SETTINGS.spiceOrder.forEach(spice => {
-        spices.push(new LocationSpice(spice))
-      });
-      return spices
-    },
-  }
-})
+function getSpices() {
+  const spices : Array<LocationSpice> = Array();
+  SETTINGS.spiceOrder.forEach(spice => {
+    spices.push(new LocationSpice(spice))
+  });
+  return spices
+}
+
+const emit = defineEmits<{
+  (e: 'start'): void
+}>()
+
 </script>
 
 <template>
@@ -24,7 +24,7 @@ export default defineComponent({
     <ul>
       <li v-for="spice in getSpices()">{{ spice.spiceType }}: ${{spice.priceRange.min}} – {{spice.priceRange.max}} </li>
     </ul>
-    <button @click="$emit('start')">Start Game</button>
+    <button @click="emit('start')">Start Game</button>
   </main>
 
 
