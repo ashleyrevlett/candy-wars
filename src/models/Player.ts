@@ -16,13 +16,23 @@ export class Player {
     });
   }
 
+  getSpice(spiceName : SpiceType) {
+    const mySpice = this.inventory.find(spice => spice.spiceType == spiceName)
+    return mySpice ? mySpice : null
+  }
+
   getQuantity(spiceName : SpiceType) {
-    const spice = this.inventory.find(spice => spice.spiceType == spiceName)
-    return spice ? spice.quantity : 0
+    const mySpice = this.getSpice(spiceName)
+    return mySpice ? mySpice.quantity : 0
+  }
+
+  getPrice(spiceName : SpiceType) {
+    const mySpice = this.getSpice(spiceName)
+    return mySpice ? mySpice.price : 0
   }
 
   sell (spiceName : SpiceType, quantity : number, price : number) {
-    const mySpice = this.inventory.find(spice => spice.spiceType == spiceName)
+    const mySpice = this.getSpice(spiceName)
     if (!mySpice || quantity > mySpice.quantity)
       return
     this.cash += quantity * price
@@ -32,7 +42,7 @@ export class Player {
   }
 
   buy (spiceName : SpiceType, quantity : number, price : number) {
-    const mySpice = this.inventory.find(spice => spice.spiceType == spiceName)
+    const mySpice = this.getSpice(spiceName)
     mySpice?.addQuantity(quantity, price)
     this.cash -= quantity * price
     this.inventorySpace -= quantity

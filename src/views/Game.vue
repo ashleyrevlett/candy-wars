@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, nextTick} from 'vue'
 
 import { TransactionType, SpiceType } from '../types';
 import { Location } from '../models/Location'
@@ -33,6 +33,7 @@ export default defineComponent({
     player: Player,
     debt: number,
     bank: number,
+    messages: Array<string>,
   } {
     return {
       showBankForm: false,
@@ -50,7 +51,8 @@ export default defineComponent({
       currentLocationIndex: 0,
       player: new Player('Jane', 1000),
       debt: 5000,
-      bank: 0
+      bank: 0,
+      messages: []
     }
   },
   computed: {
@@ -83,15 +85,17 @@ export default defineComponent({
       if (price * quantity > this.player.cash)
         return
       this.player.buy(spice, quantity, price)
-      console.log(`\n!!! ${this.player.name} bought ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}`)
+      this.logMessage(`Bought ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}`)
       this.activeSpice = undefined;
       this.activeTransaction = undefined;
     },
 
     sell(spice: SpiceType, quantity : number) {
       const price = this.currentLocation.getPrice(spice)
+      const profit = (quantity * price) - (this.player.getPrice(spice) * quantity)
+      const msg = profit >= 0 ? `<span class="text-green">Profit: $${profit.toLocaleString()}</span>` : `<span class="text-red">Loss: $${Math.abs(profit).toLocaleString()}</span>`
       this.player.sell(spice, quantity, price)
-      console.log(`\n!!! ${this.player.name} sold ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}`)
+      this.logMessage(`Sold ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}. ${msg}`)
       this.activeSpice = undefined;
       this.activeTransaction = undefined;
     },
@@ -99,13 +103,12 @@ export default defineComponent({
     travelTo(index : number) {
       const currentLocation = this.locations[this.currentLocationIndex]
       const newLocation = this.locations[index]
-      console.log(`\n!!! Traveling from ${currentLocation.name} to ${newLocation.name}...`)
       this.currentLocationIndex = index
+      this.logMessage(`Traveled to ${newLocation.name}`)
       this.nextDay()
     },
 
     nextDay() {
-      console.log("Another day has begun ...")
       this.locations.forEach(location => {
         location.inventory.forEach(spice => {
           spice.simulateTrade()
@@ -121,6 +124,9 @@ export default defineComponent({
       this.debt -= debtPayment
       this.player.cash -= debtPayment
       this.showLoanForm = false
+      this.logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
+      if (this.debt == 0)
+        this.logMessage(`Loan paid off!`)
     },
 
     makeDeposit(deposit : number) {
@@ -128,6 +134,7 @@ export default defineComponent({
       this.bank += deposit
       this.player.cash -= deposit
       this.showBankForm = false
+      this.logMessage(`Deposited $${deposit.toLocaleString()} in bank`)
     },
 
     makeWithdrawal(withdrawal: number) {
@@ -135,9 +142,20 @@ export default defineComponent({
       this.bank -= withdrawal
       this.player.cash += withdrawal
       this.showBankForm = false
+      this.logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
+    },
+
+    async logMessage(message: string) {
+      this.messages.push(message)
+      await nextTick()
+      const lastP = (this.$refs.messageBox as any).lastElementChild
+      lastP?.scrollIntoView({behavior: "smooth", block: "end"});
     }
 
-  }
+  },
+  mounted() {
+    this.logMessage(`Started game...`)
+  },
 })
 
 
@@ -227,6 +245,10 @@ export default defineComponent({
     </section>
   </div>
 
+  <div ref="messageBox" class="messageBox">
+    <p v-for="msg in messages" v-html="msg"></p>
+  </div>
+
   <div class="actions">
     <button @click.prevent="nextDay(); showLoanForm=false; showBankForm=false; activeSpice = undefined">Wait a day</button>
     <button @click.prevent="showLoanForm=true; showBankForm=false; activeSpice = undefined">Pay Loan</button>
@@ -263,4 +285,20 @@ export default defineComponent({
 .actions button {
   margin-right: 10px;
 }
+
+.messageBox {
+  border: 1px solid white;
+  height: 50px;
+  margin-bottom: 10px;
+  padding: 10px;
+  overflow-y:scroll;
+  padding-bottom: 5px;
+}
+
+.messageBox p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
 </style>

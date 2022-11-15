@@ -24,7 +24,6 @@ export default defineComponent({
   },
   methods: {
     payNow() {
-      console.log("paying!")
       this.$emit('payLoan', this.debtPayment)
     }
   }

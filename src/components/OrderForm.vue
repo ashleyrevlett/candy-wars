@@ -37,9 +37,7 @@ export default defineComponent({
     transact() {
       if (!this.transactionType) return
       this.tradeQuantity = Math.min(this.allowedRange.max, this.tradeQuantity)
-
       this.$emit(this.transactionType.toLowerCase(), this.spice.spiceType, this.tradeQuantity)
-      console.log(`${this.transactionType.toLowerCase()} ${this.tradeQuantity} ${this.spice.spiceType}!`)
       this.tradeQuantity = this.allowedRange.min
     },
   }
