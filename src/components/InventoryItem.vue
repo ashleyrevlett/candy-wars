@@ -7,6 +7,7 @@ export default defineComponent({
     name: String,
     quantity: Number,
     price: Number,
+    disabled: Boolean,
     transactionType: {
       type: String as PropType<TransactionType>,
         required: true
@@ -16,7 +17,8 @@ export default defineComponent({
     props.name,
     props.quantity,
     props.price,
-    props.transactionType
+    props.transactionType,
+    props.disabled
   },
 })
 </script>
@@ -35,7 +37,7 @@ export default defineComponent({
     </td>
     <td>
       <div class="actions">
-        <button :disabled="price == undefined || price == 0" @click="$emit('order')">{{ transactionType }}</button>
+        <button :disabled="disabled || price == undefined || price == 0" @click="$emit('order')">{{ transactionType }}</button>
       </div>
     </td>
 

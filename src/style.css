@@ -42,11 +42,12 @@ button {
   background-color: #1a1a1a;
   color: white;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color color 0.25s;
 }
 
 button:not(:disabled):hover {
   border-color: rgb(0, 255, 0);
+  color: rgb(0, 255, 0);
 }
 button:focus,
 button:focus-visible {

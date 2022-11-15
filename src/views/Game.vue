@@ -73,7 +73,9 @@ export default defineComponent({
     daysSinceStart() {
       const startDate = SETTINGS.startDate
       const time_difference = this.currentDay.getTime() - startDate.getTime();
-      return time_difference / (1000 * 3600 * 24)
+      let days_difference = Math.ceil(time_difference / (1000 * 3600 * 24))
+      days_difference = startDate == this.currentDay ? 1 : days_difference + 2
+      return days_difference
     }
   },
   methods: {
@@ -125,7 +127,7 @@ export default defineComponent({
       });
       this.currentDay.setDate(this.currentDay.getDate() + 1)
       this.currentDay = new Date(this.currentDay) // have to create new date object for vue to detect changes
-      this.debt += Math.floor(this.debt * 0.0005)
+      this.debt += Math.floor(this.debt * SETTINGS.debt_apr)
     },
 
     payLoan(debtPayment : number) {
@@ -212,7 +214,13 @@ export default defineComponent({
   />
 
   <div class="top-row">
-    <StatsBox :cash="player.cash" :debt="debt" :bank="bank" :day="currentDay" />
+    <StatsBox
+      :cash="player.cash"
+      :debt="debt"
+      :bank="bank"
+      :day="currentDay"
+      :daysSinceStart="daysSinceStart"
+    />
     <LocationsBox
       :locations="locations"
       :currentLocation="locations[currentLocationIndex]"
@@ -236,6 +244,7 @@ export default defineComponent({
             :key="`item-${currentLocation.name}-${index}`"
             :name="item.spiceType"
             :price="item.price"
+            :disabled="player.inventorySpace == 0 || player.cash < item.price"
             transaction-type="Buy"
             @order="activeSpice = item; gameState='Buy'"
           />

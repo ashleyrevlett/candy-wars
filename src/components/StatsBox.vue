@@ -1,28 +1,42 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import SETTINGS from '../settings'
 
 export default defineComponent({
   props: {
     day: Date,
     cash: Number,
     debt: Number,
-    bank: Number
+    bank: Number,
+    daysSinceStart: Number
   },
   setup(props) {
     props.day,
     props.cash
     props.debt
     props.bank
+    props.daysSinceStart
+  },
+  computed: {
+    maxDays() {
+      return SETTINGS.maxDays
+    },
   }
 })
+
+
 </script>
 
 
 <template>
   <section>
     <div>
-      <p>{{ day?.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}}</p>
+      <p>
+        <strong>{{ day?.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}}</strong><br />
+        Day {{ daysSinceStart }} of {{ maxDays }}
+      </p>
+
     </div>
     <div>
       <p class="text-green">Cash: ${{cash?.toLocaleString()}}</p>
