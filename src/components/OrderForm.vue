@@ -2,12 +2,12 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { Spice } from '../models/Spice';
-import { NumberRange, TransactionType } from '../types'
+import { NumberRange, GameState } from '../types'
 
 export default defineComponent({
   props: {
     transactionType: {
-      type: String as PropType<TransactionType>,
+      type: String as PropType<GameState>,
       required: false
     },
     spice: {

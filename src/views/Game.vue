@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, nextTick} from 'vue'
 
-import { TransactionType, SpiceType } from '../types';
+import { SpiceType, GameState } from '../types';
 import { Location } from '../models/Location'
 import { Player } from '../models/Player'
 import { Spice } from '../models/Spice';
@@ -23,10 +23,8 @@ export default defineComponent({
     BankForm,
   },
   data() : {
-    showBankForm: boolean
-    showLoanForm: boolean
+    gameState: GameState
     activeSpice:  undefined | Spice,
-    activeTransaction: undefined | TransactionType,
     currentDay : Date,
     locations: Array<Location>,
     currentLocationIndex: number,
@@ -36,10 +34,8 @@ export default defineComponent({
     messages: Array<string>,
   } {
     return {
-      showBankForm: false,
-      showLoanForm: false,
+      gameState: 'Default',
       activeSpice: undefined,
-      activeTransaction: undefined,
       currentDay : new Date('January 1, 1572 12:00:00'),
       locations: [
         new Location('New York'),
@@ -60,20 +56,20 @@ export default defineComponent({
       return this.locations[this.currentLocationIndex]
     },
     minTransaction() {
-      if (!this.activeSpice || !this.activeTransaction) return 0
-      if (this.activeTransaction == 'Buy') {
+      if (!this.activeSpice) return 0
+      if (this.gameState == 'Buy') {
         return Math.min(this.player.inventorySpace, 1)
-      } else if (this.activeTransaction == 'Sell' && this.player.getQuantity(this.activeSpice?.spiceType) > 0) {
+      } else if (this.gameState == 'Sell' && this.player.getQuantity(this.activeSpice?.spiceType) > 0) {
         return 1
       }
       return 0
     },
     maxTransaction() {
-      if (!this.activeSpice || !this.activeTransaction) return 0
-      if (this.activeTransaction == 'Buy') {
+      if (!this.activeSpice) return 0
+      if (this.gameState == 'Buy') {
         const budgetMax = Math.floor(this.player.cash / this.activeSpice?.price)
         return Math.min(this.player.inventorySpace, budgetMax)
-      } else if (this.activeTransaction == 'Sell') {
+      } else if (this.gameState == 'Sell') {
         return this.player.getQuantity(this.activeSpice?.spiceType)
       }
       return 0
@@ -87,7 +83,7 @@ export default defineComponent({
       this.player.buy(spice, quantity, price)
       this.logMessage(`Bought ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}`)
       this.activeSpice = undefined;
-      this.activeTransaction = undefined;
+      this.gameState = 'Default';
     },
 
     sell(spice: SpiceType, quantity : number) {
@@ -97,11 +93,10 @@ export default defineComponent({
       this.player.sell(spice, quantity, price)
       this.logMessage(`Sold ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}. ${msg}`)
       this.activeSpice = undefined;
-      this.activeTransaction = undefined;
+      this.gameState = 'Default';
     },
 
     travelTo(index : number) {
-      const currentLocation = this.locations[this.currentLocationIndex]
       const newLocation = this.locations[index]
       this.currentLocationIndex = index
       this.logMessage(`Traveled to ${newLocation.name}`)
@@ -123,17 +118,17 @@ export default defineComponent({
       debtPayment = Math.min(this.debt, Math.min(debtPayment, this.player.cash))
       this.debt -= debtPayment
       this.player.cash -= debtPayment
-      this.showLoanForm = false
       this.logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
       if (this.debt == 0)
-        this.logMessage(`Loan paid off!`)
+      this.logMessage(`Loan paid off!`)
+      this.gameState = 'Default'
     },
 
     makeDeposit(deposit : number) {
       deposit = Math.min(deposit, this.player.cash)
       this.bank += deposit
       this.player.cash -= deposit
-      this.showBankForm = false
+      this.gameState = 'Default'
       this.logMessage(`Deposited $${deposit.toLocaleString()} in bank`)
     },
 
@@ -141,7 +136,7 @@ export default defineComponent({
       withdrawal = Math.min(withdrawal, this.bank)
       this.bank -= withdrawal
       this.player.cash += withdrawal
-      this.showBankForm = false
+      this.gameState = 'Default'
       this.logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
     },
 
@@ -164,31 +159,31 @@ export default defineComponent({
 <template>
 
   <BankForm
-    v-if="showBankForm"
+    v-if="gameState == 'Bank'"
     :max-deposit="player.cash"
     :max-withdrawal="bank"
     @deposit="makeDeposit"
     @withdrawal="makeWithdrawal"
-    @closeForm="showBankForm = false"
+    @closeForm="gameState = 'Default'"
   />
 
   <LoanForm
-    v-if="showLoanForm"
+    v-if="gameState == 'Loan'"
     :debt="debt"
     :max-payment="Math.min(debt, player.cash)"
     @payLoan="payLoan"
-    @closeForm="showLoanForm = false"
+    @closeForm="gameState = 'Default'"
   />
 
   <OrderForm
-    v-if="activeSpice != null"
-    :transaction-type="activeTransaction"
+    v-if="(gameState == 'Buy' || gameState == 'Sell') && activeSpice != null"
+    :transaction-type="gameState"
     :spice="activeSpice"
     :price="currentLocation.getPrice(activeSpice.spiceType)"
     :allowed-range="{ min: minTransaction, max: maxTransaction  }"
     @buy="buy"
     @sell="sell"
-    @closeForm="activeSpice = undefined"
+    @closeForm="activeSpice = undefined; gameState='Default'"
   />
 
   <div class="top-row">
@@ -214,7 +209,7 @@ export default defineComponent({
             :name="item.spiceType"
             :price="item.price"
             transaction-type="Buy"
-            @order="activeSpice = item; activeTransaction = 'Buy'"
+            @order="activeSpice = item; gameState='Buy'"
           />
         </tbody>
       </table>
@@ -237,7 +232,7 @@ export default defineComponent({
             :quantity="item.quantity"
             :price="item.price"
             transaction-type="Sell"
-            @order="activeSpice = item; activeTransaction = 'Sell'"
+            @order="activeSpice = item; gameState = 'Sell'"
           />
         </tbody>
       </table>
@@ -250,9 +245,9 @@ export default defineComponent({
   </div>
 
   <div class="actions">
-    <button @click.prevent="nextDay(); showLoanForm=false; showBankForm=false; activeSpice = undefined">Wait a day</button>
-    <button @click.prevent="showLoanForm=true; showBankForm=false; activeSpice = undefined">Pay Loan</button>
-    <button @click.prevent="showBankForm=true; showLoanForm=false; activeSpice = undefined ">Visit Bank</button>
+    <button @click.prevent="nextDay(); gameState='Default'; logMessage('Waited a day')">Wait a day</button>
+    <button @click.prevent="gameState='Loan'">Pay Loan</button>
+    <button @click.prevent="gameState='Bank'">Visit Bank</button>
   </div>
 
 </template>
