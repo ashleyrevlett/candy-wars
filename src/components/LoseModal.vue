@@ -9,6 +9,10 @@ export default defineComponent({
       type: Number,
       required: true
     },
+    debtRemaining: {
+      type: Number,
+      required: true
+    },
     endWorth: {
       type: Number,
       required: true
@@ -19,9 +23,12 @@ export default defineComponent({
     props.endWorth
   },
   computed: {
-    debt() {
+    startingDebt() {
       return SETTINGS.debt
     },
+    debtPaid() {
+      return Math.max(0, SETTINGS.debt - this.debtRemaining)
+    }
   }
 })
 </script>
@@ -31,14 +38,13 @@ export default defineComponent({
   <div>
     <section class="modal">
       <div class="text-center">
-        <h3>Congratulations!</h3>
-        <p>You have successfully paid off your loan within the time limit!</p>
-        <p>${{debt.toLocaleString()}} repaid in {{totalDays}} days.</p>
+        <h3>You Lost!</h3>
+        <p>You didn't repay your loan within the time limit!</p>
+        <p>${{debtPaid.toLocaleString()}} of ${{startingDebt.toLocaleString()}} loan repaid in {{totalDays - 1}} days.</p>
         <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
       </div>
       <div class="flex">
         <button @click.prevent="$emit('restart')">New Game</button>
-        <button @click.prevent="$emit('closeForm')">Keep Playing</button>
       </div>
     </section>
     <div class="modal-overlay-bg"></div>
@@ -55,8 +61,8 @@ section {
   flex-direction: column;
   margin-left: -200px;
   margin-top: 100px;
+  z-index: 1;
 }
-
 
 div {
   padding: 0 10px 10px 10px;

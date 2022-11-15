@@ -22,7 +22,7 @@ const SETTINGS : Settings = {
   startDate: new Date('January 1, 1572 12:01:01'),
   maxDays: 30,
   cash: 1000,
-  debt: 1000,
+  debt: 5000,
   bank: 0,
   inventorySpace: 100,
   spiceOrder: [ 'Pepper', 'Cinnamon', 'Nutmeg' ],
@@ -36,7 +36,7 @@ const SETTINGS : Settings = {
     'Cinnamon': { min: 200, max: 500},
     'Nutmeg': { min: 600, max: 1000},
   },
-  debt_apr: 0.05
+  debt_apr: 0.005
 }
 
 export default SETTINGS

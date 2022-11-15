@@ -13,6 +13,7 @@ import OrderModal from '../components/OrderModal.vue';
 import LoanModal from '../components/LoanModal.vue'
 import BankModal from '../components/BankModal.vue'
 import WinModal from '../components/WinModal.vue'
+import LoseModal from '../components/LoseModal.vue'
 
 export default defineComponent({
   components: {
@@ -22,7 +23,8 @@ export default defineComponent({
     OrderModal,
     LoanModal,
     BankModal,
-    WinModal
+    WinModal,
+    LoseModal
   },
   data() : {
     gameState: GameState
@@ -128,6 +130,9 @@ export default defineComponent({
       this.currentDay.setDate(this.currentDay.getDate() + 1)
       this.currentDay = new Date(this.currentDay) // have to create new date object for vue to detect changes
       this.debt += Math.floor(this.debt * SETTINGS.debt_apr)
+      if (this.daysSinceStart > SETTINGS.maxDays && this.debt > 0) {
+        this.gameState = 'Lose'
+      }
     },
 
     payLoan(debtPayment : number) {
@@ -183,6 +188,14 @@ export default defineComponent({
     :endWorth="bank + player.cash"
     @restart="restart"
     @closeForm="gameState = 'Default'"
+  />
+
+  <LoseModal
+    v-if="gameState == 'Lose'"
+    :totalDays="daysSinceStart"
+    :endWorth="bank + player.cash - debt"
+    :debtRemaining="debt"
+    @restart="restart"
   />
 
   <BankModal
@@ -282,7 +295,7 @@ export default defineComponent({
   </div>
 
   <div class="actions">
-    <button @click.prevent="nextDay(); gameState='Default'; logMessage('Waited a day')">Wait a day</button>
+    <button @click.prevent="logMessage('Waited a day'); gameState='Default'; nextDay(); ">Wait a day</button>
     <button @click.prevent="gameState='Loan'">Pay Loan</button>
     <button @click.prevent="gameState='Bank'">Visit Bank</button>
     <button class="ml-auto" @click.prevent="restart">New Game</button>
