@@ -19,6 +19,7 @@ export default defineComponent({
 <template>
 
   <main class="text-center">
+    <h2>Spice Wars</h2>
     <p>This is a game of buying and selling. The object of the game is to pay off your debt to the bank. Then, make as much money as you can in a 1 year period. The prices of spices per unit are:</p>
     <ul>
       <li v-for="spice in getSpices()">{{ spice.spiceType }}: ${{spice.priceRange.min}} – {{spice.priceRange.max}} </li>
