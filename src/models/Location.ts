@@ -1,15 +1,17 @@
-import { Broker } from './Broker'
-import { CityName } from '../types'
+import SETTINGS from '../settings'
+import { LocationSpice } from './LocationSpice'
+import { CityName, SpiceType } from '../types'
 
 export class Location {
   name: CityName
-  broker : Broker
-  constructor(name : CityName, brokerName : string) {
+  inventory : Array<LocationSpice> = SETTINGS.spiceOrder.map((s) => new LocationSpice(s))
+
+  constructor(name : CityName) {
     this.name = name
-    this.broker = new Broker(brokerName, 1000)
   }
-  describe() {
-    console.log(`\n#### Current Location: ${this.name} - Broker ${this.broker.name} ($${this.broker.cash.toLocaleString()}) ####`)
-    this.broker.inventory.forEach(spice => spice.describe())
+
+  getPrice(spiceName : SpiceType) {
+    const spice = this.inventory.find(spice => spice.spiceType == spiceName)
+    return spice ? spice.price : 0
   }
 }

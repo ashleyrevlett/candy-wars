@@ -6,5 +6,5 @@ Run it on the command line:
 ```
 nvm use stable
 npm install
-npx ts-node src/index.ts
+npm run dev
 ```
