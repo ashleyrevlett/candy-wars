@@ -1,8 +1,9 @@
-<script lang="ts">
-import { defineComponent, nextTick} from 'vue'
+<script setup lang="ts">
+import { ref, computed, onMounted, nextTick } from 'vue'
+import type { Ref } from 'vue'
 
 import SETTINGS from '../settings'
-import { SpiceType, GameState } from '../types';
+import { SpiceType, GameState, CityName } from '../types';
 import { Location } from '../models/Location'
 import { Player } from '../models/Player'
 import { Spice } from '../models/Spice';
@@ -15,169 +16,140 @@ import BankModal from '../components/BankModal.vue'
 import WinModal from '../components/WinModal.vue'
 import LoseModal from '../components/LoseModal.vue'
 
-export default defineComponent({
-  components: {
-    InventoryItem,
-    StatsBox,
-    LocationsBox,
-    OrderModal,
-    LoanModal,
-    BankModal,
-    WinModal,
-    LoseModal
-  },
-  data() : {
-    gameState: GameState
-    activeSpice:  undefined | Spice,
-    currentDay : Date,
-    locations: Array<Location>,
-    currentLocationIndex: number,
-    player: Player,
-    debt: number,
-    bank: number,
-    messages: Array<string>,
-  } {
-    return {
-      gameState: 'Default',
-      activeSpice: undefined,
-      currentDay : SETTINGS.startDate,
-      locations: SETTINGS.locationOrder.map((name) => new Location(name)),
-      currentLocationIndex: 0,
-      player: new Player('Jane', SETTINGS.cash),
-      debt: SETTINGS.debt,
-      bank: SETTINGS.bank,
-      messages: []
-    }
-  },
-  computed: {
-    currentLocation() {
-      return this.locations[this.currentLocationIndex]
-    },
-    minTransaction() {
-      if (!this.activeSpice) return 0
-      if (this.gameState == 'Buy') {
-        return Math.min(this.player.inventorySpace, 1)
-      } else if (this.gameState == 'Sell' && this.player.getQuantity(this.activeSpice?.spiceType) > 0) {
-        return 1
-      }
-      return 0
-    },
-    maxTransaction() {
-      if (!this.activeSpice) return 0
-      if (this.gameState == 'Buy') {
-        const budgetMax = Math.floor(this.player.cash / this.activeSpice?.price)
-        return Math.min(this.player.inventorySpace, budgetMax)
-      } else if (this.gameState == 'Sell') {
-        return this.player.getQuantity(this.activeSpice?.spiceType)
-      }
-      return 0
-    },
-    daysSinceStart() {
-      const startDate = SETTINGS.startDate
-      const time_difference = this.currentDay.getTime() - startDate.getTime();
-      let days_difference = Math.ceil(time_difference / (1000 * 3600 * 24))
-      days_difference = startDate == this.currentDay ? 1 : days_difference + 2
-      return days_difference
-    }
-  },
-  methods: {
-    restart() {
-      this.gameState = 'Default'
-      this.activeSpice = undefined
-      this.currentLocationIndex = 0
-      this.player = new Player("Jane", SETTINGS.cash)
-      this.bank = SETTINGS.bank
-      this.debt = SETTINGS.debt
-      this.currentDay = SETTINGS.startDate
-      this.messages = []
-      this.locations = SETTINGS.locationOrder.map((name) => new Location(name))
-      this.logMessage("New game started...")
-    },
+const gameState: Ref<GameState> = ref('Default')
+const activeSpice: Ref<Spice | null> = ref(null)
+const currentDay = ref(SETTINGS.startDate)
+const locations: Ref<Array<Location>> = ref(SETTINGS.locationOrder.map((name : CityName) => new Location(name)))
+const currentLocationIndex : Ref<number> = ref(0)
+const player: Ref<Player> = ref(new Player('Jane', SETTINGS.cash))
+const debt = ref(SETTINGS.debt)
+const bank = ref(SETTINGS.bank)
+const messages: Ref<Array<string>> = ref([])
 
-    buy(spice: SpiceType, quantity : number) {
-      const price = this.currentLocation.getPrice(spice)
-      if (price * quantity > this.player.cash)
-        return
-      this.player.buy(spice, quantity, price)
-      this.logMessage(`Bought ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}`)
-      this.activeSpice = undefined;
-      this.gameState = 'Default';
-    },
+const currentLocation = computed(() => locations.value[currentLocationIndex.value] )
 
-    sell(spice: SpiceType, quantity : number) {
-      const price = this.currentLocation.getPrice(spice)
-      const profit = (quantity * price) - (this.player.getPrice(spice) * quantity)
-      const msg = profit >= 0 ? `<span class="text-green">Profit: $${profit.toLocaleString()}</span>` : `<span class="text-red">Loss: $${Math.abs(profit).toLocaleString()}</span>`
-      this.player.sell(spice, quantity, price)
-      this.logMessage(`Sold ${quantity} ${spice} in ${this.currentLocation.name} for a total of $${(quantity * price).toLocaleString()}. ${msg}`)
-      this.activeSpice = undefined;
-      this.gameState = 'Default';
-    },
-
-    travelTo(index : number) {
-      const newLocation = this.locations[index]
-      this.currentLocationIndex = index
-      this.logMessage(`Traveled to ${newLocation.name}`)
-      this.nextDay()
-    },
-
-    nextDay() {
-      this.locations.forEach(location => {
-        location.inventory.forEach(spice => {
-          spice.simulateTrade()
-        });
-      });
-      this.currentDay.setDate(this.currentDay.getDate() + 1)
-      this.currentDay = new Date(this.currentDay) // have to create new date object for vue to detect changes
-      this.debt += Math.floor(this.debt * SETTINGS.debt_apr)
-      if (this.daysSinceStart > SETTINGS.maxDays && this.debt > 0) {
-        this.gameState = 'Lose'
-      }
-    },
-
-    payLoan(debtPayment : number) {
-      debtPayment = Math.min(this.debt, Math.min(debtPayment, this.player.cash))
-      this.debt -= debtPayment
-      this.player.cash -= debtPayment
-      this.logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
-      if (this.debt == 0) {
-        this.gameState = 'Win'
-        this.logMessage(`Loan paid off!`)
-      } else {
-        this.gameState = 'Default'
-      }
-    },
-
-    makeDeposit(deposit : number) {
-      deposit = Math.min(deposit, this.player.cash)
-      this.bank += deposit
-      this.player.cash -= deposit
-      this.gameState = 'Default'
-      this.logMessage(`Deposited $${deposit.toLocaleString()} in bank`)
-    },
-
-    makeWithdrawal(withdrawal: number) {
-      withdrawal = Math.min(withdrawal, this.bank)
-      this.bank -= withdrawal
-      this.player.cash += withdrawal
-      this.gameState = 'Default'
-      this.logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
-    },
-
-    async logMessage(message: string) {
-      this.messages.push(message)
-      await nextTick()
-      const lastP = (this.$refs.messageBox as any).lastElementChild
-      lastP?.scrollIntoView({behavior: "smooth", block: "end"});
-    },
-
-  },
-  mounted() {
-    this.logMessage(`Started game...`)
-  },
+const minTransaction = computed(() => {
+  if (!activeSpice) return 0
+  if (gameState.value == 'Buy') {
+    return Math.min(player.value.inventorySpace, 1)
+  } else if (gameState.value == 'Sell' && activeSpice.value != null && player.value.getQuantity(activeSpice.value.spiceType) > 0) {
+    return 1
+  }
+  return 0
 })
 
+const maxTransaction = computed(() => {
+  if (!activeSpice || activeSpice.value == null) return 0
+  if (gameState.value == 'Buy') {
+    const budgetMax = Math.floor(player.value.cash / activeSpice.value.price)
+    return Math.min(player.value.inventorySpace, budgetMax)
+  } else if (gameState.value == 'Sell') {
+    return player.value.getQuantity(activeSpice.value.spiceType)
+  }
+  return 0
+})
 
+const daysSinceStart = computed(() => {
+  const time_difference = currentDay.value.getTime() - SETTINGS.startDate.getTime();
+  let days_difference = Math.ceil(time_difference / (1000 * 3600 * 24))
+  days_difference = SETTINGS.startDate == currentDay.value ? 1 : days_difference + 2
+  return days_difference
+})
+
+function restart() {
+  gameState.value = 'Default'
+  activeSpice.value = null
+  currentLocationIndex.value = 0
+  player.value = new Player("Jane", SETTINGS.cash)
+  bank.value = SETTINGS.bank
+  debt.value = SETTINGS.debt
+  currentDay.value = SETTINGS.startDate
+  messages.value = []
+  locations.value = SETTINGS.locationOrder.map((name) => new Location(name))
+  logMessage("New game started...")
+}
+
+function buy(spice: SpiceType, quantity : number) {
+  const price = currentLocation.value.getPrice(spice)
+  if (price * quantity > player.value.cash)
+    return
+  player.value.buy(spice, quantity, price)
+  logMessage(`Bought ${quantity} ${spice} in ${currentLocation.value.name} for a total of $${(quantity * price).toLocaleString()}`)
+  activeSpice.value = null;
+  gameState.value = 'Default';
+}
+
+function sell(spice: SpiceType, quantity : number) {
+  const price = currentLocation.value.getPrice(spice)
+  const profit = (quantity * price) - (player.value.getPrice(spice) * quantity)
+  const msg = profit >= 0 ? `<span class="text-green">Profit: $${profit.toLocaleString()}</span>` : `<span class="text-red">Loss: $${Math.abs(profit).toLocaleString()}</span>`
+  player.value.sell(spice, quantity, price)
+  logMessage(`Sold ${quantity} ${spice} in ${currentLocation.value.name} for a total of $${(quantity * price).toLocaleString()}. ${msg}`)
+  activeSpice.value = null;
+  gameState.value = 'Default';
+}
+
+function travelTo(index : number) {
+  const newLocation = locations.value[index]
+  currentLocationIndex.value = index
+  logMessage(`Traveled to ${newLocation.name}`)
+  nextDay()
+}
+
+function nextDay() {
+  locations.value.forEach(location => {
+    location.inventory.forEach(spice => {
+      spice.simulateTrade()
+    })
+  })
+  currentDay.value.setDate(currentDay.value.getDate() + 1)
+  currentDay.value = new Date(currentDay.value) // have to create new date object for vue to detect changes
+  debt.value += Math.floor(debt.value * SETTINGS.debt_apr)
+  if (daysSinceStart.value > SETTINGS.maxDays && debt.value > 0) {
+    gameState.value = 'Lose'
+  }
+}
+
+function payLoan(debtPayment : number) {
+  debtPayment = Math.min(debt.value, Math.min(debtPayment, player.value.cash))
+  debt.value -= debtPayment
+  player.value.cash -= debtPayment
+  logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
+  if (debt.value == 0) {
+    gameState.value = 'Win'
+    logMessage(`Loan paid off!`)
+  } else {
+    gameState.value = 'Default'
+  }
+}
+
+function makeDeposit(deposit : number) {
+  deposit = Math.min(deposit, player.value.cash)
+  bank.value += deposit
+  player.value.cash -= deposit
+  gameState.value = 'Default'
+  logMessage(`Deposited $${deposit.toLocaleString()} in bank`)
+}
+
+function makeWithdrawal(withdrawal: number) {
+  withdrawal = Math.min(withdrawal, bank.value)
+  bank.value -= withdrawal
+  player.value.cash += withdrawal
+  gameState.value = 'Default'
+  logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
+}
+
+const messageBox = ref()
+async function logMessage(message: string) {
+  messages.value.push(message)
+  await nextTick()
+  const lastP = (messageBox.value as any).lastElementChild
+  lastP?.scrollIntoView({behavior: "smooth", block: "end"});
+}
+
+onMounted(() => {
+  logMessage(`Started game...`)
+})
 </script>
 
 <template>
@@ -223,7 +195,7 @@ export default defineComponent({
     :allowed-range="{ min: minTransaction, max: maxTransaction  }"
     @buy="buy"
     @sell="sell"
-    @closeForm="activeSpice = undefined; gameState='Default'"
+    @closeForm="activeSpice = null; gameState='Default'"
   />
 
   <div class="top-row">
