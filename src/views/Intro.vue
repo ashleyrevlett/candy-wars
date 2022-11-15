@@ -1,13 +1,13 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { SPICE_ORDER } from '../types'
+import SETTINGS from '../settings';
 import { LocationSpice } from '../models/LocationSpice'
 
 export default defineComponent({
   methods: {
     getSpices() {
       const spices : Array<LocationSpice> = Array();
-      SPICE_ORDER.forEach(spice => {
+      SETTINGS.spiceOrder.forEach(spice => {
         spices.push(new LocationSpice(spice))
       });
       return spices

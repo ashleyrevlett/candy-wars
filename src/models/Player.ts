@@ -1,19 +1,16 @@
-import { SpiceType, SPICE_ORDER } from '../types'
+import SETTINGS from '../settings'
+import { SpiceType } from '../types'
 import { PlayerSpice } from './PlayerSpice'
 
 export class Player {
   name : string
   cash : number
-  inventory : Array<PlayerSpice> = []
-  inventorySpace: number
+  inventory : Array<PlayerSpice> = SETTINGS.spiceOrder.map((s) => new PlayerSpice(s, 0, 0))
+  inventorySpace: number = SETTINGS.inventorySpace
 
   constructor(name: string, cash: number){
     this.name = name
     this.cash = cash
-    this.inventorySpace = 100
-    SPICE_ORDER.forEach(spice => {
-      this.inventory.push(new PlayerSpice(spice, 0, 0))
-    });
   }
 
   getSpice(spiceName : SpiceType) {

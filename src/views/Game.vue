@@ -1,26 +1,28 @@
 <script lang="ts">
 import { defineComponent, nextTick} from 'vue'
 
+import SETTINGS from '../settings'
 import { SpiceType, GameState } from '../types';
 import { Location } from '../models/Location'
 import { Player } from '../models/Player'
 import { Spice } from '../models/Spice';
-
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
 import LocationsBox from '../components/LocationsBox.vue';
-import OrderForm from '../components/OrderForm.vue';
-import LoanForm from '../components/LoanForm.vue'
-import BankForm from '../components/BankForm.vue'
+import OrderModal from '../components/OrderModal.vue';
+import LoanModal from '../components/LoanModal.vue'
+import BankModal from '../components/BankModal.vue'
+import WinModal from '../components/WinModal.vue'
 
 export default defineComponent({
   components: {
     InventoryItem,
     StatsBox,
     LocationsBox,
-    OrderForm,
-    LoanForm,
-    BankForm,
+    OrderModal,
+    LoanModal,
+    BankModal,
+    WinModal
   },
   data() : {
     gameState: GameState
@@ -36,18 +38,12 @@ export default defineComponent({
     return {
       gameState: 'Default',
       activeSpice: undefined,
-      currentDay : new Date('January 1, 1572 12:00:00'),
-      locations: [
-        new Location('New York'),
-        new Location('New Orleans'),
-        new Location('Los Angeles'),
-        new Location('Chicago'),
-        new Location('Detroit'),
-      ],
+      currentDay : SETTINGS.startDate,
+      locations: SETTINGS.locationOrder.map((name) => new Location(name)),
       currentLocationIndex: 0,
-      player: new Player('Jane', 1000),
-      debt: 5000,
-      bank: 0,
+      player: new Player('Jane', SETTINGS.cash),
+      debt: SETTINGS.debt,
+      bank: SETTINGS.bank,
       messages: []
     }
   },
@@ -73,9 +69,27 @@ export default defineComponent({
         return this.player.getQuantity(this.activeSpice?.spiceType)
       }
       return 0
+    },
+    daysSinceStart() {
+      const startDate = SETTINGS.startDate
+      const time_difference = this.currentDay.getTime() - startDate.getTime();
+      return time_difference / (1000 * 3600 * 24)
     }
   },
   methods: {
+    restart() {
+      this.gameState = 'Default'
+      this.activeSpice = undefined
+      this.currentLocationIndex = 0
+      this.player = new Player("Jane", SETTINGS.cash)
+      this.bank = SETTINGS.bank
+      this.debt = SETTINGS.debt
+      this.currentDay = SETTINGS.startDate
+      this.messages = []
+      this.locations = SETTINGS.locationOrder.map((name) => new Location(name))
+      this.logMessage("New game started...")
+    },
+
     buy(spice: SpiceType, quantity : number) {
       const price = this.currentLocation.getPrice(spice)
       if (price * quantity > this.player.cash)
@@ -119,9 +133,12 @@ export default defineComponent({
       this.debt -= debtPayment
       this.player.cash -= debtPayment
       this.logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
-      if (this.debt == 0)
-      this.logMessage(`Loan paid off!`)
-      this.gameState = 'Default'
+      if (this.debt == 0) {
+        this.gameState = 'Win'
+        this.logMessage(`Loan paid off!`)
+      } else {
+        this.gameState = 'Default'
+      }
     },
 
     makeDeposit(deposit : number) {
@@ -145,7 +162,7 @@ export default defineComponent({
       await nextTick()
       const lastP = (this.$refs.messageBox as any).lastElementChild
       lastP?.scrollIntoView({behavior: "smooth", block: "end"});
-    }
+    },
 
   },
   mounted() {
@@ -158,7 +175,15 @@ export default defineComponent({
 
 <template>
 
-  <BankForm
+  <WinModal
+    v-if="gameState == 'Win'"
+    :totalDays="daysSinceStart"
+    :endWorth="bank + player.cash"
+    @restart="restart"
+    @closeForm="gameState = 'Default'"
+  />
+
+  <BankModal
     v-if="gameState == 'Bank'"
     :max-deposit="player.cash"
     :max-withdrawal="bank"
@@ -167,7 +192,7 @@ export default defineComponent({
     @closeForm="gameState = 'Default'"
   />
 
-  <LoanForm
+  <LoanModal
     v-if="gameState == 'Loan'"
     :debt="debt"
     :max-payment="Math.min(debt, player.cash)"
@@ -175,7 +200,7 @@ export default defineComponent({
     @closeForm="gameState = 'Default'"
   />
 
-  <OrderForm
+  <OrderModal
     v-if="(gameState == 'Buy' || gameState == 'Sell') && activeSpice != null"
     :transaction-type="gameState"
     :spice="activeSpice"
@@ -188,7 +213,10 @@ export default defineComponent({
 
   <div class="top-row">
     <StatsBox :cash="player.cash" :debt="debt" :bank="bank" :day="currentDay" />
-    <LocationsBox :locations="locations" :currentLocation="currentLocation" @travelTo="travelTo" />
+    <LocationsBox
+      :locations="locations"
+      :currentLocation="locations[currentLocationIndex]"
+      @travelTo="travelTo" />
   </div>
 
   <div class="trade-box">
@@ -248,6 +276,7 @@ export default defineComponent({
     <button @click.prevent="nextDay(); gameState='Default'; logMessage('Waited a day')">Wait a day</button>
     <button @click.prevent="gameState='Loan'">Pay Loan</button>
     <button @click.prevent="gameState='Bank'">Visit Bank</button>
+    <button class="ml-auto" @click.prevent="restart">New Game</button>
   </div>
 
 </template>
@@ -277,6 +306,10 @@ export default defineComponent({
   padding: 0 1rem;
 }
 
+.actions  {
+  display: flex;
+}
+
 .actions button {
   margin-right: 10px;
 }
@@ -294,6 +327,10 @@ export default defineComponent({
   margin: 0;
   font-size: 13px;
   line-height: 1.2;
+}
+
+.ml-auto {
+  margin-left: auto
 }
 
 </style>
