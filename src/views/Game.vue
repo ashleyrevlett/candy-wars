@@ -11,6 +11,7 @@ import StatsBox from '../components/StatsBox.vue';
 import LocationsBox from '../components/LocationsBox.vue';
 import OrderForm from '../components/OrderForm.vue';
 import LoanForm from '../components/LoanForm.vue'
+import BankForm from '../components/BankForm.vue'
 
 export default defineComponent({
   components: {
@@ -18,9 +19,11 @@ export default defineComponent({
     StatsBox,
     LocationsBox,
     OrderForm,
-    LoanForm
+    LoanForm,
+    BankForm,
   },
   data() : {
+    showBankForm: boolean
     showLoanForm: boolean
     activeSpice:  undefined | Spice,
     activeTransaction: undefined | TransactionType,
@@ -32,6 +35,7 @@ export default defineComponent({
     bank: number,
   } {
     return {
+      showBankForm: false,
       showLoanForm: false,
       activeSpice: undefined,
       activeTransaction: undefined,
@@ -109,6 +113,7 @@ export default defineComponent({
       });
       this.currentDay.setDate(this.currentDay.getDate() + 1)
       this.currentDay = new Date(this.currentDay) // have to create new date object for vue to detect changes
+      this.debt += Math.floor(this.debt * 0.0005)
     },
 
     payLoan(debtPayment : number) {
@@ -118,7 +123,18 @@ export default defineComponent({
       this.showLoanForm = false
     },
 
-    gotoBank() {
+    makeDeposit(deposit : number) {
+      deposit = Math.min(deposit, this.player.cash)
+      this.bank += deposit
+      this.player.cash -= deposit
+      this.showBankForm = false
+    },
+
+    makeWithdrawal(withdrawal: number) {
+      withdrawal = Math.min(withdrawal, this.bank)
+      this.bank -= withdrawal
+      this.player.cash += withdrawal
+      this.showBankForm = false
     }
 
   }
@@ -128,6 +144,15 @@ export default defineComponent({
 </script>
 
 <template>
+
+  <BankForm
+    v-if="showBankForm"
+    :max-deposit="player.cash"
+    :max-withdrawal="bank"
+    @deposit="makeDeposit"
+    @withdrawal="makeWithdrawal"
+    @closeForm="showBankForm = false"
+  />
 
   <LoanForm
     v-if="showLoanForm"
@@ -203,9 +228,9 @@ export default defineComponent({
   </div>
 
   <div class="actions">
-    <button @click="nextDay()">Wait a day</button>
-    <button @click="showLoanForm = true">Pay Loan</button>
-    <button @click="gotoBank()">Go to Bank</button>
+    <button @click.prevent="nextDay(); showLoanForm=false; showBankForm=false; activeSpice = undefined">Wait a day</button>
+    <button @click.prevent="showLoanForm=true; showBankForm=false; activeSpice = undefined">Pay Loan</button>
+    <button @click.prevent="showBankForm=true; showLoanForm=false; activeSpice = undefined ">Visit Bank</button>
   </div>
 
 </template>
