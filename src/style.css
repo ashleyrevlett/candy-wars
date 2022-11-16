@@ -75,6 +75,10 @@ button:disabled {
   color: rgb(255, 0, 0)
 }
 
+.text-blue {
+  color: rgb(0, 0, 255)
+}
+
 .text-center {
   text-align: center
 }

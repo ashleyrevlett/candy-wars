@@ -103,6 +103,11 @@ function nextDay() {
   debt.value += Math.floor(debt.value * SETTINGS.debt_apr)
   if (daysSinceStart.value > SETTINGS.maxDays && debt.value > 0) {
     gameState.value = 'Lose'
+  } else {
+    const rng = Math.random()
+    if (rng < SETTINGS.event_chance) {
+      randomEvent()
+    }
   }
 }
 
@@ -141,6 +146,29 @@ async function logMessage(message: string) {
   await nextTick()
   const lastP = (messageBox.value as any).lastElementChild
   lastP?.scrollIntoView({behavior: "smooth", block: "end"})
+}
+
+function randomNumberInRange(min:number, max:number) {
+  return Math.floor(Math.random() * (max - min) + min)
+}
+
+function randomEvent() {
+  const location = locations.value[randomNumberInRange(0, locations.value.length)]
+  const randomSpice = location.inventory[randomNumberInRange(0, location.inventory.length)]
+  const rng = Math.random()
+  if (rng < 0.4) {
+    logMessage(`<span class="text-blue">${randomSpice.spiceType} has spiked in value at ${location.name}!</span>`)
+    randomSpice.priceSpike()
+  } else if (rng < .8) {
+    logMessage(`<span class="text-blue">${randomSpice.spiceType} has dropped in value at ${location.name}!</span>`)
+    randomSpice.priceDrop()
+  } else {
+    const randomCashAmount = randomNumberInRange(player.value.cash * .4, player.value.cash * .8)
+    if (randomCashAmount > 0) {
+      player.value.loseCash(randomCashAmount)
+      logMessage(`<span class="text-red">You were robbed! You lost $${randomCashAmount.toLocaleString()}! Shoulda put it in the bank.</span>`)
+    }
+  }
 }
 
 onMounted(() => {
@@ -315,8 +343,8 @@ onMounted(() => {
 
 .messageBox p {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.2;
+  font-size: 14px;
+  line-height: 1.3;
 }
 
 .ml-auto {

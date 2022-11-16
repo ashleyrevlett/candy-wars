@@ -15,7 +15,8 @@ interface Settings {
   locationOrder: Array<CityName>,
   volatility: NumberRange,
   priceRanges: PriceRanges,
-  debt_apr: number
+  debt_apr: number,
+  event_chance: number
 }
 
 const SETTINGS : Settings = {
@@ -32,11 +33,12 @@ const SETTINGS : Settings = {
     max: 0.25
   },
   priceRanges: {
-    'Pepper': { min: 10, max: 60},
-    'Cinnamon': { min: 200, max: 500},
-    'Nutmeg': { min: 600, max: 1000},
+    'Pepper': { min: 20, max: 60},
+    'Cinnamon': { min: 200, max: 400},
+    'Nutmeg': { min: 700, max: 1000},
   },
-  debt_apr: 0.005
+  debt_apr: 0.005,
+  event_chance: 0.2,
 }
 
 export default SETTINGS

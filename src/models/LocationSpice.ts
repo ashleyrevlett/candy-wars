@@ -17,4 +17,12 @@ export class LocationSpice extends Spice {
     this.price += Math.floor(this.price * percentChange)
     this.price = Math.min( Math.max(this.priceRange.min, this.price), this.priceRange.max)
   }
+
+  priceSpike() {
+    this.price = this.priceRange.max + Math.floor(this.priceRange.max * .25)
+  }
+
+  priceDrop() {
+    this.price = this.priceRange.min - Math.floor(this.priceRange.min * .15)
+  }
 }

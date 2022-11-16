@@ -24,7 +24,7 @@ export class Player {
     return mySpice ? mySpice.price : 0
   }
 
-  sell (spiceName : SpiceType, quantity : number, price : number) {
+  sell(spiceName : SpiceType, quantity : number, price : number) {
     const mySpice = this.getSpice(spiceName)
     if (!mySpice || quantity > mySpice.quantity)
       return
@@ -34,10 +34,14 @@ export class Player {
     if (mySpice.quantity == 0) mySpice.price = 0
   }
 
-  buy (spiceName : SpiceType, quantity : number, price : number) {
+  buy(spiceName : SpiceType, quantity : number, price : number) {
     const mySpice = this.getSpice(spiceName)
     mySpice?.addQuantity(quantity, price)
     this.cash -= quantity * price
     this.inventorySpace -= quantity
+  }
+
+  loseCash(amount : number) {
+    this.cash = Math.max(0, this.cash - amount)
   }
 }
