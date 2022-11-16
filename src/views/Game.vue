@@ -238,7 +238,7 @@ onMounted(() => {
 
   <div class="trade-box">
     <section>
-      <h4>{{ currentLocation.name }}</h4>
+      <h4>Current Location: {{ currentLocation.name }}</h4>
       <table>
         <thead>
           <tr>
@@ -322,6 +322,10 @@ onMounted(() => {
 .trade-box > section {
   border: 1px solid white;
   padding: 0 1rem;
+}
+
+h4 {
+  margin: 10px 0 5px;
 }
 
 .actions  {

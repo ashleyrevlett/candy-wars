@@ -26,16 +26,17 @@ const SETTINGS : Settings = {
   debt: 5000,
   bank: 0,
   inventorySpace: 100,
-  spiceOrder: [ 'Pepper', 'Cinnamon', 'Nutmeg' ],
-  locationOrder: [ 'New York', 'New Orleans', 'Los Angeles', 'Chicago', 'Detroit' ],
+  spiceOrder: [ 'Pepper', 'Cinnamon', 'Nutmeg', 'Saffron' ],
+  locationOrder: [ 'New York', 'Detroit', 'Chicago', 'St. Louis', 'New Orleans', 'Los Angeles' ],
   volatility: {
     min: 0.05,
     max: 0.25
   },
   priceRanges: {
-    'Pepper': { min: 20, max: 60},
-    'Cinnamon': { min: 200, max: 400},
-    'Nutmeg': { min: 700, max: 1000},
+    'Pepper': { min: 20, max: 50},
+    'Cinnamon': { min: 100, max: 300},
+    'Nutmeg': { min: 500, max: 800},
+    'Saffron': { min: 1200, max: 2200}
   },
   debt_apr: 0.005,
   event_chance: 0.2,

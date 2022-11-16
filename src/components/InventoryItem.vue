@@ -42,4 +42,8 @@ section {
   align-items: baseline;
 }
 
+.actions {
+  text-align: right;
+}
+
 </style>
