@@ -20,7 +20,7 @@ const activeSpice: Ref<Spice | null> = ref(null)
 const currentDay = ref(SETTINGS.startDate)
 const locations: Ref<Array<Location>> = ref(SETTINGS.locationOrder.map((name : CityName) => new Location(name)))
 const currentLocationIndex : Ref<number> = ref(0)
-const player: Ref<Player> = ref(new Player('Jane', SETTINGS.cash))
+const player: Ref<Player> = ref(new Player())
 const debt = ref(SETTINGS.debt)
 const bank = ref(SETTINGS.bank)
 const messages: Ref<Array<string>> = ref([])
@@ -28,24 +28,23 @@ const messages: Ref<Array<string>> = ref([])
 const currentLocation = computed(() => locations.value[currentLocationIndex.value] )
 
 const minTransaction = computed(() => {
-  if (!activeSpice) return 0
+  if (activeSpice.value == null) return 0
   if (gameState.value == 'Buy') {
     return Math.min(player.value.inventorySpace, 1)
-  } else if (gameState.value == 'Sell' && activeSpice.value != null && player.value.getQuantity(activeSpice.value.spiceType) > 0) {
+  } else if (gameState.value == 'Sell' && player.value.getQuantity(activeSpice.value.spiceType) > 0) {
     return 1
   }
   return 0
 })
 
 const maxTransaction = computed(() => {
-  if (!activeSpice || activeSpice.value == null) return 0
+  if (activeSpice.value == null) return 0
   if (gameState.value == 'Buy') {
     const budgetMax = Math.floor(player.value.cash / activeSpice.value.price)
     return Math.min(player.value.inventorySpace, budgetMax)
-  } else if (gameState.value == 'Sell') {
+  } else {
     return player.value.getQuantity(activeSpice.value.spiceType)
   }
-  return 0
 })
 
 const daysSinceStart = computed(() => {
@@ -59,7 +58,7 @@ function restart() {
   gameState.value = 'Default'
   activeSpice.value = null
   currentLocationIndex.value = 0
-  player.value = new Player("Jane", SETTINGS.cash)
+  player.value = new Player()
   bank.value = SETTINGS.bank
   debt.value = SETTINGS.debt
   currentDay.value = SETTINGS.startDate
@@ -74,8 +73,7 @@ function buy(spice: SpiceType, quantity : number) {
     return
   player.value.buy(spice, quantity, price)
   logMessage(`Bought ${quantity} ${spice} in ${currentLocation.value.name} for a total of $${(quantity * price).toLocaleString()}`)
-  activeSpice.value = null;
-  gameState.value = 'Default';
+  gameState.value = 'Default'
 }
 
 function sell(spice: SpiceType, quantity : number) {
@@ -84,8 +82,7 @@ function sell(spice: SpiceType, quantity : number) {
   const msg = profit >= 0 ? `<span class="text-green">Profit: $${profit.toLocaleString()}</span>` : `<span class="text-red">Loss: $${Math.abs(profit).toLocaleString()}</span>`
   player.value.sell(spice, quantity, price)
   logMessage(`Sold ${quantity} ${spice} in ${currentLocation.value.name} for a total of $${(quantity * price).toLocaleString()}. ${msg}`)
-  activeSpice.value = null;
-  gameState.value = 'Default';
+  gameState.value = 'Default'
 }
 
 function travelTo(index : number) {
@@ -143,7 +140,7 @@ async function logMessage(message: string) {
   messages.value.push(message)
   await nextTick()
   const lastP = (messageBox.value as any).lastElementChild
-  lastP?.scrollIntoView({behavior: "smooth", block: "end"});
+  lastP?.scrollIntoView({behavior: "smooth", block: "end"})
 }
 
 onMounted(() => {
@@ -194,7 +191,7 @@ onMounted(() => {
     :allowed-range="{ min: minTransaction, max: maxTransaction  }"
     @buy="buy"
     @sell="sell"
-    @closeForm="activeSpice = null; gameState='Default'"
+    @closeForm="gameState='Default'"
   />
 
   <div class="top-row">
@@ -230,7 +227,7 @@ onMounted(() => {
             :price="item.price"
             :disabled="player.inventorySpace == 0 || player.cash < item.price"
             transaction-type="Buy"
-            @order="activeSpice = item; gameState='Buy'"
+            @order="activeSpice=item; gameState='Buy'"
           />
         </tbody>
       </table>
@@ -253,7 +250,7 @@ onMounted(() => {
             :quantity="item.quantity"
             :price="item.price"
             transaction-type="Sell"
-            @order="activeSpice = item; gameState = 'Sell'"
+            @order="activeSpice=item; gameState = 'Sell'"
           />
         </tbody>
       </table>

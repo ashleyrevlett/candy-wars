@@ -3,15 +3,11 @@ import { SpiceType } from '../types'
 import { PlayerSpice } from './PlayerSpice'
 
 export class Player {
-  name : string
-  cash : number
+  cash : number = SETTINGS.cash
   inventory : Array<PlayerSpice> = SETTINGS.spiceOrder.map((s) => new PlayerSpice(s, 0, 0))
   inventorySpace: number = SETTINGS.inventorySpace
 
-  constructor(name: string, cash: number){
-    this.name = name
-    this.cash = cash
-  }
+  constructor() {}
 
   getSpice(spiceName : SpiceType) {
     const mySpice = this.inventory.find(spice => spice.spiceType == spiceName)
