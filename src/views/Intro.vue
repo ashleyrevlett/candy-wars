@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SETTINGS from '../settings';
+import SETTINGS from '../settings'
 import { LocationSpice } from '../models/LocationSpice'
 
 function getSpices() {

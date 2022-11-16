@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, PropType } from 'vue'
 import { Spice } from '../models/Spice';
-import { NumberRange, GameState, SpiceType, TransactionType } from '../types'
+import { NumberRange, GameState, SpiceType } from '../types'
 
 const props = defineProps({
   transactionType: {

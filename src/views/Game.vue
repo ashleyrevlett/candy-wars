@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
-
 import SETTINGS from '../settings'
 import { SpiceType, GameState, CityName } from '../types';
 import { Location } from '../models/Location'

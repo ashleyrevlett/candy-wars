@@ -1,4 +1,4 @@
-import { CityName, SpiceType, NumberRange } from "./types"
+import { CityName, SpiceType, NumberRange } from "../types"
 
 type PriceRanges = {
   [key in SpiceType]: NumberRange
