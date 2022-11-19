@@ -26,17 +26,17 @@ const props = defineProps({
 let tradeQuantity = ref(props.allowedRange.min)
 
 const emit = defineEmits<{
-  (e: 'buy', spice: SpiceType, quantity: number): void,
-  (e: 'sell', spice: SpiceType, quantity: number): void,
+  (e: 'buy', spice: Spice, quantity: number): void,
+  (e: 'sell', spice: Spice, quantity: number): void,
   (e: 'closeForm'): void,
 }>()
 
 function transact() {
   tradeQuantity.value = Math.min(props.allowedRange.max, tradeQuantity.value)
   if (props.transactionType == 'Buy')
-    emit('buy', props.spice.spiceType, tradeQuantity.value)
+    emit('buy', props.spice, tradeQuantity.value)
   else
-    emit('sell', props.spice.spiceType, tradeQuantity.value)
+    emit('sell', props.spice, tradeQuantity.value)
   tradeQuantity.value = props.allowedRange.min
 }
 </script>

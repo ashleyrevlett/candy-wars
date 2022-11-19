@@ -1,10 +1,10 @@
 import SETTINGS from '../settings'
 import { SpiceType } from '../types'
-import { PlayerSpice } from './PlayerSpice'
+import { Spice } from './Spice'
 
 export class Player {
   cash : number = SETTINGS.cash
-  inventory : Array<PlayerSpice> = SETTINGS.spiceOrder.map((s) => new PlayerSpice(s, 0, 0))
+  inventory : Array<Spice> = SETTINGS.spiceOrder.map((s) => new Spice(s, 0, 0))
   inventorySpace: number = SETTINGS.inventorySpace
 
   constructor() {}
@@ -24,20 +24,18 @@ export class Player {
     return mySpice ? mySpice.price : 0
   }
 
-  sell(spiceName : SpiceType, quantity : number, price : number) {
-    const mySpice = this.getSpice(spiceName)
-    if (!mySpice || quantity > mySpice.quantity)
-      return
+  sell(playerSpice : Spice, quantity : number, price : number) {
     this.cash += quantity * price
     this.inventorySpace += quantity
-    mySpice.quantity -= quantity
-    if (mySpice.quantity == 0) mySpice.price = 0
+    playerSpice.quantity -= quantity
+    if (playerSpice.quantity == 0) playerSpice.price = 0
   }
 
-  buy(spiceName : SpiceType, quantity : number, price : number) {
-    const mySpice = this.getSpice(spiceName)
-    mySpice?.addQuantity(quantity, price)
-    this.cash -= quantity * price
+  buy(sellerSpice : Spice, quantity : number) {
+    const mySpice = this.getSpice(sellerSpice.spiceType)
+    mySpice?.addQuantity(quantity, sellerSpice.price)
+
+    this.cash -= quantity * sellerSpice.price
     this.inventorySpace -= quantity
   }
 

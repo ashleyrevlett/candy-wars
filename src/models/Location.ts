@@ -1,10 +1,10 @@
 import SETTINGS from '../settings'
-import { LocationSpice } from './LocationSpice'
+import { Spice } from './Spice'
 import { CityName, SpiceType } from '../types'
 
 export class Location {
   name: CityName
-  inventory : Array<LocationSpice> = SETTINGS.spiceOrder.map((s) => new LocationSpice(s))
+  inventory : Array<Spice> = SETTINGS.spiceOrder.map((s) => new Spice(s))
 
   constructor(name : CityName) {
     this.name = name
@@ -13,5 +13,10 @@ export class Location {
   getPrice(spiceName : SpiceType) {
     const spice = this.inventory.find(spice => spice.spiceType == spiceName)
     return spice ? spice.price : 0
+  }
+
+  getSpice(spiceName : SpiceType) {
+    const mySpice = this.inventory.find(spice => spice.spiceType == spiceName)
+    return mySpice ? mySpice : null
   }
 }

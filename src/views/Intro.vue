@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import SETTINGS from '../settings'
-import { LocationSpice } from '../models/LocationSpice'
+import { Spice } from '../models/Spice'
 
 function getSpices() {
-  const spices : Array<LocationSpice> = Array();
+  const spices : Array<Spice> = Array();
   SETTINGS.spiceOrder.forEach(spice => {
-    spices.push(new LocationSpice(spice))
+    spices.push(new Spice(spice))
   });
   return spices
 }

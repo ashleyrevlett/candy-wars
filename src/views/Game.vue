@@ -67,21 +67,21 @@ function restart() {
   logMessage("New game started...")
 }
 
-function buy(spice: SpiceType, quantity : number) {
-  const price = currentLocation.value.getPrice(spice)
-  if (price * quantity > player.value.cash)
-    return
-  player.value.buy(spice, quantity, price)
-  logMessage(`Bought ${quantity} ${spice} in ${currentLocation.value.name} for a total of $${(quantity * price).toLocaleString()}`)
+function buy(sellerSpice: Spice, quantity : number) {
+  player.value.buy(sellerSpice, quantity)
+  sellerSpice.quantity -= quantity
+  logMessage(`Bought ${quantity} ${sellerSpice.spiceType} in ${currentLocation.value.name} for a total of $${(quantity * sellerSpice.price).toLocaleString()}`)
   gameState.value = 'Default'
 }
 
-function sell(spice: SpiceType, quantity : number) {
-  const price = currentLocation.value.getPrice(spice)
-  const profit = (quantity * price) - (player.value.getPrice(spice) * quantity)
+function sell(playerSpice: Spice, quantity : number) {
+  const locationSpice = currentLocation.value.getSpice(playerSpice.spiceType)
+  if (!locationSpice) return
+  locationSpice.quantity += quantity
+  const profit = (quantity * locationSpice.price) - (player.value.getPrice(playerSpice.spiceType) * quantity)
   const msg = profit >= 0 ? `<span class="text-green">Profit: $${profit.toLocaleString()}</span>` : `<span class="text-red">Loss: $${Math.abs(profit).toLocaleString()}</span>`
-  player.value.sell(spice, quantity, price)
-  logMessage(`Sold ${quantity} ${spice} in ${currentLocation.value.name} for a total of $${(quantity * price).toLocaleString()}. ${msg}`)
+  player.value.sell(playerSpice, quantity, locationSpice.price)
+  logMessage(`Sold ${quantity} ${playerSpice.spiceType} in ${currentLocation.value.name} for a total of $${(quantity * locationSpice.price).toLocaleString()}. ${msg}`)
   gameState.value = 'Default'
 }
 
@@ -95,7 +95,7 @@ function travelTo(index : number) {
 function nextDay() {
   locations.value.forEach(location => {
     location.inventory.forEach(spice => {
-      spice.simulateTrade()
+      spice.update()
     })
   })
   currentDay.value.setDate(currentDay.value.getDate() + 1)
@@ -243,8 +243,8 @@ onMounted(() => {
         <thead>
           <tr>
             <th>Spice</th>
-            <th>Price</th>
-            <th></th>
+            <th>Qty</th>
+            <th colspan="2">Price</th>
           </tr>
         </thead>
         <tbody>
@@ -253,6 +253,7 @@ onMounted(() => {
             :key="`item-${currentLocation.name}-${index}`"
             :name="item.spiceType"
             :price="item.price"
+            :quantity="item.quantity"
             :disabled="player.inventorySpace == 0 || player.cash < item.price"
             transaction-type="Buy"
             @order="activeSpice=item; gameState='Buy'"
