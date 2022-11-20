@@ -1,4 +1,8 @@
-import { CityName, SpiceType, NumberRange } from "../types"
+import { CityName, SpiceType, NumberRange, Position } from "../types"
+
+type LocationPositions = {
+  [key in CityName]: Position
+}
 
 type PriceRanges = {
   [key in SpiceType]: NumberRange
@@ -12,7 +16,8 @@ interface Settings {
   bank: number,
   inventorySpace: number,
   spiceOrder: Array<SpiceType>,
-  locationOrder: Array<CityName>,
+  // locationOrder: Array<CityName>,
+  locations: LocationPositions,
   volatility: NumberRange,
   priceRanges: PriceRanges,
   quantityRanges: PriceRanges,
@@ -28,10 +33,18 @@ const SETTINGS : Settings = {
   bank: 0,
   inventorySpace: 100,
   spiceOrder: [ 'Pepper', 'Cinnamon', 'Nutmeg', 'Saffron' ],
-  locationOrder: [ 'New York', 'Detroit', 'Chicago', 'St. Louis', 'New Orleans', 'Los Angeles' ],
+  // locationOrder: [ 'New York', 'Detroit', 'Chicago', 'St. Louis', 'New Orleans', 'Los Angeles' ],
   volatility: {
     min: 0.05,
     max: 0.25
+  },
+  locations: {
+    'New York': { x: 190, y: 50 },
+    'Detroit': { x: 150, y: 40 },
+    'Chicago': { x: 130, y: 50 },
+    'St. Louis': { x: 120, y: 60 },
+    'New Orleans': { x: 130, y: 110 },
+    'Los Angeles': { x: 20, y: 80 },
   },
   quantityRanges: {
     'Pepper': { min: 600, max: 1200},

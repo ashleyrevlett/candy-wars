@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import SETTINGS from '../settings'
-import { SpiceType, GameState, CityName } from '../types';
+import { Position, GameState, CityName } from '../types';
 import { Location } from '../models/Location'
 import { Player } from '../models/Player'
 import { Spice } from '../models/Spice';
@@ -18,7 +18,7 @@ import LoseModal from '../components/LoseModal.vue'
 const gameState: Ref<GameState> = ref('Default')
 const activeSpice: Ref<Spice | null> = ref(null)
 const currentDay = ref(SETTINGS.startDate)
-const locations: Ref<Array<Location>> = ref(SETTINGS.locationOrder.map((name : CityName) => new Location(name)))
+const locations: Ref<Array<Location>> = ref(Object.keys(SETTINGS.locations).map((x) => new Location(x as CityName, SETTINGS.locations[x as CityName] as Position)))
 const currentLocationIndex : Ref<number> = ref(0)
 const player: Ref<Player> = ref(new Player())
 const debt = ref(SETTINGS.debt)
@@ -63,7 +63,7 @@ function restart() {
   debt.value = SETTINGS.debt
   currentDay.value = SETTINGS.startDate
   messages.value = []
-  locations.value = SETTINGS.locationOrder.map((name) => new Location(name))
+  locations.value = Object.keys(SETTINGS.locations).map((x) => new Location(x as CityName, SETTINGS.locations[x as CityName] as Position))
   logMessage("New game started...")
 }
 
@@ -85,11 +85,17 @@ function sell(playerSpice: Spice, quantity : number) {
   gameState.value = 'Default'
 }
 
-function travelTo(index : number) {
+function travelTo(index: number, days: number) {
   const newLocation = locations.value[index]
   currentLocationIndex.value = index
-  logMessage(`Traveled to ${newLocation.name}`)
-  nextDay()
+  let daysElapsed = 0
+  while (daysElapsed < days) {
+    nextDay()
+    daysElapsed++
+  }
+  const daysPlural = daysElapsed > 1 ? 'days' : 'day'
+  logMessage(`Spent ${days} ${daysPlural} on the road...`)
+  logMessage(`Arrived in ${newLocation.name}`)
 }
 
 function nextDay() {
@@ -232,7 +238,7 @@ onMounted(() => {
     />
     <LocationsBox
       :locations="locations"
-      :currentLocation="locations[currentLocationIndex]"
+      :currentLocation="currentLocation"
       @travelTo="travelTo" />
   </div>
 

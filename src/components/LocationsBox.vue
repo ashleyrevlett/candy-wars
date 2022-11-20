@@ -8,13 +8,13 @@ const props = defineProps({
     required: true
   },
   currentLocation: {
-    type: Location,
+    type: Location as PropType<Location>,
     required: true
   }
 })
 
 const emit = defineEmits<{
-  (e: 'travelTo', index: number): void
+  (e: 'travelTo', index: number, days: number): void
 }>()
 
 </script>
@@ -24,7 +24,9 @@ const emit = defineEmits<{
   <section>
     <h4 class="text-center bold">Travel to...</h4>
     <div class="button-grid">
-      <button v-for="(location, index) in locations" :key="location.name" :disabled="currentLocation.name == location.name" @click="emit('travelTo', index)" >{{ location.name }}</button>
+      <button v-for="(location, index) in locations" :key="location.name" :disabled="currentLocation.name == location.name" @click="emit('travelTo', index, location.getDistanceFrom(currentLocation.position))" >
+        {{ location.name }} <span v-if="location.position != currentLocation.position">({{ location.getDistanceFrom(currentLocation.position) }} days journey)</span>
+      </button>
     </div>
     <br />
 
@@ -48,5 +50,10 @@ h4 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 5px;
+}
+
+button span {
+  font-size: 10px;
+  display: block;
 }
 </style>
