@@ -9,6 +9,7 @@ export type RootState = {
   cash: number,
   locations: Location[],
   currentLocationIndex: number,
+  messages: string[],
 };
 
 export const useMainStore = defineStore({
@@ -18,13 +19,15 @@ export const useMainStore = defineStore({
       tradeGoods: [],
       cash: SETTINGS.cash,
       locations: [],
-      currentLocationIndex: 0
+      currentLocationIndex: 0,
+      messages: [],
     } as RootState),
 
   actions: {
     initStore() {
       this.currentLocationIndex = 0
       this.cash = SETTINGS.cash
+      this.messages = []
 
       // location goods
       this.tradeGoods = []
@@ -119,6 +122,10 @@ export const useMainStore = defineStore({
     priceDrop(idx: number) {
       const priceRange = SETTINGS.priceRanges[this.tradeGoods[idx].spiceType]
       this.tradeGoods[idx].price = priceRange.min - Math.ceil(priceRange.min * .15)
+    },
+
+    logMessage(message: string) {
+      this.messages.push(message)
     }
 
   },

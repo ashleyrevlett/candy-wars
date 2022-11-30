@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, Ref, computed, onMounted, nextTick } from 'vue'
+import { ref, Ref, computed, onMounted } from 'vue'
 import SETTINGS from '../settings'
 import { GameState } from '../types';
 import { TradeGood } from "../models/tradegood.model"
 import { useMainStore } from "../stores/index"
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
+import MessageBox from '../components/MessageBox.vue';
 import LocationsBox from '../components/LocationsBox.vue';
 import OrderModal from '../components/OrderModal.vue';
 import LoanModal from '../components/LoanModal.vue'
@@ -13,7 +14,7 @@ import WinModal from '../components/WinModal.vue'
 import LoseModal from '../components/LoseModal.vue'
 import BankModal from '../components/BankModal.vue'
 
-/* store values */
+/* store */
 const store = useMainStore()
 
 /* local data */
@@ -29,16 +30,6 @@ const daysSinceStart = computed(() => {
   return days_difference
 })
 
-/* message box */
-const messages: Ref<Array<string>> = ref([])
-const messageBox = ref()
-async function logMessage(message: string) {
-  messages.value.push(message)
-  await nextTick()
-  const lastP = (messageBox.value as any).lastElementChild
-  lastP?.scrollIntoView({behavior: "smooth", block: "end"})
-}
-
 /* game functions */
 function restart() {
   gameState.value = 'Default'
@@ -46,20 +37,19 @@ function restart() {
   currentDay.value = SETTINGS.startDate
   bank.value = SETTINGS.bank
   debt.value = SETTINGS.debt
-  messages.value = []
   store.initStore()
-  logMessage("New game started...")
+  store.logMessage("New game started...")
 }
 
 function buy(sellerSpice: TradeGood, quantity : number) {
   store.buy(sellerSpice.id,quantity)
-  logMessage(`Bought ${quantity} ${sellerSpice.spiceType} in ${store.currentLocation.name}`)
+  store.logMessage(`Bought ${quantity} ${sellerSpice.spiceType} in ${store.currentLocation.name}`)
   gameState.value = 'Default'
 }
 
 function sell(playerSpice: TradeGood, quantity : number) {
   store.sell(playerSpice.id, quantity, store.currentLocation.name)
-  logMessage(`Sold ${quantity} ${playerSpice.spiceType} in ${store.currentLocation.name}`)
+  store.logMessage(`Sold ${quantity} ${playerSpice.spiceType} in ${store.currentLocation.name}`)
   gameState.value = 'Default'
 }
 
@@ -67,10 +57,10 @@ function onPayLoan(debtPayment : number) {
   debtPayment = Math.min(debt.value, Math.min(debtPayment, store.cash))
   debt.value -= debtPayment
   store.spendCash(debtPayment)
-  logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
+  store.logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
   if (debt.value == 0) {
     gameState.value = 'Win'
-    logMessage(`Loan paid off!`)
+    store.logMessage(`Loan paid off!`)
   } else {
     gameState.value = 'Default'
   }
@@ -81,7 +71,7 @@ function onDeposit(deposit : number) {
   bank.value += deposit
   store.cash -= deposit
   gameState.value = 'Default'
-  logMessage(`Deposited $${deposit.toLocaleString()} in bank`)
+  store.logMessage(`Deposited $${deposit.toLocaleString()} in bank`)
 }
 
 function onWithdrawal(withdrawal: number) {
@@ -89,7 +79,7 @@ function onWithdrawal(withdrawal: number) {
   bank.value -= withdrawal
   store.cash += withdrawal
   gameState.value = 'Default'
-  logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
+  store.logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
 }
 
 function onAdvanceTime(days : number) {
@@ -125,23 +115,23 @@ function randomEvent() {
   const randomIndex = randomNumberInRange(min, max)
   const randomGood = store.tradeGoods[randomIndex]
   if (rng < 0.4) {
-    logMessage(`<span class="text-blue">${randomGood.spiceType} has spiked in value at ${randomGood.location}!</span>`)
+    store.logMessage(`<span class="text-blue">${randomGood.spiceType} has spiked in value at ${randomGood.location}!</span>`)
     store.priceSpike(randomIndex)
   } else if (rng < .8) {
-    logMessage(`<span class="text-blue">${randomGood.spiceType} has dropped in value at ${randomGood.location}!</span>`)
+    store.logMessage(`<span class="text-blue">${randomGood.spiceType} has dropped in value at ${randomGood.location}!</span>`)
     store.priceDrop(randomIndex)
   } else {
     const randomCashAmount = randomNumberInRange(store.cash * .4, store.cash * .8)
     if (randomCashAmount > 0) {
       store.spendCash(randomCashAmount)
-      logMessage(`<span class="text-red">You were robbed! You lost $${randomCashAmount.toLocaleString()}! Shoulda put it in the bank.</span>`)
+      store.logMessage(`<span class="text-red">You were robbed! You lost $${randomCashAmount.toLocaleString()}! Shoulda put it in the bank.</span>`)
     }
   }
 }
 
 onMounted(() => {
-  logMessage(`Started game...`)
   store.initStore()
+  store.logMessage(`Started game...`)
 })
 </script>
 
@@ -246,12 +236,10 @@ onMounted(() => {
     </section>
   </div>
 
-  <div ref="messageBox" class="messageBox">
-    <p v-for="msg in messages" v-html="msg"></p>
-  </div>
+  <MessageBox />
 
   <div class="actions">
-    <button @click.prevent="logMessage('Waited a day'); gameState='Default'; nextDay(); ">Wait a day</button>
+    <button @click.prevent="store.logMessage('Waited a day'); gameState='Default'; nextDay(); ">Wait a day</button>
     <button @click.prevent="gameState='Loan'">Pay Loan</button>
     <button @click.prevent="gameState='Bank'">Visit Bank</button>
     <button class="ml-auto" @click.prevent="restart">New Game</button>
@@ -261,7 +249,6 @@ onMounted(() => {
 
 
 <style scoped>
-
 .top-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -294,21 +281,6 @@ h4 {
 
 .actions button {
   margin-right: 10px;
-}
-
-.messageBox {
-  border: 1px solid white;
-  height: 50px;
-  margin-bottom: 10px;
-  padding: 10px;
-  overflow-y:scroll;
-  padding-bottom: 5px;
-}
-
-.messageBox p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.3;
 }
 
 .ml-auto {
