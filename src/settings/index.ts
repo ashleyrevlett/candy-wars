@@ -16,7 +16,6 @@ interface Settings {
   bank: number,
   inventorySpace: number,
   spiceOrder: Array<SpiceType>,
-  // locationOrder: Array<CityName>,
   locations: LocationPositions,
   volatility: NumberRange,
   priceRanges: PriceRanges,
@@ -33,7 +32,6 @@ const SETTINGS : Settings = {
   bank: 0,
   inventorySpace: 100,
   spiceOrder: [ 'Pepper', 'Cinnamon', 'Nutmeg', 'Saffron' ],
-  // locationOrder: [ 'New York', 'Detroit', 'Chicago', 'St. Louis', 'New Orleans', 'Los Angeles' ],
   volatility: {
     min: 0.05,
     max: 0.25

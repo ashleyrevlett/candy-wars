@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import { PropType } from 'vue'
-import { Location } from '../models/Location'
+import { computed } from 'vue'
+import { travelTimeTo } from '../models/location.model'
+import { useMainStore } from "../stores/index"
 
-const props = defineProps({
-  locations: {
-    type: Array as PropType<Array<Location>>,
-    required: true
-  },
-  currentLocation: {
-    type: Location as PropType<Location>,
-    required: true
-  }
-})
+const mainStore = useMainStore()
+const locations = computed(() => mainStore.locations)
+const currentLocation = computed(() => mainStore.currentLocation)
 
 const emit = defineEmits<{
-  (e: 'travelTo', index: number, days: number): void
+  (e: 'advanceTime', days: number): void
 }>()
 
+function travelTo(index: number, days: number) {
+  mainStore.travelTo(index)
+  emit('advanceTime', days)
+}
 </script>
 
 
@@ -24,8 +22,8 @@ const emit = defineEmits<{
   <section>
     <h4 class="text-center bold">Travel to...</h4>
     <div class="button-grid">
-      <button v-for="(location, index) in locations" :key="location.name" :disabled="currentLocation.name == location.name" @click="emit('travelTo', index, location.getDistanceFrom(currentLocation.position))" >
-        {{ location.name }} <span v-if="location.position != currentLocation.position">({{ location.getDistanceFrom(currentLocation.position) }} days journey)</span>
+      <button v-for="(location, index) in locations" :key="location.name" :disabled="currentLocation.name == location.name" @click="travelTo(index, travelTimeTo(currentLocation.position, location.position))" >
+        {{ location.name }} <span v-if="location.position != currentLocation.position">({{ travelTimeTo(currentLocation.position, location.position) }} days journey)</span>
       </button>
     </div>
     <br />

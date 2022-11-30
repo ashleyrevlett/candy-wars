@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import SETTINGS from '../settings'
-import { Spice } from '../models/Spice'
+import { SpiceType, NumberRange } from '../types'
+
+interface Good {
+  spiceType: SpiceType,
+  priceRange: NumberRange
+}
 
 function getSpices() {
-  const spices : Array<Spice> = Array();
-  SETTINGS.spiceOrder.forEach(spice => {
-    spices.push(new Spice(spice))
-  });
-  return spices
+  return SETTINGS.spiceOrder.map(spice => {
+    const s: Good = {
+      spiceType: spice,
+      priceRange: SETTINGS.priceRanges[spice]
+    }
+    return s
+  })
 }
 
 const emit = defineEmits<{

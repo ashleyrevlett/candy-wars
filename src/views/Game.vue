@@ -3,9 +3,6 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import SETTINGS from '../settings'
 import { Position, GameState, CityName } from '../types';
-import { Location } from '../models/Location'
-import { Player } from '../models/Player'
-import { Spice } from '../models/Spice';
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
 import LocationsBox from '../components/LocationsBox.vue';
@@ -15,37 +12,33 @@ import BankModal from '../components/BankModal.vue'
 import WinModal from '../components/WinModal.vue'
 import LoseModal from '../components/LoseModal.vue'
 
+import { useMainStore } from "../stores/index"
+import { generateStartingData, TradeGood } from "../models/tradegood.model"
+import { Location } from '../models/location.model'
+
+const mainStore = useMainStore()
+const maxInventory = computed(() => SETTINGS.inventorySpace )
+// const locations = computed(() => mainStore.locations)
+// const currentLocationIndex = computed(() => mainStore.currentLocationIndex)
+const currentLocation = computed(() => mainStore.currentLocation)
+const currentLocationGoods = computed(() =>  mainStore.getGoodsForLocation(currentLocation?.value.name))
+const playerGoods = computed(() => mainStore.getPlayerGoods())
+const maxQuantity = computed(() => {
+  if (activeSpice === null) return 0
+  if (gameState.value == 'Buy') {
+    return Math.min(mainStore.inventorySpace, mainStore.maxBuyQuantity(activeSpice.value!.id))
+  } else {
+    return mainStore.maxSellQuantity(activeSpice.value!.id)
+  }
+})
+
 const gameState: Ref<GameState> = ref('Default')
-const activeSpice: Ref<Spice | null> = ref(null)
+const activeSpice: Ref<TradeGood | null> = ref(null)
 const currentDay = ref(SETTINGS.startDate)
-const locations: Ref<Array<Location>> = ref(Object.keys(SETTINGS.locations).map((x) => new Location(x as CityName, SETTINGS.locations[x as CityName] as Position)))
-const currentLocationIndex : Ref<number> = ref(0)
-const player: Ref<Player> = ref(new Player())
+// const currentLocationIndex : Ref<number> = ref(0)
 const debt = ref(SETTINGS.debt)
 const bank = ref(SETTINGS.bank)
 const messages: Ref<Array<string>> = ref([])
-
-const currentLocation = computed(() => locations.value[currentLocationIndex.value] )
-
-const minTransaction = computed(() => {
-  if (activeSpice.value == null) return 0
-  if (gameState.value == 'Buy') {
-    return Math.min(player.value.inventorySpace, 1)
-  } else if (gameState.value == 'Sell' && player.value.getQuantity(activeSpice.value.spiceType) > 0) {
-    return 1
-  }
-  return 0
-})
-
-const maxTransaction = computed(() => {
-  if (activeSpice.value == null) return 0
-  if (gameState.value == 'Buy') {
-    const budgetMax = Math.floor(player.value.cash / activeSpice.value.price)
-    return Math.min(player.value.inventorySpace, budgetMax)
-  } else {
-    return player.value.getQuantity(activeSpice.value.spiceType)
-  }
-})
 
 const daysSinceStart = computed(() => {
   const time_difference = currentDay.value.getTime() - SETTINGS.startDate.getTime();
@@ -55,55 +48,42 @@ const daysSinceStart = computed(() => {
 })
 
 function restart() {
-  gameState.value = 'Default'
-  activeSpice.value = null
-  currentLocationIndex.value = 0
-  player.value = new Player()
-  bank.value = SETTINGS.bank
-  debt.value = SETTINGS.debt
-  currentDay.value = SETTINGS.startDate
-  messages.value = []
-  locations.value = Object.keys(SETTINGS.locations).map((x) => new Location(x as CityName, SETTINGS.locations[x as CityName] as Position))
+  // gameState.value = 'Default'
+  // activeSpice.value = null
+  // currentLocationIndex.value = 0
+  // bank.value = SETTINGS.bank
+  // debt.value = SETTINGS.debt
+  // currentDay.value = SETTINGS.startDate
+  // messages.value = []
+  // locations.value = Object.keys(SETTINGS.locations).map((x) => new Location(x as CityName, SETTINGS.locations[x as CityName] as Position))
   logMessage("New game started...")
 }
 
-function buy(sellerSpice: Spice, quantity : number) {
-  player.value.buy(sellerSpice, quantity)
-  sellerSpice.quantity -= quantity
-  logMessage(`Bought ${quantity} ${sellerSpice.spiceType} in ${currentLocation.value.name} for a total of $${(quantity * sellerSpice.price).toLocaleString()}`)
+function buy(sellerSpice: TradeGood, quantity : number) {
+  mainStore.buy(sellerSpice.id,quantity)
+  logMessage(`Bought ${quantity} ${sellerSpice.spiceType} in ${currentLocation.value.name}`)
   gameState.value = 'Default'
 }
 
-function sell(playerSpice: Spice, quantity : number) {
-  const locationSpice = currentLocation.value.getSpice(playerSpice.spiceType)
-  if (!locationSpice) return
-  locationSpice.quantity += quantity
-  const profit = (quantity * locationSpice.price) - (player.value.getPrice(playerSpice.spiceType) * quantity)
-  const msg = profit >= 0 ? `<span class="text-green">Profit: $${profit.toLocaleString()}</span>` : `<span class="text-red">Loss: $${Math.abs(profit).toLocaleString()}</span>`
-  player.value.sell(playerSpice, quantity, locationSpice.price)
-  logMessage(`Sold ${quantity} ${playerSpice.spiceType} in ${currentLocation.value.name} for a total of $${(quantity * locationSpice.price).toLocaleString()}. ${msg}`)
+function sell(playerSpice: TradeGood, quantity : number) {
+  mainStore.sell(playerSpice.id, quantity, currentLocation.value.name)
+  logMessage(`Sold ${quantity} ${playerSpice.spiceType} in ${currentLocation.value.name}`)
   gameState.value = 'Default'
 }
 
-function travelTo(index: number, days: number) {
-  const newLocation = locations.value[index]
-  currentLocationIndex.value = index
-  let daysElapsed = 0
-  while (daysElapsed < days) {
+function onAdvanceTime(days : number) {
+  while (days > 0) {
     nextDay()
-    daysElapsed++
+    days--
   }
-  const daysPlural = daysElapsed > 1 ? 'days' : 'day'
-  logMessage(`Spent ${days} ${daysPlural} on the road...`)
-  logMessage(`Arrived in ${newLocation.name}`)
 }
 
 function nextDay() {
-  locations.value.forEach(location => {
-    location.inventory.forEach(spice => {
-      spice.update()
-    })
-  })
+  // locations.value.forEach(location => {
+  //   location.inventory.forEach(spice => {
+  //     spice.update()
+  //   })
+  // })
   currentDay.value.setDate(currentDay.value.getDate() + 1)
   currentDay.value = new Date(currentDay.value) // have to create new date object for vue to detect changes
   debt.value += Math.floor(debt.value * SETTINGS.debt_apr)
@@ -112,39 +92,39 @@ function nextDay() {
   } else {
     const rng = Math.random()
     if (rng < SETTINGS.event_chance) {
-      randomEvent()
+      // randomEvent()
     }
   }
 }
 
-function payLoan(debtPayment : number) {
-  debtPayment = Math.min(debt.value, Math.min(debtPayment, player.value.cash))
-  debt.value -= debtPayment
-  player.value.cash -= debtPayment
-  logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
-  if (debt.value == 0) {
-    gameState.value = 'Win'
-    logMessage(`Loan paid off!`)
-  } else {
-    gameState.value = 'Default'
-  }
-}
+// function payLoan(debtPayment : number) {
+//   debtPayment = Math.min(debt.value, Math.min(debtPayment, player.value.cash))
+//   debt.value -= debtPayment
+//   player.value.cash -= debtPayment
+//   logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
+//   if (debt.value == 0) {
+//     gameState.value = 'Win'
+//     logMessage(`Loan paid off!`)
+//   } else {
+//     gameState.value = 'Default'
+//   }
+// }
 
-function makeDeposit(deposit : number) {
-  deposit = Math.min(deposit, player.value.cash)
-  bank.value += deposit
-  player.value.cash -= deposit
-  gameState.value = 'Default'
-  logMessage(`Deposited $${deposit.toLocaleString()} in bank`)
-}
+// function makeDeposit(deposit : number) {
+//   deposit = Math.min(deposit, player.value.cash)
+//   bank.value += deposit
+//   player.value.cash -= deposit
+//   gameState.value = 'Default'
+//   logMessage(`Deposited $${deposit.toLocaleString()} in bank`)
+// }
 
-function makeWithdrawal(withdrawal: number) {
-  withdrawal = Math.min(withdrawal, bank.value)
-  bank.value -= withdrawal
-  player.value.cash += withdrawal
-  gameState.value = 'Default'
-  logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
-}
+// function makeWithdrawal(withdrawal: number) {
+//   withdrawal = Math.min(withdrawal, bank.value)
+//   bank.value -= withdrawal
+//   player.value.cash += withdrawal
+//   gameState.value = 'Default'
+//   logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
+// }
 
 const messageBox = ref()
 async function logMessage(message: string) {
@@ -158,71 +138,112 @@ function randomNumberInRange(min:number, max:number) {
   return Math.floor(Math.random() * (max - min) + min)
 }
 
-function randomEvent() {
-  const location = locations.value[randomNumberInRange(0, locations.value.length)]
-  const randomSpice = location.inventory[randomNumberInRange(0, location.inventory.length)]
-  const rng = Math.random()
-  if (rng < 0.4) {
-    logMessage(`<span class="text-blue">${randomSpice.spiceType} has spiked in value at ${location.name}!</span>`)
-    randomSpice.priceSpike()
-  } else if (rng < .8) {
-    logMessage(`<span class="text-blue">${randomSpice.spiceType} has dropped in value at ${location.name}!</span>`)
-    randomSpice.priceDrop()
-  } else {
-    const randomCashAmount = randomNumberInRange(player.value.cash * .4, player.value.cash * .8)
-    if (randomCashAmount > 0) {
-      player.value.loseCash(randomCashAmount)
-      logMessage(`<span class="text-red">You were robbed! You lost $${randomCashAmount.toLocaleString()}! Shoulda put it in the bank.</span>`)
-    }
-  }
-}
+// function randomEvent() {
+//   const location = locations.value[randomNumberInRange(0, locations.value.length)]
+//   const randomSpice = location.inventory[randomNumberInRange(0, location.inventory.length)]
+//   const rng = Math.random()
+//   if (rng < 0.4) {
+//     logMessage(`<span class="text-blue">${randomSpice.spiceType} has spiked in value at ${location.name}!</span>`)
+//     randomSpice.priceSpike()
+//   } else if (rng < .8) {
+//     logMessage(`<span class="text-blue">${randomSpice.spiceType} has dropped in value at ${location.name}!</span>`)
+//     randomSpice.priceDrop()
+//   } else {
+//     const randomCashAmount = randomNumberInRange(player.value.cash * .4, player.value.cash * .8)
+//     if (randomCashAmount > 0) {
+//       player.value.loseCash(randomCashAmount)
+//       logMessage(`<span class="text-red">You were robbed! You lost $${randomCashAmount.toLocaleString()}! Shoulda put it in the bank.</span>`)
+//     }
+//   }
+// }
 
 onMounted(() => {
   logMessage(`Started game...`)
+  // goods.value = mainStore.goods
+
+  // location goods
+  Object.keys(SETTINGS.locations).forEach((city, i) => {
+    SETTINGS.spiceOrder.forEach((s, j) => {
+      const id = i.toString() + '-' + j.toString()
+      mainStore.createNewItem(generateStartingData(id, s, city as CityName))
+    })
+  })
+
+  // player goods
+  SETTINGS.spiceOrder.forEach((s, i) => {
+    const id = 'player-' + i.toString()
+    const good : TradeGood = {
+      id: id,
+      price: 0,
+      quantity: 0,
+      spiceType: s,
+    }
+    mainStore.createNewItem(good)
+  })
+
+  // locations
+  Object.keys(SETTINGS.locations).forEach((loc) => {
+    const l : unknown = SETTINGS.locations[loc as CityName]
+    const location : Location = {
+      name: loc as CityName,
+      position: l as Position,
+    }
+    mainStore.createLocation(location)
+  });
 })
 </script>
 
 <template>
+<!--
+<div>
+  <div
+    v-for="(item, index) in goods"
+    :key="index"
+    style="padding: 10px; margin-bottom: 10px; margin-top: 10px;"
+  >
+    <code>{{ item }}</code>
+  </div>
+</div> -->
 
-  <WinModal
+  <!-- <WinModal
     v-if="gameState == 'Win'"
     :totalDays="daysSinceStart"
     :endWorth="bank + player.cash"
     @restart="restart"
     @closeForm="gameState = 'Default'"
-  />
+  /> -->
 
-  <LoseModal
+  <!-- <LoseModal
     v-if="gameState == 'Lose'"
     :totalDays="daysSinceStart"
     :endWorth="bank + player.cash - debt"
     :debtRemaining="debt"
     @restart="restart"
-  />
+  /> -->
 
-  <BankModal
+  <!-- <BankModal
     v-if="gameState == 'Bank'"
     :max-deposit="player.cash"
     :max-withdrawal="bank"
     @deposit="makeDeposit"
     @withdrawal="makeWithdrawal"
     @closeForm="gameState = 'Default'"
-  />
+  /> -->
 
-  <LoanModal
+  <!-- <LoanModal
     v-if="gameState == 'Loan'"
     :debt="debt"
     :max-payment="Math.min(debt, player.cash)"
     @payLoan="payLoan"
     @closeForm="gameState = 'Default'"
-  />
+  /> -->
 
   <OrderModal
     v-if="(gameState == 'Buy' || gameState == 'Sell') && activeSpice != null"
     :transaction-type="gameState"
     :spice="activeSpice"
-    :price="currentLocation.getPrice(activeSpice.spiceType)"
-    :allowed-range="{ min: minTransaction, max: maxTransaction  }"
+    :price="100"
+    :allowed-range="{ min: 0, max: maxQuantity }"
     @buy="buy"
     @sell="sell"
     @closeForm="gameState='Default'"
@@ -230,21 +251,18 @@ onMounted(() => {
 
   <div class="top-row">
     <StatsBox
-      :cash="player.cash"
+      :cash="mainStore.cash"
       :debt="debt"
       :bank="bank"
       :day="currentDay"
       :daysSinceStart="daysSinceStart"
     />
-    <LocationsBox
-      :locations="locations"
-      :currentLocation="currentLocation"
-      @travelTo="travelTo" />
+    <LocationsBox @advanceTime="onAdvanceTime" />
   </div>
 
   <div class="trade-box">
     <section>
-      <h4>Current Location: {{ currentLocation.name }}</h4>
+      <h4 v-if="currentLocation">Current Location: {{ currentLocation.name }}</h4>
       <table>
         <thead>
           <tr>
@@ -255,12 +273,13 @@ onMounted(() => {
         </thead>
         <tbody>
           <InventoryItem
-            v-for="(item, index) in currentLocation.inventory"
+            v-if="currentLocation"
+            v-for="(item, index) in currentLocationGoods"
             :key="`item-${currentLocation.name}-${index}`"
             :name="item.spiceType"
             :price="item.price"
             :quantity="item.quantity"
-            :disabled="player.inventorySpace == 0 || player.cash < item.price"
+            :disabled="mainStore.inventorySpace == 0 || mainStore.cash < item.price"
             transaction-type="Buy"
             @order="activeSpice=item; gameState='Buy'"
           />
@@ -268,7 +287,7 @@ onMounted(() => {
       </table>
     </section>
     <section>
-      <h4>Player Inventory ({{ 100 - player.inventorySpace }} / 100 )</h4>
+      <h4>Player Inventory ({{ mainStore.inventorySpace }} / {{ maxInventory }} )</h4>
       <table>
         <thead>
           <tr>
@@ -279,8 +298,8 @@ onMounted(() => {
         </thead>
         <tbody>
           <InventoryItem
-            v-for="(item, index) in player.inventory"
-            :key="`item-${player.name}-${index}`"
+            v-for="(item, index) in playerGoods"
+            :key="`item-${index}`"
             :name="item.spiceType"
             :quantity="item.quantity"
             :price="item.price"
@@ -289,7 +308,6 @@ onMounted(() => {
           />
         </tbody>
       </table>
-      <p v-if="player.inventory.length == 0">Empty</p>
     </section>
   </div>
 

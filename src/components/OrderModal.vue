@@ -1,8 +1,8 @@
 
 <script setup lang="ts">
 import { ref, PropType } from 'vue'
-import { Spice } from '../models/Spice';
-import { NumberRange, GameState, SpiceType } from '../types'
+import { TradeGood } from '../models/tradegood.model'
+import { NumberRange, GameState } from '../types'
 
 const props = defineProps({
   transactionType: {
@@ -10,7 +10,7 @@ const props = defineProps({
     required: true
   },
   spice: {
-    type: Object as PropType<Spice>,
+    type: Object as PropType<TradeGood>,
     required: true
   },
   price: {
@@ -26,8 +26,8 @@ const props = defineProps({
 let tradeQuantity = ref(props.allowedRange.min)
 
 const emit = defineEmits<{
-  (e: 'buy', spice: Spice, quantity: number): void,
-  (e: 'sell', spice: Spice, quantity: number): void,
+  (e: 'buy', spice: TradeGood, quantity: number): void,
+  (e: 'sell', spice: TradeGood, quantity: number): void,
   (e: 'closeForm'): void,
 }>()
 
