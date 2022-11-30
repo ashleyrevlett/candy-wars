@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { ref, PropType, computed } from 'vue'
 import { TradeGood } from '../models/tradegood.model'
@@ -16,19 +15,15 @@ const props = defineProps({
   }
 })
 
-const mainStore = useMainStore()
+const store = useMainStore()
 
 const maxQuantity = computed(() => {
   if (props.transactionType == 'Buy') {
-    return Math.min(mainStore.inventorySpace, mainStore.maxBuyQuantity(props.spice.id))
+    return Math.min(store.inventorySpace, store.maxBuyQuantity(props.spice.id))
   } else {
-    return mainStore.maxSellQuantity(props.spice.id)
+    return store.maxSellQuantity(props.spice.id)
   }
 })
-
-const price = computed(() => mainStore.getTransactionPrice(props.transactionType, props.spice))
-
-let tradeQuantity = ref(0)
 
 const emit = defineEmits<{
   (e: 'buy', spice: TradeGood, quantity: number): void,
@@ -36,6 +31,7 @@ const emit = defineEmits<{
   (e: 'closeForm'): void,
 }>()
 
+let tradeQuantity = ref(0)
 function transact() {
   tradeQuantity.value = Math.min(maxQuantity.value, tradeQuantity.value)
   if (props.transactionType == 'Buy')
@@ -51,7 +47,7 @@ function transact() {
   <section class="modal">
     <button class="cancel" @click="emit('closeForm')">X</button>
     <div>
-      {{ spice.spiceType }}: ${{ price.toLocaleString() }}
+      {{ spice.spiceType }}: ${{ store.getTransactionPrice(transactionType, spice).toLocaleString() }}
       <form>
         <label for="qty">Qty: </label>
         <input name="qty" type="number" v-model="tradeQuantity" min="0" :max="maxQuantity" />

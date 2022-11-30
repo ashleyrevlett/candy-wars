@@ -123,7 +123,13 @@ export const useMainStore = defineStore({
 
   },
   getters: {
-    getGoodsForLocation: state => (cityName : CityName)  => state.tradeGoods.filter(good => good.location == cityName),
+    getCurrentLocationGoods: state => {
+      const loc = state.locations[state.currentLocationIndex]
+      if (loc)
+        return state.tradeGoods.filter(good => good.location == loc.name)
+      else
+        return []
+    },
     getPlayerGoods: state => () => state.tradeGoods.filter(good => good.location == null),
     maxBuyQuantity: state => (spiceId : string | null) => {
       if (spiceId === null) return 0
