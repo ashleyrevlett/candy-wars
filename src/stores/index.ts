@@ -23,6 +23,9 @@ export const useMainStore = defineStore({
 
   actions: {
     initStore() {
+      this.currentLocationIndex = 0
+      this.cash = SETTINGS.cash
+
       // location goods
       this.tradeGoods = []
       Object.keys(SETTINGS.locations).forEach((city, i) => {
@@ -94,6 +97,10 @@ export const useMainStore = defineStore({
     findIndexById(id: string) {
       return this.tradeGoods.findIndex((item) => item.id === id);
     },
+
+    spendCash(amount: number) {
+      this.cash -= amount
+    }
 
   },
   getters: {

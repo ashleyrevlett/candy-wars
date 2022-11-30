@@ -9,10 +9,10 @@ import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
 import LocationsBox from '../components/LocationsBox.vue';
 import OrderModal from '../components/OrderModal.vue';
-// import LoanModal from '../components/LoanModal.vue'
-// import BankModal from '../components/BankModal.vue'
-// import WinModal from '../components/WinModal.vue'
-// import LoseModal from '../components/LoseModal.vue'
+import LoanModal from '../components/LoanModal.vue'
+import WinModal from '../components/WinModal.vue'
+import LoseModal from '../components/LoseModal.vue'
+import BankModal from '../components/BankModal.vue'
 
 /* store values */
 const mainStore = useMainStore()
@@ -34,6 +34,7 @@ const daysSinceStart = computed(() => {
   return days_difference
 })
 
+/* message box */
 const messages: Ref<Array<string>> = ref([])
 const messageBox = ref()
 async function logMessage(message: string) {
@@ -43,6 +44,7 @@ async function logMessage(message: string) {
   lastP?.scrollIntoView({behavior: "smooth", block: "end"})
 }
 
+/* game functions */
 function restart() {
   gameState.value = 'Default'
   activeSpice.value = null
@@ -65,6 +67,36 @@ function sell(playerSpice: TradeGood, quantity : number) {
   logMessage(`Sold ${quantity} ${playerSpice.spiceType} in ${currentLocation.value.name}`)
   gameState.value = 'Default'
 }
+
+function onPayLoan(debtPayment : number) {
+  debtPayment = Math.min(debt.value, Math.min(debtPayment, mainStore.cash))
+  debt.value -= debtPayment
+  mainStore.spendCash(debtPayment)
+  logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
+  if (debt.value == 0) {
+    gameState.value = 'Win'
+    logMessage(`Loan paid off!`)
+  } else {
+    gameState.value = 'Default'
+  }
+}
+
+function onDeposit(deposit : number) {
+  deposit = Math.min(deposit, mainStore.cash)
+  bank.value += deposit
+  mainStore.cash -= deposit
+  gameState.value = 'Default'
+  logMessage(`Deposited $${deposit.toLocaleString()} in bank`)
+}
+
+function onWithdrawal(withdrawal: number) {
+  withdrawal = Math.min(withdrawal, bank.value)
+  bank.value -= withdrawal
+  mainStore.cash += withdrawal
+  gameState.value = 'Default'
+  logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
+}
+
 
 function onAdvanceTime(days : number) {
   while (days > 0) {
@@ -91,35 +123,6 @@ function nextDay() {
     }
   }
 }
-
-// function payLoan(debtPayment : number) {
-//   debtPayment = Math.min(debt.value, Math.min(debtPayment, player.value.cash))
-//   debt.value -= debtPayment
-//   player.value.cash -= debtPayment
-//   logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
-//   if (debt.value == 0) {
-//     gameState.value = 'Win'
-//     logMessage(`Loan paid off!`)
-//   } else {
-//     gameState.value = 'Default'
-//   }
-// }
-
-// function makeDeposit(deposit : number) {
-//   deposit = Math.min(deposit, player.value.cash)
-//   bank.value += deposit
-//   player.value.cash -= deposit
-//   gameState.value = 'Default'
-//   logMessage(`Deposited $${deposit.toLocaleString()} in bank`)
-// }
-
-// function makeWithdrawal(withdrawal: number) {
-//   withdrawal = Math.min(withdrawal, bank.value)
-//   bank.value -= withdrawal
-//   player.value.cash += withdrawal
-//   gameState.value = 'Default'
-//   logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
-// }
 
 function randomNumberInRange(min:number, max:number) {
   return Math.floor(Math.random() * (max - min) + min)
@@ -151,38 +154,38 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- <WinModal
+  <WinModal
     v-if="gameState == 'Win'"
     :totalDays="daysSinceStart"
-    :endWorth="bank + player.cash"
+    :endWorth="bank + mainStore.cash"
     @restart="restart"
     @closeForm="gameState = 'Default'"
-  /> -->
+  />
 
-  <!-- <LoseModal
+  <LoseModal
     v-if="gameState == 'Lose'"
     :totalDays="daysSinceStart"
-    :endWorth="bank + player.cash - debt"
+    :endWorth="bank + mainStore.cash - debt"
     :debtRemaining="debt"
     @restart="restart"
-  /> -->
+  />
 
-  <!-- <BankModal
+  <BankModal
     v-if="gameState == 'Bank'"
-    :max-deposit="player.cash"
+    :max-deposit="mainStore.cash"
     :max-withdrawal="bank"
-    @deposit="makeDeposit"
-    @withdrawal="makeWithdrawal"
+    @deposit="onDeposit"
+    @withdrawal="onWithdrawal"
     @closeForm="gameState = 'Default'"
-  /> -->
+  />
 
-  <!-- <LoanModal
+  <LoanModal
     v-if="gameState == 'Loan'"
     :debt="debt"
-    :max-payment="Math.min(debt, player.cash)"
-    @payLoan="payLoan"
+    :max-payment="Math.min(debt, mainStore.cash)"
+    @payLoan="onPayLoan"
     @closeForm="gameState = 'Default'"
-  /> -->
+  />
 
   <OrderModal
     v-if="(gameState == 'Buy' || gameState == 'Sell') && activeSpice != null"
