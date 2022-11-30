@@ -1,8 +1,9 @@
 
 <script setup lang="ts">
-import { ref, PropType } from 'vue'
+import { ref, PropType, computed } from 'vue'
 import { TradeGood } from '../models/tradegood.model'
-import { NumberRange, GameState } from '../types'
+import { GameState } from '../types'
+import { useMainStore } from "../stores/index"
 
 const props = defineProps({
   transactionType: {
@@ -12,18 +13,22 @@ const props = defineProps({
   spice: {
     type: Object as PropType<TradeGood>,
     required: true
-  },
-  price: {
-    type: Number,
-    required: true
-  },
-  allowedRange: {
-    type: Object as PropType<NumberRange>,
-    required: true
-  },
+  }
 })
 
-let tradeQuantity = ref(props.allowedRange.min)
+const mainStore = useMainStore()
+
+const maxQuantity = computed(() => {
+  if (props.transactionType == 'Buy') {
+    return Math.min(mainStore.inventorySpace, mainStore.maxBuyQuantity(props.spice.id))
+  } else {
+    return mainStore.maxSellQuantity(props.spice.id)
+  }
+})
+
+const price = computed(() => mainStore.getTransactionPrice(props.transactionType, props.spice))
+
+let tradeQuantity = ref(0)
 
 const emit = defineEmits<{
   (e: 'buy', spice: TradeGood, quantity: number): void,
@@ -32,12 +37,12 @@ const emit = defineEmits<{
 }>()
 
 function transact() {
-  tradeQuantity.value = Math.min(props.allowedRange.max, tradeQuantity.value)
+  tradeQuantity.value = Math.min(maxQuantity.value, tradeQuantity.value)
   if (props.transactionType == 'Buy')
     emit('buy', props.spice, tradeQuantity.value)
   else
     emit('sell', props.spice, tradeQuantity.value)
-  tradeQuantity.value = props.allowedRange.min
+  tradeQuantity.value = 0
 }
 </script>
 
@@ -49,10 +54,10 @@ function transact() {
       {{ spice.spiceType }}: ${{ price.toLocaleString() }}
       <form>
         <label for="qty">Qty: </label>
-        <input name="qty" type="number" v-model="tradeQuantity" :min="allowedRange.min" :max="allowedRange.max" />
-        <button :disabled="allowedRange.max == 0" type="submit" @click.prevent="transact">{{ transactionType }}</button>
+        <input name="qty" type="number" v-model="tradeQuantity" min="0" :max="maxQuantity" />
+        <button :disabled="maxQuantity == 0" type="submit" @click.prevent="transact">{{ transactionType }}</button>
       </form>
-      <p>Max you can {{ transactionType?.toLowerCase() }}: <a href="/#" @click.prevent="tradeQuantity = allowedRange.max">{{ allowedRange.max }}</a></p>
+      <p>Max you can {{ transactionType?.toLowerCase() }}: <a href="/#" @click.prevent="(tradeQuantity = maxQuantity)">{{ maxQuantity }}</a></p>
     </div>
   </section>
 </template>

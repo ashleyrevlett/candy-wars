@@ -2,44 +2,31 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import type { Ref } from 'vue'
 import SETTINGS from '../settings'
-import { Position, GameState, CityName } from '../types';
+import { GameState } from '../types';
+import { TradeGood } from "../models/tradegood.model"
+import { useMainStore } from "../stores/index"
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
 import LocationsBox from '../components/LocationsBox.vue';
 import OrderModal from '../components/OrderModal.vue';
-import LoanModal from '../components/LoanModal.vue'
-import BankModal from '../components/BankModal.vue'
-import WinModal from '../components/WinModal.vue'
-import LoseModal from '../components/LoseModal.vue'
+// import LoanModal from '../components/LoanModal.vue'
+// import BankModal from '../components/BankModal.vue'
+// import WinModal from '../components/WinModal.vue'
+// import LoseModal from '../components/LoseModal.vue'
 
-import { useMainStore } from "../stores/index"
-import { generateStartingData, TradeGood } from "../models/tradegood.model"
-import { Location } from '../models/location.model'
-
+/* store values */
 const mainStore = useMainStore()
 const maxInventory = computed(() => SETTINGS.inventorySpace )
-// const locations = computed(() => mainStore.locations)
-// const currentLocationIndex = computed(() => mainStore.currentLocationIndex)
 const currentLocation = computed(() => mainStore.currentLocation)
 const currentLocationGoods = computed(() =>  mainStore.getGoodsForLocation(currentLocation?.value.name))
 const playerGoods = computed(() => mainStore.getPlayerGoods())
-const maxQuantity = computed(() => {
-  if (activeSpice === null) return 0
-  if (gameState.value == 'Buy') {
-    return Math.min(mainStore.inventorySpace, mainStore.maxBuyQuantity(activeSpice.value!.id))
-  } else {
-    return mainStore.maxSellQuantity(activeSpice.value!.id)
-  }
-})
 
+/* local data */
 const gameState: Ref<GameState> = ref('Default')
 const activeSpice: Ref<TradeGood | null> = ref(null)
-const currentDay = ref(SETTINGS.startDate)
-// const currentLocationIndex : Ref<number> = ref(0)
 const debt = ref(SETTINGS.debt)
 const bank = ref(SETTINGS.bank)
-const messages: Ref<Array<string>> = ref([])
-
+const currentDay = ref(SETTINGS.startDate)
 const daysSinceStart = computed(() => {
   const time_difference = currentDay.value.getTime() - SETTINGS.startDate.getTime();
   let days_difference = Math.ceil(time_difference / (1000 * 3600 * 24))
@@ -47,15 +34,23 @@ const daysSinceStart = computed(() => {
   return days_difference
 })
 
+const messages: Ref<Array<string>> = ref([])
+const messageBox = ref()
+async function logMessage(message: string) {
+  messages.value.push(message)
+  await nextTick()
+  const lastP = (messageBox.value as any).lastElementChild
+  lastP?.scrollIntoView({behavior: "smooth", block: "end"})
+}
+
 function restart() {
-  // gameState.value = 'Default'
-  // activeSpice.value = null
-  // currentLocationIndex.value = 0
-  // bank.value = SETTINGS.bank
-  // debt.value = SETTINGS.debt
-  // currentDay.value = SETTINGS.startDate
-  // messages.value = []
-  // locations.value = Object.keys(SETTINGS.locations).map((x) => new Location(x as CityName, SETTINGS.locations[x as CityName] as Position))
+  gameState.value = 'Default'
+  activeSpice.value = null
+  currentDay.value = SETTINGS.startDate
+  bank.value = SETTINGS.bank
+  debt.value = SETTINGS.debt
+  messages.value = []
+  mainStore.initStore()
   logMessage("New game started...")
 }
 
@@ -126,14 +121,6 @@ function nextDay() {
 //   logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
 // }
 
-const messageBox = ref()
-async function logMessage(message: string) {
-  messages.value.push(message)
-  await nextTick()
-  const lastP = (messageBox.value as any).lastElementChild
-  lastP?.scrollIntoView({behavior: "smooth", block: "end"})
-}
-
 function randomNumberInRange(min:number, max:number) {
   return Math.floor(Math.random() * (max - min) + min)
 }
@@ -159,52 +146,11 @@ function randomNumberInRange(min:number, max:number) {
 
 onMounted(() => {
   logMessage(`Started game...`)
-  // goods.value = mainStore.goods
-
-  // location goods
-  Object.keys(SETTINGS.locations).forEach((city, i) => {
-    SETTINGS.spiceOrder.forEach((s, j) => {
-      const id = i.toString() + '-' + j.toString()
-      mainStore.createNewItem(generateStartingData(id, s, city as CityName))
-    })
-  })
-
-  // player goods
-  SETTINGS.spiceOrder.forEach((s, i) => {
-    const id = 'player-' + i.toString()
-    const good : TradeGood = {
-      id: id,
-      price: 0,
-      quantity: 0,
-      spiceType: s,
-    }
-    mainStore.createNewItem(good)
-  })
-
-  // locations
-  Object.keys(SETTINGS.locations).forEach((loc) => {
-    const l : unknown = SETTINGS.locations[loc as CityName]
-    const location : Location = {
-      name: loc as CityName,
-      position: l as Position,
-    }
-    mainStore.createLocation(location)
-  });
+  mainStore.initStore()
 })
 </script>
 
 <template>
-<!--
-<div>
-  <div
-    v-for="(item, index) in goods"
-    :key="index"
-    style="padding: 10px; margin-bottom: 10px; margin-top: 10px;"
-  >
-    <code>{{ item }}</code>
-  </div>
-</div> -->
-
   <!-- <WinModal
     v-if="gameState == 'Win'"
     :totalDays="daysSinceStart"
@@ -242,8 +188,6 @@ onMounted(() => {
     v-if="(gameState == 'Buy' || gameState == 'Sell') && activeSpice != null"
     :transaction-type="gameState"
     :spice="activeSpice"
-    :price="100"
-    :allowed-range="{ min: 0, max: maxQuantity }"
     @buy="buy"
     @sell="sell"
     @closeForm="gameState='Default'"
@@ -276,9 +220,7 @@ onMounted(() => {
             v-if="currentLocation"
             v-for="(item, index) in currentLocationGoods"
             :key="`item-${currentLocation.name}-${index}`"
-            :name="item.spiceType"
-            :price="item.price"
-            :quantity="item.quantity"
+            :good="item"
             :disabled="mainStore.inventorySpace == 0 || mainStore.cash < item.price"
             transaction-type="Buy"
             @order="activeSpice=item; gameState='Buy'"
@@ -300,9 +242,7 @@ onMounted(() => {
           <InventoryItem
             v-for="(item, index) in playerGoods"
             :key="`item-${index}`"
-            :name="item.spiceType"
-            :quantity="item.quantity"
-            :price="item.price"
+            :good="item"
             transaction-type="Sell"
             @order="activeSpice=item; gameState = 'Sell'"
           />

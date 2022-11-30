@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { PropType } from 'vue'
 import { TransactionType } from '../types'
+import { TradeGood } from '../models/tradegood.model';
 
 const props = defineProps({
-  name: String,
-  quantity: Number,
-  price: Number,
-  disabled: Boolean,
+  good:  {
+    type: Object as PropType<TradeGood>,
+    required: true
+  },
   transactionType: {
     type: String as PropType<TransactionType>,
     required: true
   },
+  disabled: Boolean,
 })
 </script>
 
@@ -18,17 +20,17 @@ const props = defineProps({
 <template>
   <tr>
     <td>
-      {{name}}
+      {{good.spiceType}}
     </td>
-    <td v-if="quantity != undefined">
-      {{quantity}}
+    <td v-if="good.quantity != undefined">
+      {{good.quantity}}
     </td>
     <td>
-      ${{price?.toLocaleString()}}
+      ${{good.price?.toLocaleString()}}
     </td>
     <td>
       <div class="actions">
-        <button :disabled="disabled || price == undefined || price == 0" @click="$emit('order')">{{ transactionType }}</button>
+        <button :disabled="disabled || good.price == undefined || good.price == 0" @click="$emit('order')">{{ transactionType }}</button>
       </div>
     </td>
 

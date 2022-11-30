@@ -1,7 +1,7 @@
-import { TradeGood } from "../models/tradegood.model"
+import { TradeGood, generateStartingData } from "../models/tradegood.model"
 import { Location } from "../models/location.model"
 import { defineStore } from "pinia"
-import { CityName, SpiceType } from "../types"
+import { CityName, GameState, Position } from "../types"
 import SETTINGS from "../settings";
 
 export type RootState = {
@@ -22,20 +22,43 @@ export const useMainStore = defineStore({
     } as RootState),
 
   actions: {
+    initStore() {
+      // location goods
+      this.tradeGoods = []
+      Object.keys(SETTINGS.locations).forEach((city, i) => {
+        SETTINGS.spiceOrder.forEach((s, j) => {
+          const id = i.toString() + '-' + j.toString()
+          this.tradeGoods.push(generateStartingData(id, s, city as CityName))
+        })
+      })
+
+      // player goods
+      SETTINGS.spiceOrder.forEach((s, i) => {
+        const id = 'player-' + i.toString()
+        const good : TradeGood = {
+          id: id,
+          price: 0,
+          quantity: 0,
+          spiceType: s,
+        }
+        this.tradeGoods.push(good)
+      })
+
+      // locations
+      this.locations = []
+      Object.keys(SETTINGS.locations).forEach((loc) => {
+        const l : unknown = SETTINGS.locations[loc as CityName]
+        const location : Location = {
+          name: loc as CityName,
+          position: l as Position,
+        }
+        this.locations.push(location)
+      })
+    },
+
     travelTo(index: number) {
       if (index < 0 || index > this.locations.length ) return
       this.currentLocationIndex = index
-    },
-
-    createNewItem(item: TradeGood) {
-      if (!item) return
-
-      this.tradeGoods.push(item)
-    },
-
-    createLocation(loc: Location) {
-      if (!loc) return
-      this.locations.push(loc)
     },
 
     buy(id: string, quantity: number) {
@@ -43,7 +66,7 @@ export const useMainStore = defineStore({
       if (locationGoodIndex == -1) return
       const locationGood = this.tradeGoods[locationGoodIndex]
 
-      const playerGoodIndex = this.findPlayerGoodIndexByName(locationGood.spiceType)
+      const playerGoodIndex = this.tradeGoods.findIndex((item) => item.spiceType === locationGood.spiceType && item.location == null)
       if (playerGoodIndex == -1) return
       const playerGood = this.tradeGoods[playerGoodIndex]
 
@@ -58,7 +81,7 @@ export const useMainStore = defineStore({
       if (playerGoodIndex == -1) return
       const playerGood = this.tradeGoods[playerGoodIndex]
 
-      const locationGoodIndex = this.findLocationGoodIndexByName(playerGood.spiceType, location)
+      const locationGoodIndex = this.tradeGoods.findIndex((item) => item.spiceType === playerGood.spiceType && item.location == location);
       if (locationGoodIndex == -1) return
       const locationGood = this.tradeGoods[locationGoodIndex]
 
@@ -68,15 +91,10 @@ export const useMainStore = defineStore({
       this.cash += locationGood.price * quantity
     },
 
-    findPlayerGoodIndexByName(spiceType: SpiceType) {
-      return this.tradeGoods.findIndex((item) => item.spiceType === spiceType && item.location == null);
-    },
-    findLocationGoodIndexByName(spiceType: SpiceType, location: CityName) {
-      return this.tradeGoods.findIndex((item) => item.spiceType === spiceType && item.location == location);
-    },
     findIndexById(id: string) {
       return this.tradeGoods.findIndex((item) => item.id === id);
     },
+
   },
   getters: {
     getGoodsForLocation: state => (cityName : CityName)  => state.tradeGoods.filter(good => good.location == cityName),
@@ -103,6 +121,17 @@ export const useMainStore = defineStore({
     },
     currentLocation: state => {
       return state.locations[state.currentLocationIndex]
+    },
+    getTransactionPrice: state => (gameState : GameState, spice: TradeGood) => {
+      if (gameState == 'Buy') {
+        return spice.price
+      } else if (gameState == 'Sell') {
+        // find current going price for this spice at current location
+        const loc = state.locations[state.currentLocationIndex]
+        const locSpice = state.tradeGoods.find(good => good.location == loc.name && good.spiceType == spice.spiceType)
+        if (locSpice) return locSpice.price
+      }
+      return 0
     }
   },
 });
