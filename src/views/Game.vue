@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
-import type { Ref } from 'vue'
+import { ref, Ref, computed, onMounted, nextTick } from 'vue'
 import SETTINGS from '../settings'
 import { GameState } from '../types';
 import { TradeGood } from "../models/tradegood.model"
@@ -97,7 +96,6 @@ function onWithdrawal(withdrawal: number) {
   logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
 }
 
-
 function onAdvanceTime(days : number) {
   while (days > 0) {
     nextDay()
@@ -106,11 +104,7 @@ function onAdvanceTime(days : number) {
 }
 
 function nextDay() {
-  // locations.value.forEach(location => {
-  //   location.inventory.forEach(spice => {
-  //     spice.update()
-  //   })
-  // })
+  mainStore.randomizeGoods()
   currentDay.value.setDate(currentDay.value.getDate() + 1)
   currentDay.value = new Date(currentDay.value) // have to create new date object for vue to detect changes
   debt.value += Math.floor(debt.value * SETTINGS.debt_apr)
@@ -119,7 +113,7 @@ function nextDay() {
   } else {
     const rng = Math.random()
     if (rng < SETTINGS.event_chance) {
-      // randomEvent()
+      randomEvent()
     }
   }
 }
@@ -128,24 +122,26 @@ function randomNumberInRange(min:number, max:number) {
   return Math.floor(Math.random() * (max - min) + min)
 }
 
-// function randomEvent() {
-//   const location = locations.value[randomNumberInRange(0, locations.value.length)]
-//   const randomSpice = location.inventory[randomNumberInRange(0, location.inventory.length)]
-//   const rng = Math.random()
-//   if (rng < 0.4) {
-//     logMessage(`<span class="text-blue">${randomSpice.spiceType} has spiked in value at ${location.name}!</span>`)
-//     randomSpice.priceSpike()
-//   } else if (rng < .8) {
-//     logMessage(`<span class="text-blue">${randomSpice.spiceType} has dropped in value at ${location.name}!</span>`)
-//     randomSpice.priceDrop()
-//   } else {
-//     const randomCashAmount = randomNumberInRange(player.value.cash * .4, player.value.cash * .8)
-//     if (randomCashAmount > 0) {
-//       player.value.loseCash(randomCashAmount)
-//       logMessage(`<span class="text-red">You were robbed! You lost $${randomCashAmount.toLocaleString()}! Shoulda put it in the bank.</span>`)
-//     }
-//   }
-// }
+function randomEvent() {
+  const rng = Math.random()
+  const min = 0
+  const max = Object.keys(SETTINGS.locations).length * SETTINGS.spiceOrder.length
+  const randomIndex = randomNumberInRange(min, max)
+  const randomGood = mainStore.tradeGoods[randomIndex]
+  if (rng < 0.4) {
+    logMessage(`<span class="text-blue">${randomGood.spiceType} has spiked in value at ${randomGood.location}!</span>`)
+    mainStore.priceSpike(randomIndex)
+  } else if (rng < .8) {
+    logMessage(`<span class="text-blue">${randomGood.spiceType} has dropped in value at ${randomGood.location}!</span>`)
+    mainStore.priceDrop(randomIndex)
+  } else {
+    const randomCashAmount = randomNumberInRange(mainStore.cash * .4, mainStore.cash * .8)
+    if (randomCashAmount > 0) {
+      mainStore.spendCash(randomCashAmount)
+      logMessage(`<span class="text-red">You were robbed! You lost $${randomCashAmount.toLocaleString()}! Shoulda put it in the bank.</span>`)
+    }
+  }
+}
 
 onMounted(() => {
   logMessage(`Started game...`)

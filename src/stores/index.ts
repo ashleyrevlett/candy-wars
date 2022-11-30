@@ -1,4 +1,4 @@
-import { TradeGood, generateStartingData } from "../models/tradegood.model"
+import { TradeGood, generateStartingData, calculatePrice, getUpdatedQuantity } from "../models/tradegood.model"
 import { Location } from "../models/location.model"
 import { defineStore } from "pinia"
 import { CityName, GameState, Position } from "../types"
@@ -100,6 +100,25 @@ export const useMainStore = defineStore({
 
     spendCash(amount: number) {
       this.cash -= amount
+    },
+
+    randomizeGoods() {
+      // calculatePrice
+      this.tradeGoods.forEach(good => {
+        if (!good.location) return // ignore player goods
+        good.quantity = getUpdatedQuantity(good.spiceType, good.quantity)
+        good.price = calculatePrice(good.spiceType, good.quantity)
+      });
+    },
+
+    priceSpike(idx: number) {
+      const priceRange = SETTINGS.priceRanges[this.tradeGoods[idx].spiceType]
+      this.tradeGoods[idx].price = priceRange.max + Math.ceil(priceRange.max * .25)
+    },
+
+    priceDrop(idx: number) {
+      const priceRange = SETTINGS.priceRanges[this.tradeGoods[idx].spiceType]
+      this.tradeGoods[idx].price = priceRange.min - Math.ceil(priceRange.min * .15)
     }
 
   },

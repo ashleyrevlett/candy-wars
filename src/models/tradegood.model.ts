@@ -9,7 +9,7 @@ export interface TradeGood {
   location?: CityName
 }
 
-function calculatePrice(spiceType: SpiceType, qty: number) : number {
+export function calculatePrice(spiceType: SpiceType, qty: number) : number {
   const priceRange = SETTINGS.priceRanges[spiceType]
   const quantityRange = SETTINGS.quantityRanges[spiceType]
   const oldRange = (quantityRange.max - quantityRange.min)
@@ -33,4 +33,14 @@ export function generateStartingData(id: string, spiceType: SpiceType, location?
     location: location,
     price: price,
   }
+}
+
+export function getUpdatedQuantity(spiceType: SpiceType, quantity: number) {
+    // semi-randomize quantity
+    const quantityRange = SETTINGS.quantityRanges[spiceType]
+    const plusOrMinus = Math.random() < 0.5 ? -1 : 1
+    const percentChange = (Math.random() * (SETTINGS.volatility.max - SETTINGS.volatility.min) + SETTINGS.volatility.min) * plusOrMinus
+    quantity += Math.floor(quantity * percentChange)
+    quantity = Math.min( Math.max(quantityRange.min, quantity), quantityRange.max)
+    return quantity
 }
