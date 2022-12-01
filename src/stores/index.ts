@@ -14,15 +14,14 @@ export type RootState = {
 
 export const useMainStore = defineStore({
   id: "mainStore",
-  state: () =>
-    ({
+  state: () => ({
       tradeGoods: [],
       cash: SETTINGS.cash,
       locations: [],
       currentLocationIndex: 0,
       messages: [],
-    } as RootState),
-
+  } as RootState),
+  persist: true,
   actions: {
     initStore() {
       this.currentLocationIndex = 0

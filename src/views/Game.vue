@@ -14,6 +14,13 @@ import WinModal from '../components/WinModal.vue'
 import LoseModal from '../components/LoseModal.vue'
 import BankModal from '../components/BankModal.vue'
 
+const props = defineProps({
+  loadGame: {
+    type: Boolean,
+    required: true
+  }
+})
+
 /* store */
 const store = useMainStore()
 
@@ -130,8 +137,10 @@ function randomEvent() {
 }
 
 onMounted(() => {
-  store.initStore()
-  store.logMessage(`Started game...`)
+  if (!props.loadGame) {
+    store.initStore()
+    store.logMessage(`Started game...`)
+  }
 })
 </script>
 

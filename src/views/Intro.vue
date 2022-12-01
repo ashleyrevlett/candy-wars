@@ -19,7 +19,10 @@ function getSpices() {
 
 const emit = defineEmits<{
   (e: 'start'): void
+  (e: 'load'): void
 }>()
+
+const hasSaveGame = localStorage.getItem('mainStore') != null ? true : false
 
 </script>
 
@@ -31,7 +34,10 @@ const emit = defineEmits<{
     <ul>
       <li v-for="spice in getSpices()">{{ spice.spiceType }}: ${{spice.priceRange.min}} – {{spice.priceRange.max}} </li>
     </ul>
-    <button @click="emit('start')">Start Game</button>
+    <div>
+      <button v-if="hasSaveGame" @click="emit('load')">Continue Game</button>
+      <button @click="emit('start')">New Game</button>
+    </div>
   </main>
 
 
@@ -51,6 +57,11 @@ const emit = defineEmits<{
 
   li {
     list-style-type: none;
+  }
+
+  button {
+    margin-right: 5px;
+    margin-left: 5px;
   }
 
 </style>
