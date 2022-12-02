@@ -38,6 +38,14 @@ export const useInventoryStore = defineStore({
       })
     },
 
+    getAvgPricePaid(spice: TradeGood, newQuantity : number, newPrice : number) {
+      if (spice.quantity == 0) return newPrice
+      const priceList = Array(spice.quantity).fill(spice.price)
+      const newList = Array(newQuantity).fill(newPrice)
+      const allPrices = priceList.concat(newList)
+      const total = allPrices.reduce((acc, c) => acc + c, 0)
+      return Math.ceil(total / allPrices.length)
+    },
 
     buy(id: string, quantity: number) {
       const locationGoodIndex = this.findIndexById(id)
@@ -48,14 +56,13 @@ export const useInventoryStore = defineStore({
       if (playerGoodIndex == -1) return
       const playerGood = this.tradeGoods[playerGoodIndex]
 
+      playerGood.price = this.getAvgPricePaid(playerGood, quantity, locationGood.price)
       playerGood.quantity += quantity
-      playerGood.price = locationGood.price
       locationGood.quantity -= quantity
 
       const store = useMainStore()
       store.spendCash(locationGood.price * quantity)
       store.logMessage(`Bought ${quantity} ${locationGood.spiceType} in ${locationGood.location}`)
-
     },
 
     sell(id: string, quantity: number) {

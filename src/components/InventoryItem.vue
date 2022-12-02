@@ -22,7 +22,7 @@ const props = defineProps({
     <td>
       {{good.spiceType}}
     </td>
-    <td v-if="good.quantity != undefined">
+    <td v-if="!good.location">
       {{good.quantity}}
     </td>
     <td>

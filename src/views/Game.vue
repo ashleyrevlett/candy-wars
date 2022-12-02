@@ -131,7 +131,7 @@ function randomEvent() {
     @closeForm="gameState = 'Default'"
   />
 
-  <div class="row">
+  <div class="row top">
     <StatsBox />
     <LocationsBox @advanceTime="onAdvanceTime" />
   </div>
@@ -143,7 +143,6 @@ function randomEvent() {
         <thead>
           <tr>
             <th>Spice</th>
-            <th>Qty</th>
             <th colspan="2">Price</th>
           </tr>
         </thead>
@@ -198,6 +197,9 @@ function randomEvent() {
 
 
 <style scoped>
+.top {
+  padding-top: 35px;
+}
 .row {
   display: flex;
   flex-flow: column;
