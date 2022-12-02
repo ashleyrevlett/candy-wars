@@ -27,6 +27,10 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits<{
+  (e: 'startEncounter'): void
+}>()
+
 const { randomNumberInRange } = useUtils()
 
 const store = useMainStore()
@@ -35,7 +39,6 @@ const inventory = useInventoryStore()
 
 const gameState: Ref<GameState> = ref('Default')
 const activeSpice: Ref<TradeGood | null> = ref(null) // which spice is currently being traded
-
 
 onMounted(() => {
   if (!props.loadGame) {
@@ -75,6 +78,7 @@ function onAdvanceTime(days : number) {
 function nextDay() {
   inventory.randomizeGoods()
   store.updateDebt()
+  store.recoverHealth()
   calendarStore.advanceDate()
 
   if (Math.random() < SETTINGS.event_chance) {
@@ -95,12 +99,9 @@ function randomEvent() {
     inventory.priceDrop(randomIndex)
     store.logMessage(`<span class="text-blue">${randomGood.spiceType} has dropped in value at ${randomGood.location}!</span>`)
   } else {
-    const randomCashAmount = randomNumberInRange(store.cash * .4, store.cash * .8)
-    if (randomCashAmount > 0) {
-      store.spendCash(randomCashAmount)
-      store.logMessage(`<span class="text-red">You were robbed! You lost $${randomCashAmount.toLocaleString()}! Shoulda put it in the bank.</span>`)
-    }
+    emit('startEncounter')
   }
+
 }
 
 </script>

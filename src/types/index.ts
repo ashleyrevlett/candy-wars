@@ -5,3 +5,4 @@ export type CityName = 'Los Angeles' | 'New York' | 'New Orleans' | 'Chicago' | 
 export type NumberRange = { min: number, max: number }
 export type GameState = 'Default' | 'Buy' | 'Sell' | 'Loan' | 'Bank' | 'Win' | 'Lose'
 export type Position = { x: number, y: number }
+export type WeaponType = 'Fists' | 'Pistol'

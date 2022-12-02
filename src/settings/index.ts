@@ -1,4 +1,4 @@
-import { CityName, SpiceType, NumberRange, Position } from "../types"
+import { CityName, SpiceType, NumberRange, Position, WeaponType } from "../types"
 
 type LocationPositions = {
   [key in CityName]: Position
@@ -6,6 +6,10 @@ type LocationPositions = {
 
 type PriceRanges = {
   [key in SpiceType]: NumberRange
+}
+
+type WeaponStats = {
+  [key in WeaponType]: number
 }
 
 interface Settings {
@@ -20,7 +24,9 @@ interface Settings {
   priceRanges: PriceRanges,
   quantityRanges: PriceRanges,
   debt_apr: number,
-  event_chance: number
+  event_chance: number,
+  weapons: WeaponStats,
+  startingHealth: number,
 }
 
 const SETTINGS : Settings = {
@@ -55,7 +61,12 @@ const SETTINGS : Settings = {
     'Saffron': { min: 500, max: 800}
   },
   debt_apr: 0.005,
-  event_chance: 0.2,
+  event_chance: 0.5,
+  weapons: {
+    'Fists': 2,
+    'Pistol': 10,
+  },
+  startingHealth: 12,
 }
 
 export default SETTINGS

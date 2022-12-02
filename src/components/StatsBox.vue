@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import SETTINGS from '../settings'
 import { useMainStore } from "../stores/index"
 import { useCalendarStore } from "../stores/calendar"
+import HealthBar from './HealthBar.vue';
 
 const store = useMainStore()
 const calendar = useCalendarStore()
@@ -24,6 +25,8 @@ const day = computed(() => new Date(calendar.currentDay))
       <p class="text-green">Cash: ${{store.cash.toLocaleString()}}</p>
       <p class="text-green">Bank: ${{store.bank.toLocaleString()}}</p>
       <p class="text-red">Debt: ${{store.debt.toLocaleString()}}</p>
+      <p>Weapon: {{store.weapon}}</p>
+      <HealthBar title="Health" :total="SETTINGS.startingHealth" :remaining="store.health" />
     </div>
   </section>
 </template>

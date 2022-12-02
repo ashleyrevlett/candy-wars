@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 import { Location } from "../models/location.model"
-import { CityName, Position } from "../types"
+import { CityName, Position, WeaponType } from "../types"
 import SETTINGS from "../settings";
 
 export type RootState = {
@@ -10,6 +10,8 @@ export type RootState = {
   locations: Location[],
   currentLocationIndex: number,
   messages: string[],
+  health: number,
+  weapon: WeaponType,
 };
 
 export const useMainStore = defineStore({
@@ -21,6 +23,8 @@ export const useMainStore = defineStore({
       locations: [],
       currentLocationIndex: 0,
       messages: [],
+      health: SETTINGS.startingHealth,
+      weapon: 'Fists'
   } as RootState),
   persist: true,
   actions: {
@@ -30,6 +34,8 @@ export const useMainStore = defineStore({
       this.debt = SETTINGS.debt
       this.bank = 0
       this.messages = []
+      this.health = SETTINGS.startingHealth
+      this.weapon = 'Fists'
 
       // locations
       this.locations = []
@@ -86,6 +92,14 @@ export const useMainStore = defineStore({
 
     logMessage(message: string) {
       this.messages.push(message)
+    },
+
+    takeDamage(amount: number) {
+      this.health = Math.max(0, this.health - amount)
+    },
+
+    recoverHealth() {
+      this.health = Math.min(SETTINGS.startingHealth, this.health + 1)
     }
   },
 
