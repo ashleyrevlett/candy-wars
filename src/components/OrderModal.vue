@@ -48,7 +48,7 @@ function transact() {
   <section class="modal">
     <button class="cancel" @click="emit('closeForm')">X</button>
     <div>
-      {{ spice.spiceType }}: ${{ store.getTransactionPrice(transactionType, spice).toLocaleString() }}
+      {{ spice.spiceType }}: ${{ store.transactionPrice(transactionType, spice).toLocaleString() }}
       <form>
         <label for="qty">Qty: </label>
         <input name="qty" type="number" v-model="tradeQuantity" min="0" :max="maxQuantity" />

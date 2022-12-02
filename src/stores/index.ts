@@ -1,10 +1,12 @@
+import dayjs from 'dayjs'
+import { defineStore } from "pinia"
 import { TradeGood, generateStartingData, calculatePrice, getUpdatedQuantity } from "../models/tradegood.model"
 import { Location } from "../models/location.model"
-import { defineStore } from "pinia"
 import { CityName, GameState, Position } from "../types"
 import SETTINGS from "../settings";
 
 export type RootState = {
+  currentDay: Date,
   tradeGoods: TradeGood[],
   cash: number,
   debt: number,
@@ -17,6 +19,7 @@ export type RootState = {
 export const useMainStore = defineStore({
   id: "mainStore",
   state: () => ({
+      currentDay: SETTINGS.startDate,
       tradeGoods: [],
       cash: SETTINGS.cash,
       debt: SETTINGS.debt,
@@ -28,6 +31,7 @@ export const useMainStore = defineStore({
   persist: true,
   actions: {
     initStore() {
+      this.currentDay = SETTINGS.startDate
       this.currentLocationIndex = 0
       this.cash = SETTINGS.cash
       this.debt = SETTINGS.debt
@@ -164,8 +168,14 @@ export const useMainStore = defineStore({
       this.bank -= amount
       this.cash += amount
       this.logMessage(`Withdrew $${amount.toLocaleString()} in bank`)
-    }
+    },
 
+    advanceDate() {
+      // currentDay could be a string if rehydrated from pinia,
+      // or a date if page hasn't been refreshed
+      const newDay = dayjs(this.currentDay).add(1, 'day')
+      this.currentDay = newDay.toDate()
+    }
 
   },
   getters: {
@@ -200,7 +210,7 @@ export const useMainStore = defineStore({
     currentLocation: state => {
       return state.locations[state.currentLocationIndex]
     },
-    getTransactionPrice: state => (gameState : GameState, spice: TradeGood) => {
+    transactionPrice: state => (gameState : GameState, spice: TradeGood) => {
       if (gameState == 'Buy') {
         return spice.price
       } else if (gameState == 'Sell') {
@@ -210,6 +220,11 @@ export const useMainStore = defineStore({
         if (locSpice) return locSpice.price
       }
       return 0
+    },
+    daysSinceStart: state => {
+      const day = dayjs(state.currentDay)
+      const startDay = dayjs(SETTINGS.startDate)
+      return day.diff(startDay, 'day') + 1
     }
   },
 });

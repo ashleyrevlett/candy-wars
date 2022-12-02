@@ -1,14 +1,11 @@
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import SETTINGS from '../settings'
 import { useMainStore } from "../stores/index"
 
-const props = defineProps({
-  day: Date,
-  daysSinceStart: Number
-})
-
 const store = useMainStore()
+const day = computed(() => new Date(store.currentDay))
 
 </script>
 
@@ -16,8 +13,8 @@ const store = useMainStore()
   <section>
     <div>
       <p>
-        <strong>{{ day?.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}}</strong><br />
-        Day {{ daysSinceStart }} of {{ SETTINGS.maxDays }}
+        <strong>{{ day.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}}</strong><br />
+        Day {{ store.daysSinceStart }} of {{ SETTINGS.maxDays }}
       </p>
 
     </div>

@@ -21,25 +21,13 @@ const props = defineProps({
   }
 })
 
-/* store */
 const store = useMainStore()
-
-/* local data */
 const gameState: Ref<GameState> = ref('Default')
 const activeSpice: Ref<TradeGood | null> = ref(null)
-const currentDay = ref(SETTINGS.startDate)
-const daysSinceStart = computed(() => {
-  const time_difference = currentDay.value.getTime() - SETTINGS.startDate.getTime();
-  let days_difference = Math.ceil(time_difference / (1000 * 3600 * 24))
-  days_difference = SETTINGS.startDate == currentDay.value ? 1 : days_difference + 2
-  return days_difference
-})
 
-/* game functions */
 function restart() {
   gameState.value = 'Default'
   activeSpice.value = null
-  currentDay.value = SETTINGS.startDate
   store.initStore()
   store.logMessage("New game started...")
 }
@@ -54,16 +42,10 @@ function onAdvanceTime(days : number) {
 function nextDay() {
   store.randomizeGoods()
   store.updateDebt()
-  currentDay.value.setDate(currentDay.value.getDate() + 1)
-  currentDay.value = new Date(currentDay.value) // have to create new date object for vue to detect changes
+  store.advanceDate()
 
-  if (daysSinceStart.value > SETTINGS.maxDays && store.debt > 0) {
-    gameState.value = 'Lose'
-  } else {
-    const rng = Math.random()
-    if (rng < SETTINGS.event_chance) {
-      randomEvent()
-    }
+  if (Math.random() < SETTINGS.event_chance) {
+    randomEvent()
   }
 }
 
@@ -93,9 +75,11 @@ function randomEvent() {
 }
 
 onUpdated(() => {
-  if (store.debt == 0 && daysSinceStart.value <= SETTINGS.maxDays) {
+  if (store.debt == 0 && store.daysSinceStart <= SETTINGS.maxDays) {
     gameState.value = 'Win'
     store.logMessage(`Loan paid off!`)
+  } else if (store.daysSinceStart > SETTINGS.maxDays && store.debt > 0) {
+    gameState.value = 'Lose'
   }
 })
 
@@ -105,19 +89,18 @@ onMounted(() => {
     store.logMessage(`Started game...`)
   }
 })
+
 </script>
 
 <template>
   <WinModal
     v-if="gameState == 'Win'"
-    :totalDays="daysSinceStart"
     @restart="restart"
     @closeForm="gameState = 'Default'"
   />
 
   <LoseModal
     v-if="gameState == 'Lose'"
-    :totalDays="daysSinceStart"
     @restart="restart"
   />
 
@@ -139,10 +122,7 @@ onMounted(() => {
   />
 
   <div class="top-row">
-    <StatsBox
-      :day="currentDay"
-      :daysSinceStart="daysSinceStart"
-    />
+    <StatsBox />
     <LocationsBox @advanceTime="onAdvanceTime" />
   </div>
 

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { travelTimeTo } from '../models/location.model'
 import { useMainStore } from "../stores/index"
 

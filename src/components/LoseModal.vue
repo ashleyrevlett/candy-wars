@@ -4,12 +4,6 @@ import { computed } from 'vue'
 import SETTINGS from '../settings'
 import { useMainStore } from "../stores/index"
 
-const props = defineProps({
-  totalDays: {
-    type: Number,
-    required: true
-  },
-})
 const store = useMainStore()
 
 const debtPaid = computed(() => Math.max(0, SETTINGS.debt - store.debt))
@@ -26,7 +20,7 @@ const emit = defineEmits<{
       <div class="text-center">
         <h3>You Lost!</h3>
         <p>You didn't repay your loan within the time limit!</p>
-        <p>${{debtPaid.toLocaleString()}} of ${{SETTINGS.debt.toLocaleString()}} loan repaid in {{totalDays - 1}} days.</p>
+        <p>${{debtPaid.toLocaleString()}} of ${{SETTINGS.debt.toLocaleString()}} loan repaid in {{store.daysSinceStart - 1}} days.</p>
         <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
       </div>
       <div class="flex">
