@@ -2,7 +2,7 @@
 import { ref, PropType, computed } from 'vue'
 import { TradeGood } from '../models/tradegood.model'
 import { GameState } from '../types'
-import { useMainStore } from "../stores/index"
+import { useInventoryStore } from "../stores/inventory"
 
 const props = defineProps({
   transactionType: {
@@ -15,13 +15,13 @@ const props = defineProps({
   }
 })
 
-const store = useMainStore()
+const inventory = useInventoryStore()
 
 const maxQuantity = computed(() => {
   if (props.transactionType == 'Buy') {
-    return Math.min(store.inventorySpace, store.maxBuyQuantity(props.spice.id))
+    return Math.min(inventory.inventorySpace, inventory.maxBuyQuantity(props.spice.id))
   } else {
-    return store.maxSellQuantity(props.spice.id)
+    return inventory.maxSellQuantity(props.spice.id)
   }
 })
 
@@ -33,10 +33,10 @@ let tradeQuantity = ref(0)
 function transact() {
   tradeQuantity.value = Math.min(maxQuantity.value, tradeQuantity.value)
   if (props.transactionType == 'Buy'){
-    store.buy(props.spice.id, tradeQuantity.value)
+    inventory.buy(props.spice.id, tradeQuantity.value)
     emit('closeForm')
   } else {
-    store.sell(props.spice.id, tradeQuantity.value)
+    inventory.sell(props.spice.id, tradeQuantity.value)
     emit('closeForm')
   }
   tradeQuantity.value = 0
@@ -48,7 +48,7 @@ function transact() {
   <section class="modal">
     <button class="cancel" @click="emit('closeForm')">X</button>
     <div>
-      {{ spice.spiceType }}: ${{ store.transactionPrice(transactionType, spice).toLocaleString() }}
+      {{ spice.spiceType }}: ${{ inventory.transactionPrice(transactionType, spice).toLocaleString() }}
       <form>
         <label for="qty">Qty: </label>
         <input name="qty" type="number" v-model="tradeQuantity" min="0" :max="maxQuantity" />

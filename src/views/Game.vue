@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { ref, Ref, computed, onMounted, onUpdated } from 'vue'
+import { ref, Ref, onMounted, onUpdated } from 'vue'
+
 import SETTINGS from '../settings'
 import { GameState } from '../types';
 import { TradeGood } from "../models/tradegood.model"
+import { useUtils } from '../composables/useUtils'
+
 import { useMainStore } from "../stores/index"
+import { useCalendarStore } from "../stores/calendar"
+import { useInventoryStore } from "../stores/inventory"
+
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
 import MessageBox from '../components/MessageBox.vue';
@@ -21,14 +27,37 @@ const props = defineProps({
   }
 })
 
+const { randomNumberInRange } = useUtils()
+
 const store = useMainStore()
+const calendarStore = useCalendarStore()
+const inventory = useInventoryStore()
+
 const gameState: Ref<GameState> = ref('Default')
-const activeSpice: Ref<TradeGood | null> = ref(null)
+const activeSpice: Ref<TradeGood | null> = ref(null) // which spice is currently being traded
+
+
+onMounted(() => {
+  if (!props.loadGame) {
+    restart()
+  }
+})
+
+onUpdated(() => {
+  if (store.debt == 0 && calendarStore.daysSinceStart <= SETTINGS.maxDays) {
+    gameState.value = 'Win'
+    store.logMessage(`Loan paid off!`)
+  } else if (calendarStore.daysSinceStart > SETTINGS.maxDays && store.debt > 0) {
+    gameState.value = 'Lose'
+  }
+})
 
 function restart() {
   gameState.value = 'Default'
   activeSpice.value = null
   store.initStore()
+  calendarStore.initStore()
+  inventory.initStore()
   store.logMessage("New game started...")
 }
 
@@ -40,31 +69,27 @@ function onAdvanceTime(days : number) {
 }
 
 function nextDay() {
-  store.randomizeGoods()
+  inventory.randomizeGoods()
   store.updateDebt()
-  store.advanceDate()
+  calendarStore.advanceDate()
 
   if (Math.random() < SETTINGS.event_chance) {
     randomEvent()
   }
 }
 
-function randomNumberInRange(min:number, max:number) {
-  return Math.floor(Math.random() * (max - min) + min)
-}
-
 function randomEvent() {
+  // select random non-player good
+  const randomIndex = randomNumberInRange(0, Object.keys(SETTINGS.locations).length * SETTINGS.spiceOrder.length)
+  const randomGood = inventory.getGoodByIndex(randomIndex)
+  if (!randomGood) return
   const rng = Math.random()
-  const min = 0
-  const max = Object.keys(SETTINGS.locations).length * SETTINGS.spiceOrder.length
-  const randomIndex = randomNumberInRange(min, max)
-  const randomGood = store.tradeGoods[randomIndex]
   if (rng < 0.4) {
+    inventory.priceSpike(randomIndex)
     store.logMessage(`<span class="text-blue">${randomGood.spiceType} has spiked in value at ${randomGood.location}!</span>`)
-    store.priceSpike(randomIndex)
   } else if (rng < .8) {
+    inventory.priceDrop(randomIndex)
     store.logMessage(`<span class="text-blue">${randomGood.spiceType} has dropped in value at ${randomGood.location}!</span>`)
-    store.priceDrop(randomIndex)
   } else {
     const randomCashAmount = randomNumberInRange(store.cash * .4, store.cash * .8)
     if (randomCashAmount > 0) {
@@ -73,22 +98,6 @@ function randomEvent() {
     }
   }
 }
-
-onUpdated(() => {
-  if (store.debt == 0 && store.daysSinceStart <= SETTINGS.maxDays) {
-    gameState.value = 'Win'
-    store.logMessage(`Loan paid off!`)
-  } else if (store.daysSinceStart > SETTINGS.maxDays && store.debt > 0) {
-    gameState.value = 'Lose'
-  }
-})
-
-onMounted(() => {
-  if (!props.loadGame) {
-    store.initStore()
-    store.logMessage(`Started game...`)
-  }
-})
 
 </script>
 
@@ -118,7 +127,7 @@ onMounted(() => {
     v-if="(gameState == 'Buy' || gameState == 'Sell') && activeSpice != null"
     :transaction-type="gameState"
     :spice="activeSpice"
-    @closeForm="gameState='Default'"
+    @closeForm="gameState = 'Default'"
   />
 
   <div class="top-row">
@@ -140,18 +149,18 @@ onMounted(() => {
         <tbody>
           <InventoryItem
             v-if="store.currentLocation"
-            v-for="(item, index) in store.getCurrentLocationGoods"
+            v-for="(item, index) in inventory.getCurrentLocationGoods"
             :key="`item-${store.currentLocation.name}-${index}`"
             :good="item"
-            :disabled="store.inventorySpace == 0 || store.cash < item.price"
+            :disabled="inventory.inventorySpace == 0 || store.cash < item.price"
             transaction-type="Buy"
-            @order="activeSpice=item; gameState='Buy'"
+            @order="activeSpice = item; gameState = 'Buy'"
           />
         </tbody>
       </table>
     </section>
     <section>
-      <h4>Player Inventory ({{ store.inventorySpace }} / {{ SETTINGS.inventorySpace }} )</h4>
+      <h4>Player Inventory ({{ inventory.inventorySpace }} / {{ SETTINGS.inventorySpace }} )</h4>
       <table>
         <thead>
           <tr>
@@ -162,11 +171,11 @@ onMounted(() => {
         </thead>
         <tbody>
           <InventoryItem
-            v-for="(item, index) in store.getPlayerGoods()"
+            v-for="(item, index) in inventory.getPlayerGoods()"
             :key="`item-${index}`"
             :good="item"
             transaction-type="Sell"
-            @order="activeSpice=item; gameState = 'Sell'"
+            @order="activeSpice = item; gameState = 'Sell'"
           />
         </tbody>
       </table>
@@ -176,9 +185,9 @@ onMounted(() => {
   <MessageBox />
 
   <div class="actions">
-    <button @click.prevent="store.logMessage('Waited a day'); gameState='Default'; nextDay(); ">Wait a day</button>
-    <button @click.prevent="gameState='Loan'">Pay Loan</button>
-    <button @click.prevent="gameState='Bank'">Visit Bank</button>
+    <button @click.prevent="store.logMessage('Waited a day'); gameState = 'Default'; nextDay(); ">Wait a day</button>
+    <button @click.prevent="gameState = 'Loan'">Pay Loan</button>
+    <button @click.prevent="gameState = 'Bank'">Visit Bank</button>
     <button class="ml-auto" @click.prevent="restart">New Game</button>
   </div>
 

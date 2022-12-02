@@ -3,9 +3,11 @@
 import { computed } from 'vue'
 import SETTINGS from '../settings'
 import { useMainStore } from "../stores/index"
+import { useCalendarStore } from "../stores/calendar"
 
 const store = useMainStore()
-const day = computed(() => new Date(store.currentDay))
+const calendar = useCalendarStore()
+const day = computed(() => new Date(calendar.currentDay))
 
 </script>
 
@@ -14,7 +16,7 @@ const day = computed(() => new Date(store.currentDay))
     <div>
       <p>
         <strong>{{ day.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}}</strong><br />
-        Day {{ store.daysSinceStart }} of {{ SETTINGS.maxDays }}
+        Day {{ calendar.daysSinceStart }} of {{ SETTINGS.maxDays }}
       </p>
 
     </div>

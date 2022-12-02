@@ -3,8 +3,10 @@
 import { computed } from 'vue'
 import SETTINGS from '../settings'
 import { useMainStore } from "../stores/index"
+import { useCalendarStore } from "../stores/calendar"
 
 const store = useMainStore()
+const calendar = useCalendarStore()
 
 const debtPaid = computed(() => Math.max(0, SETTINGS.debt - store.debt))
 const endWorth = computed(() => store.bank + store.cash - store.debt)
@@ -20,7 +22,7 @@ const emit = defineEmits<{
       <div class="text-center">
         <h3>You Lost!</h3>
         <p>You didn't repay your loan within the time limit!</p>
-        <p>${{debtPaid.toLocaleString()}} of ${{SETTINGS.debt.toLocaleString()}} loan repaid in {{store.daysSinceStart - 1}} days.</p>
+        <p>${{debtPaid.toLocaleString()}} of ${{SETTINGS.debt.toLocaleString()}} loan repaid in {{calendar.daysSinceStart - 1}} days.</p>
         <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
       </div>
       <div class="flex">
