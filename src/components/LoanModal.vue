@@ -1,43 +1,31 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useMainStore } from "../stores/index"
 
-const props = defineProps({
-  debt: {
-      type: Number,
-      required: true
-    },
-    maxPayment: {
-      type: Number,
-      required: true
-    }
-})
+const store = useMainStore()
 
 const debtPayment = ref(0)
 
 const emit = defineEmits<{
   (e: 'closeForm'): void
-  (e: 'payLoan', debtPayment: number): void
 }>()
 
-function payNow() {
-    emit('payLoan', debtPayment.value)
-}
 </script>
 
 
 <template>
   <section class="modal">
-    <button class="cancel" @click="$emit('closeForm')">X</button>
+    <button class="cancel" @click.prevent="emit('closeForm')">X</button>
     <div>
       <h4 class="text-center">Pay Loan</h4>
       <form>
         <label for="qty">Payment: </label>
-        <input name="qty" type="number" v-model="debtPayment" min="0" :max="maxPayment" />
-        <button :disabled="maxPayment == 0 || debtPayment == 0" type="submit" @click="(e) => { e.preventDefault(); payNow() }">Pay Now</button>
+        <input name="qty" type="number" v-model="debtPayment" min="0" :max="store.cash" />
+        <button :disabled="store.cash == 0 || debtPayment == 0" type="submit" @click.prevent="store.payDebt(debtPayment); emit('closeForm')">Pay Now</button>
       </form>
-      <p>Debt Remaining: ${{ debt?.toLocaleString() }}</p>
-      <p>Max you can afford: <a href="/#" @click="(e) => { e.preventDefault(); debtPayment = maxPayment; }">${{ maxPayment.toLocaleString() }}</a></p>
+      <p>Debt Remaining: ${{ store.debt.toLocaleString() }}</p>
+      <p>Max you can afford: <a href="/#" @click.prevent="debtPayment=store.cash">${{ store.cash.toLocaleString() }}</a></p>
     </div>
   </section>
 </template>

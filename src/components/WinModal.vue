@@ -2,19 +2,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import SETTINGS from '../settings'
+import { useMainStore } from "../stores/index"
 
 const props = defineProps({
   totalDays: {
     type: Number,
     required: true
-  },
-  endWorth: {
-    type: Number,
-    required: true
-  },
+  }
 })
 
-const debt = computed(() =>  SETTINGS.debt)
+const store = useMainStore()
+
+const endWorth = computed(() => store.bank + store.cash)
 
 const emit = defineEmits<{
   (e: 'restart'): void
@@ -30,7 +29,7 @@ const emit = defineEmits<{
       <div class="text-center">
         <h3>Congratulations!</h3>
         <p>You have successfully paid off your loan within the time limit!</p>
-        <p>${{debt.toLocaleString()}} repaid in {{totalDays}} days.</p>
+        <p>${{SETTINGS.debt.toLocaleString()}} repaid in {{totalDays}} days.</p>
         <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
       </div>
       <div class="flex">

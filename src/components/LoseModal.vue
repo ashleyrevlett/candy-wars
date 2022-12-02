@@ -2,25 +2,22 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import SETTINGS from '../settings'
+import { useMainStore } from "../stores/index"
 
 const props = defineProps({
   totalDays: {
     type: Number,
     required: true
   },
-  debtRemaining: {
-    type: Number,
-    required: true
-  },
-  endWorth: {
-    type: Number,
-    required: true
-  },
 })
+const store = useMainStore()
 
-const startingDebt = computed(() => SETTINGS.debt)
-const debtPaid = computed(() => Math.max(0, SETTINGS.debt - props.debtRemaining))
+const debtPaid = computed(() => Math.max(0, SETTINGS.debt - store.debt))
+const endWorth = computed(() => store.bank + store.cash - store.debt)
 
+const emit = defineEmits<{
+  (e: 'restart'): void
+}>()
 </script>
 
 <template>
@@ -29,11 +26,11 @@ const debtPaid = computed(() => Math.max(0, SETTINGS.debt - props.debtRemaining)
       <div class="text-center">
         <h3>You Lost!</h3>
         <p>You didn't repay your loan within the time limit!</p>
-        <p>${{debtPaid.toLocaleString()}} of ${{startingDebt.toLocaleString()}} loan repaid in {{totalDays - 1}} days.</p>
+        <p>${{debtPaid.toLocaleString()}} of ${{SETTINGS.debt.toLocaleString()}} loan repaid in {{totalDays - 1}} days.</p>
         <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
       </div>
       <div class="flex">
-        <button @click.prevent="$emit('restart')">New Game</button>
+        <button @click.prevent="emit('restart')">New Game</button>
       </div>
     </section>
     <div class="modal-overlay-bg"></div>

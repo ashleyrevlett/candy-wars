@@ -13,7 +13,6 @@ interface Settings {
   maxDays: number,
   cash: number,
   debt: number,
-  bank: number,
   inventorySpace: number,
   spiceOrder: Array<SpiceType>,
   locations: LocationPositions,
@@ -29,7 +28,6 @@ const SETTINGS : Settings = {
   maxDays: 30,
   cash: 1000,
   debt: 5000,
-  bank: 0,
   inventorySpace: 100,
   spiceOrder: [ 'Pepper', 'Cinnamon', 'Nutmeg', 'Saffron' ],
   volatility: {

@@ -7,6 +7,8 @@ import SETTINGS from "../settings";
 export type RootState = {
   tradeGoods: TradeGood[],
   cash: number,
+  debt: number,
+  bank: number,
   locations: Location[],
   currentLocationIndex: number,
   messages: string[],
@@ -17,6 +19,8 @@ export const useMainStore = defineStore({
   state: () => ({
       tradeGoods: [],
       cash: SETTINGS.cash,
+      debt: SETTINGS.debt,
+      bank: 0,
       locations: [],
       currentLocationIndex: 0,
       messages: [],
@@ -26,6 +30,8 @@ export const useMainStore = defineStore({
     initStore() {
       this.currentLocationIndex = 0
       this.cash = SETTINGS.cash
+      this.debt = SETTINGS.debt
+      this.bank = 0
       this.messages = []
 
       // location goods
@@ -79,14 +85,19 @@ export const useMainStore = defineStore({
       playerGood.price = locationGood.price
       locationGood.quantity -= quantity
       this.cash -= (locationGood.price * quantity)
+
+      this.logMessage(`Bought ${quantity} ${locationGood.spiceType} in ${locationGood.location}`)
+
     },
 
-    sell(id: string, quantity: number, location: CityName) {
+    sell(id: string, quantity: number) {
+      const location = this.locations[this.currentLocationIndex]
+
       const playerGoodIndex = this.findIndexById(id)
       if (playerGoodIndex == -1) return
       const playerGood = this.tradeGoods[playerGoodIndex]
 
-      const locationGoodIndex = this.tradeGoods.findIndex((item) => item.spiceType === playerGood.spiceType && item.location == location);
+      const locationGoodIndex = this.tradeGoods.findIndex((item) => item.spiceType === playerGood.spiceType && item.location == location.name);
       if (locationGoodIndex == -1) return
       const locationGood = this.tradeGoods[locationGoodIndex]
 
@@ -94,6 +105,8 @@ export const useMainStore = defineStore({
       if (playerGood.quantity == 0) playerGood.price = 0
       locationGood.quantity += quantity
       this.cash += locationGood.price * quantity
+
+      this.logMessage(`Sold ${quantity} ${playerGood.spiceType} in ${this.currentLocation.name}`)
     },
 
     findIndexById(id: string) {
@@ -101,6 +114,7 @@ export const useMainStore = defineStore({
     },
 
     spendCash(amount: number) {
+      amount = Math.min(this.cash, amount)
       this.cash -= amount
     },
 
@@ -125,7 +139,33 @@ export const useMainStore = defineStore({
 
     logMessage(message: string) {
       this.messages.push(message)
+    },
+
+    payDebt(payment: number) {
+      payment = Math.min(this.debt, Math.max(0, Math.min(this.cash, payment)))
+      this.debt -= payment
+      this.cash -= payment
+      this.logMessage(`Paid $${payment.toLocaleString()} on loan`)
+    },
+
+    updateDebt() {
+      this.debt += Math.floor(this.debt * SETTINGS.debt_apr)
+    },
+
+    deposit(amount: number) {
+      amount = Math.max(0, Math.min(this.cash, amount))
+      this.bank += amount
+      this.cash -= amount
+      this.logMessage(`Deposited $${amount.toLocaleString()} in bank`)
+    },
+
+    withdrawal(amount: number) {
+      amount = Math.max(0, Math.min(this.bank, amount))
+      this.bank -= amount
+      this.cash += amount
+      this.logMessage(`Withdrew $${amount.toLocaleString()} in bank`)
     }
+
 
   },
   getters: {

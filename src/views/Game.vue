@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, Ref, computed, onMounted } from 'vue'
+import { ref, Ref, computed, onMounted, onUpdated } from 'vue'
 import SETTINGS from '../settings'
 import { GameState } from '../types';
 import { TradeGood } from "../models/tradegood.model"
@@ -27,8 +27,6 @@ const store = useMainStore()
 /* local data */
 const gameState: Ref<GameState> = ref('Default')
 const activeSpice: Ref<TradeGood | null> = ref(null)
-const debt = ref(SETTINGS.debt)
-const bank = ref(SETTINGS.bank)
 const currentDay = ref(SETTINGS.startDate)
 const daysSinceStart = computed(() => {
   const time_difference = currentDay.value.getTime() - SETTINGS.startDate.getTime();
@@ -42,51 +40,8 @@ function restart() {
   gameState.value = 'Default'
   activeSpice.value = null
   currentDay.value = SETTINGS.startDate
-  bank.value = SETTINGS.bank
-  debt.value = SETTINGS.debt
   store.initStore()
   store.logMessage("New game started...")
-}
-
-function buy(sellerSpice: TradeGood, quantity : number) {
-  store.buy(sellerSpice.id,quantity)
-  store.logMessage(`Bought ${quantity} ${sellerSpice.spiceType} in ${store.currentLocation.name}`)
-  gameState.value = 'Default'
-}
-
-function sell(playerSpice: TradeGood, quantity : number) {
-  store.sell(playerSpice.id, quantity, store.currentLocation.name)
-  store.logMessage(`Sold ${quantity} ${playerSpice.spiceType} in ${store.currentLocation.name}`)
-  gameState.value = 'Default'
-}
-
-function onPayLoan(debtPayment : number) {
-  debtPayment = Math.min(debt.value, Math.min(debtPayment, store.cash))
-  debt.value -= debtPayment
-  store.spendCash(debtPayment)
-  store.logMessage(`Paid $${debtPayment.toLocaleString()} on loan`)
-  if (debt.value == 0) {
-    gameState.value = 'Win'
-    store.logMessage(`Loan paid off!`)
-  } else {
-    gameState.value = 'Default'
-  }
-}
-
-function onDeposit(deposit : number) {
-  deposit = Math.min(deposit, store.cash)
-  bank.value += deposit
-  store.cash -= deposit
-  gameState.value = 'Default'
-  store.logMessage(`Deposited $${deposit.toLocaleString()} in bank`)
-}
-
-function onWithdrawal(withdrawal: number) {
-  withdrawal = Math.min(withdrawal, bank.value)
-  bank.value -= withdrawal
-  store.cash += withdrawal
-  gameState.value = 'Default'
-  store.logMessage(`Withdrew $${withdrawal.toLocaleString()} from bank`)
 }
 
 function onAdvanceTime(days : number) {
@@ -98,10 +53,11 @@ function onAdvanceTime(days : number) {
 
 function nextDay() {
   store.randomizeGoods()
+  store.updateDebt()
   currentDay.value.setDate(currentDay.value.getDate() + 1)
   currentDay.value = new Date(currentDay.value) // have to create new date object for vue to detect changes
-  debt.value += Math.floor(debt.value * SETTINGS.debt_apr)
-  if (daysSinceStart.value > SETTINGS.maxDays && debt.value > 0) {
+
+  if (daysSinceStart.value > SETTINGS.maxDays && store.debt > 0) {
     gameState.value = 'Lose'
   } else {
     const rng = Math.random()
@@ -136,6 +92,13 @@ function randomEvent() {
   }
 }
 
+onUpdated(() => {
+  if (store.debt == 0 && daysSinceStart.value <= SETTINGS.maxDays) {
+    gameState.value = 'Win'
+    store.logMessage(`Loan paid off!`)
+  }
+})
+
 onMounted(() => {
   if (!props.loadGame) {
     store.initStore()
@@ -148,7 +111,6 @@ onMounted(() => {
   <WinModal
     v-if="gameState == 'Win'"
     :totalDays="daysSinceStart"
-    :endWorth="bank + store.cash"
     @restart="restart"
     @closeForm="gameState = 'Default'"
   />
@@ -156,25 +118,16 @@ onMounted(() => {
   <LoseModal
     v-if="gameState == 'Lose'"
     :totalDays="daysSinceStart"
-    :endWorth="bank + store.cash - debt"
-    :debtRemaining="debt"
     @restart="restart"
   />
 
   <BankModal
     v-if="gameState == 'Bank'"
-    :max-deposit="store.cash"
-    :max-withdrawal="bank"
-    @deposit="onDeposit"
-    @withdrawal="onWithdrawal"
     @closeForm="gameState = 'Default'"
   />
 
   <LoanModal
     v-if="gameState == 'Loan'"
-    :debt="debt"
-    :max-payment="Math.min(debt, store.cash)"
-    @payLoan="onPayLoan"
     @closeForm="gameState = 'Default'"
   />
 
@@ -182,16 +135,11 @@ onMounted(() => {
     v-if="(gameState == 'Buy' || gameState == 'Sell') && activeSpice != null"
     :transaction-type="gameState"
     :spice="activeSpice"
-    @buy="buy"
-    @sell="sell"
     @closeForm="gameState='Default'"
   />
 
   <div class="top-row">
     <StatsBox
-      :cash="store.cash"
-      :debt="debt"
-      :bank="bank"
       :day="currentDay"
       :daysSinceStart="daysSinceStart"
     />
