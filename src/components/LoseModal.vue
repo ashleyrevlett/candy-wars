@@ -17,20 +17,18 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div>
-    <section class="modal">
-      <div class="text-center">
-        <h3>You Lost!</h3>
-        <p>You didn't repay your loan within the time limit!</p>
-        <p>${{debtPaid.toLocaleString()}} of ${{SETTINGS.debt.toLocaleString()}} loan repaid in {{calendar.daysSinceStart - 1}} days.</p>
-        <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
-      </div>
-      <div class="flex">
-        <button @click.prevent="emit('restart')">New Game</button>
-      </div>
-    </section>
-    <div class="modal-overlay-bg"></div>
-  </div>
+  <section class="modal">
+    <div class="text-center">
+      <h3>You Lost!</h3>
+      <p>You didn't repay your loan within the time limit!</p>
+      <p>${{debtPaid.toLocaleString()}} of ${{SETTINGS.debt.toLocaleString()}} loan repaid in {{calendar.daysSinceStart - 1}} days.</p>
+      <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
+    </div>
+    <div class="flex">
+      <button @click.prevent="emit('restart')">New Game</button>
+    </div>
+  </section>
+  <div class="modal-overlay-bg"></div>
 </template>
 
 <style scoped>

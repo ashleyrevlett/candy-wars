@@ -19,21 +19,19 @@ const emit = defineEmits<{
 
 
 <template>
-  <div>
-    <section class="modal">
-      <div class="text-center">
-        <h3>Congratulations!</h3>
-        <p>You have successfully paid off your loan within the time limit!</p>
-        <p>${{SETTINGS.debt.toLocaleString()}} repaid in {{calendar.daysSinceStart}} days.</p>
-        <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
-      </div>
-      <div class="flex">
-        <button @click.prevent="emit('restart')">New Game</button>
-        <button @click.prevent="emit('closeForm')">Keep Playing</button>
-      </div>
-    </section>
-    <div class="modal-overlay-bg"></div>
-  </div>
+  <section class="modal">
+    <div class="text-center">
+      <h3>Congratulations!</h3>
+      <p>You have successfully paid off your loan within the time limit!</p>
+      <p>${{SETTINGS.debt.toLocaleString()}} repaid in {{calendar.daysSinceStart}} days.</p>
+      <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
+    </div>
+    <div class="flex">
+      <button @click.prevent="emit('restart')">New Game</button>
+      <button @click.prevent="emit('closeForm')">Keep Playing</button>
+    </div>
+  </section>
+  <div class="modal-overlay-bg"></div>
 </template>
 
 
@@ -44,8 +42,6 @@ section {
   width: 400px;
   display: flex;
   flex-direction: column;
-  margin-left: -200px;
-  margin-top: 100px;
 }
 
 
