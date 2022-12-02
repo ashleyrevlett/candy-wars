@@ -49,10 +49,10 @@ const SETTINGS : Settings = {
     'Saffron': { min: 50, max: 200}
   },
   priceRanges: {
-    'Pepper': { min: 1, max: 50},
-    'Cinnamon': { min: 10, max: 100},
-    'Nutmeg': { min: 100, max: 400},
-    'Saffron': { min: 600, max: 1000}
+    'Pepper': { min: 10, max: 40},
+    'Cinnamon': { min: 50, max: 100},
+    'Nutmeg': { min: 100, max: 200},
+    'Saffron': { min: 500, max: 800}
   },
   debt_apr: 0.005,
   event_chance: 0.2,
