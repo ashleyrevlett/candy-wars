@@ -16,18 +16,15 @@ onUpdated(() => {
 
 
 <template>
-  <div ref="messageBox" class="messageBox">
+  <section ref="messageBox" class="messageBox">
     <p v-for="msg in store.messages" v-html="msg"></p>
-  </div>
+  </section>
 </template>
 
 
 <style scoped>
 .messageBox {
-  border: 1px solid white;
   height: 50px;
-  margin-bottom: 10px;
-  padding: 10px;
   overflow-y:scroll;
   padding-bottom: 5px;
 }

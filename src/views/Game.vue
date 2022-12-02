@@ -102,6 +102,7 @@ function randomEvent() {
 </script>
 
 <template>
+
   <WinModal
     v-if="gameState == 'Win'"
     @restart="restart"
@@ -130,12 +131,12 @@ function randomEvent() {
     @closeForm="gameState = 'Default'"
   />
 
-  <div class="top-row">
+  <div class="row">
     <StatsBox />
     <LocationsBox @advanceTime="onAdvanceTime" />
   </div>
 
-  <div class="trade-box">
+  <div class="row">
     <section>
       <h4 v-if="store.currentLocation">Current Location: {{ store.currentLocation.name }}</h4>
       <table>
@@ -182,7 +183,9 @@ function randomEvent() {
     </section>
   </div>
 
-  <MessageBox />
+  <div class="row">
+    <MessageBox />
+  </div>
 
   <div class="actions">
     <button @click.prevent="store.logMessage('Waited a day'); gameState = 'Default'; nextDay(); ">Wait a day</button>
@@ -195,26 +198,22 @@ function randomEvent() {
 
 
 <style scoped>
-.top-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 1fr;
-  grid-column-gap: 10px;
-  grid-row-gap: 0px;
-}
-.trade-box {
+.row {
+  display: flex;
+  flex-flow: column;
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 1fr;
-  grid-column-gap: 10px;
-  grid-row-gap: 0px;
-  margin-bottom: 10px;
 }
 
-.trade-box > section {
-  border: 1px solid white;
-  padding: 0 1rem;
+@media screen and (min-width: 768px) {
+  .row {
+    flex-flow: row;
+  }
+}
+
+.row > section {
+  margin: 5px;
+  padding: 10px;
+  flex-basis: 100%;
 }
 
 h4 {
@@ -223,11 +222,32 @@ h4 {
 
 .actions  {
   display: flex;
+  margin: 5px;
+  flex-basis: 100%;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+@media screen and (min-width: 768px) {
+  .actions {
+    flex-wrap: no-wrap;
+    justify-content: flex-start;
+  }
 }
 
 .actions button {
-  margin-right: 10px;
+  flex-basis: 48.5%;
+  margin-bottom: 10px;
 }
+
+@media screen and (min-width: 768px) {
+  .actions button {
+    flex-basis: auto;
+    margin-right: 10px;
+  }
+}
+
 
 .ml-auto {
   margin-left: auto

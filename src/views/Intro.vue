@@ -28,7 +28,7 @@ const hasSaveGame = localStorage.getItem('mainStore') != null ? true : false
 
 <template>
 
-  <main class="text-center">
+  <div class="text-center">
     <h2>Spice Wars</h2>
     <p>This is a game of buying and selling. The object of the game is to pay off your debt to the bank. Then, make as much money as you can in a 1 year period. The prices of spices per unit are:</p>
     <ul>
@@ -38,8 +38,7 @@ const hasSaveGame = localStorage.getItem('mainStore') != null ? true : false
       <button v-if="hasSaveGame" @click="emit('load')">Continue Game</button>
       <button @click="emit('start')">New Game</button>
     </div>
-  </main>
-
+  </div>
 
 </template>
 

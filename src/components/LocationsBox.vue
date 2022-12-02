@@ -23,20 +23,11 @@ function travelTo(index: number, days: number) {
         {{ location.name }} <span v-if="location.position != store.currentLocation.position">({{ travelTimeTo(store.currentLocation.position, location.position) }} days journey)</span>
       </button>
     </div>
-    <br />
-
   </section>
 </template>
 
 
 <style scoped>
-
-section {
-  border: 1px solid white;
-  margin-bottom: 10px;
-  padding: 10px;
-}
-
 h4 {
   margin:0 0 10px 0
 }

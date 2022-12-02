@@ -3,15 +3,19 @@ import { ref } from 'vue'
 
 import Intro from './views/Intro.vue'
 import Game from './views/Game.vue'
+import ThemeSelector from './components/ThemeSelector.vue'
 
-let showIntro = ref(true)
-let loadGame = ref(false)
+const showIntro = ref(true)
+const loadGame = ref(false)
 
 </script>
 
 <template>
-  <Intro v-if="showIntro" @start="showIntro=false" @load="loadGame=true; showIntro=false" />
-  <Game v-if="showIntro == false" :loadGame="loadGame" />
+  <ThemeSelector />
+  <main class="app">
+    <Intro v-if="showIntro" @start="showIntro=false" @load="loadGame=true; showIntro=false" />
+    <Game v-if="showIntro == false" :loadGame="loadGame" />
+  </main>
 </template>
 
 <style scoped>

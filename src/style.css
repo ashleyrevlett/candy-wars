@@ -1,30 +1,41 @@
-:root {
+:root,
+html.dark-theme {
+  --text-color: #FCFCFC;
+  --bg-color: #111;
+  --success-color: rgb(0, 255, 0);
+  --warning-color: rgb(255, 0, 0);
+  --notice-color: rgb(0, 0, 255);
+
+  color-scheme: light dark;
+}
+
+@media screen and (prefers-color-scheme: light) {
+  :root {
+    --text-color: #111;
+    --bg-color: #eee;
+    --success-color: rgb(0, 186, 0)
+  }
+}
+
+html {
   font-family: 'Courier New', Courier, monospace;
   font-size: 16px;
   line-height: 24px;
   font-weight: 500;
-
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #000;
-
-}
-
-a {
-  font-weight: 500;
-  color: white;
-  text-decoration: underline;
-}
-
-a:hover {
-  color: rgb(0, 255, 0);
+  color: var(--text-color);
+  background: var(--bg-color);
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  padding: 0;
   min-height: 100vh;
+}
+
+section {
+  border: 1px solid var(--text-color);
+  margin-bottom: 10px;
+  padding: 10px;
 }
 
 h1 {
@@ -32,52 +43,70 @@ h1 {
   line-height: 1.1;
 }
 
+a {
+  font-weight: 500;
+  color: var(--text-color);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--success-color)
+}
+
 button {
   border-radius: 0;
-  border: 1px solid white;
+  border: 1px solid var(--text-color);
   padding: 0.3em 1em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
-  color: white;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   cursor: pointer;
   transition: border-color color 0.25s;
 }
 
 button:not(:disabled):hover {
-  border-color: rgb(0, 255, 0);
-  color: rgb(0, 255, 0);
+  border-color: var(--success-color);
+  color: var(--success-color);
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+
 button:disabled {
   opacity: .3;
 }
 
-.card {
-  padding: 2em;
+#app {
+  min-height: 100vh;
+  padding-top: 35px;
 }
 
-#app {
-  width: 90%;
-  max-width: 800px;
-  margin: 0 auto;
+main {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 320px;
+  max-width: 800px;
+  width: 90%;
+  min-height: 100vh;
+  margin: 0 auto;
 }
 
 .text-green {
-  color: rgb(0, 255, 0)
+  color: --success-color
 }
 
 .text-red {
-  color: rgb(255, 0, 0)
+  color: --success-warning
 }
 
 .text-blue {
-  color: rgb(0, 0, 255)
+  color: --success-notice
 }
 
 .text-center {
@@ -108,8 +137,8 @@ input[type="number"] {
 }
 
 .modal {
-  border: 1px solid white;
-  background-color: black;
+  border: 1px solid var(--text-color);
+  background-color: var(--bg-color);
   z-index: 1;
   box-shadow: 10px 10px rgba(33, 33, 33, .8);
   position: fixed;
