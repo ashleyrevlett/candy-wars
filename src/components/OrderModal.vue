@@ -67,8 +67,6 @@ section {
   width: 320px;
   display: flex;
   flex-direction: column;
-  margin-left: -160px;
-  margin-top: 100px;
 }
 
 button.cancel {

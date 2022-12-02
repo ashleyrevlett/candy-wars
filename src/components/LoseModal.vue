@@ -39,9 +39,6 @@ section {
   width: 400px;
   display: flex;
   flex-direction: column;
-  margin-left: -200px;
-  margin-top: 100px;
-  z-index: 1;
 }
 
 div {

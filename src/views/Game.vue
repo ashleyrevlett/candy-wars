@@ -190,7 +190,7 @@ function randomEvent() {
     <button @click.prevent="store.logMessage('Waited a day'); gameState = 'Default'; nextDay(); ">Wait a day</button>
     <button @click.prevent="gameState = 'Loan'">Pay Loan</button>
     <button @click.prevent="gameState = 'Bank'">Visit Bank</button>
-    <button class="ml-auto" @click.prevent="restart">New Game</button>
+    <button @click.prevent="restart">New Game</button>
   </div>
 
 </template>
@@ -218,14 +218,10 @@ function randomEvent() {
   flex-basis: 100%;
 }
 
-h4 {
-  margin: 10px 0 5px;
-}
-
 .actions  {
   display: flex;
   margin: 5px;
-  flex-basis: 100%;
+  width: 100%;
   margin-bottom: 2rem;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -233,14 +229,14 @@ h4 {
 
 @media screen and (min-width: 768px) {
   .actions {
-    flex-wrap: no-wrap;
+    flex-wrap: nowrap;
     justify-content: flex-start;
   }
 }
 
 .actions button {
-  flex-basis: 48.5%;
-  margin-bottom: 10px;
+  flex-basis: 48%;
+  margin: 5px 1%;
 }
 
 @media screen and (min-width: 768px) {
@@ -248,11 +244,12 @@ h4 {
     flex-basis: auto;
     margin-right: 10px;
   }
+
+  .actions button:last-child {
+    margin-left: auto !important;
+    margin-right: 5px;
+  }
 }
 
-
-.ml-auto {
-  margin-left: auto
-}
 
 </style>
