@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useMainStore } from "../stores/index"
+import moneySFX from '../assets/audio/moneyCounter.mp3'
 
 const store = useMainStore()
 
@@ -22,19 +23,31 @@ watch(debtPayment, async (newVal, oldVal) => {
   }
 })
 
-
+const isPaying = ref(false)
+const moneyAudio = new Audio(moneySFX);
+moneyAudio.volume = 0.5
+function doPayment() {
+  if (isPaying.value) return
+  isPaying.value = true
+  moneyAudio.play()
+  setTimeout(() => {
+    store.payDebt(debtPayment.value)
+    isPaying.value = false
+    emit('closeForm')
+  }, 800)
+}
 </script>
 
 
 <template>
   <section class="modal">
-    <button class="cancel" @click.prevent="emit('closeForm')">X</button>
+    <button class="cancel" :disabled="isPaying" @click.prevent="emit('closeForm')">X</button>
     <div>
       <h4 class="text-center">Pay Loan</h4>
       <form>
         <label for="qty">Payment: </label>
         <input name="qty" type="number" v-model="debtPayment" min="0" :max="maxDebtPayment" />
-        <button :disabled="store.cash == 0 || debtPayment == 0 || error != ''" type="submit" @click.prevent="store.payDebt(debtPayment); emit('closeForm')">Pay Now</button>
+        <button :disabled="isPaying || store.cash == 0 || debtPayment == 0 || error != ''" type="submit" @click.prevent="doPayment">Pay Now</button>
       </form>
       <p class="text-red error">{{error}}</p>
     </div>
