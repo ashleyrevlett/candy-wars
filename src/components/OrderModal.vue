@@ -27,17 +27,20 @@ const maxQuantity = computed(() => {
 
 const emit = defineEmits<{
   (e: 'closeForm'): void,
+  (e: 'buyDone'): void,
+  (e: 'sellDone'): void,
 }>()
 
 let tradeQuantity = ref(0)
 function transact() {
   tradeQuantity.value = Math.min(maxQuantity.value, tradeQuantity.value)
+  if (tradeQuantity.value == 0) return
   if (props.transactionType == 'Buy'){
     inventory.buy(props.spice.id, tradeQuantity.value)
-    emit('closeForm')
+    emit('buyDone')
   } else {
     inventory.sell(props.spice.id, tradeQuantity.value)
-    emit('closeForm')
+    emit('sellDone')
   }
   tradeQuantity.value = 0
 }

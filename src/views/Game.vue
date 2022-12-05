@@ -19,6 +19,8 @@ import LoanModal from '../components/LoanModal.vue'
 import WinModal from '../components/WinModal.vue'
 import LoseModal from '../components/LoseModal.vue'
 import BankModal from '../components/BankModal.vue'
+import moneySFX from '../assets/audio/chaching.mp3'
+import yeahSFX from '../assets/audio/403828__alshred__16-ohyeah.wav'
 
 const props = defineProps({
   loadGame: {
@@ -104,6 +106,21 @@ function randomEvent() {
 
 }
 
+
+const moneyAudio = new Audio(moneySFX);
+const yeahAudio = new Audio(yeahSFX);
+moneyAudio.volume = 0.2
+yeahAudio.volume = 0.5
+function onBuyDone() {
+  moneyAudio.play()
+  gameState.value = 'Default'
+}
+function onSellDone() {
+  moneyAudio.play()
+  yeahAudio.play()
+  gameState.value = 'Default'
+}
+
 </script>
 
 <template>
@@ -134,6 +151,8 @@ function randomEvent() {
     :transaction-type="gameState"
     :spice="activeSpice"
     @closeForm="gameState = 'Default'"
+    @buyDone="onBuyDone"
+    @sellDone="onSellDone"
   />
 
   <div class="row top">

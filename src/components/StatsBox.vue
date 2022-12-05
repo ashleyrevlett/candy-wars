@@ -15,7 +15,7 @@ const day = computed(() => new Date(calendar.currentDay))
 <template>
   <section>
     <div>
-      <p>
+      <p style="text-transform: uppercase;">
         <strong>{{ day.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}}</strong><br />
         Day {{ calendar.daysSinceStart }} of {{ SETTINGS.maxDays }}
       </p>

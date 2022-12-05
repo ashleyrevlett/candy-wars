@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "dosfont";
+  src: url("assets/fonts/Web437_IBM_VGA_8x16.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root,
 html.dark-theme {
   --text-color: #FCFCFC;
@@ -11,19 +18,25 @@ html.dark-theme {
 
 @media screen and (prefers-color-scheme: light) {
   :root {
-    --text-color: #111;
-    --bg-color: #eee;
-    --success-color: rgb(0, 186, 0)
+    --text-color: #C2C2C2;
+    --bg-color: #0100AB;
+    --notice-color: rgb(255, 255, 255);
   }
 }
 
 html {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 16px;
+  font-family: 'dosfont', 'Courier New', Courier, monospace;
+  font-size: 18px;
   line-height: 24px;
   font-weight: 400;
   color: var(--text-color);
   background: var(--bg-color);
+}
+
+pre {
+  font-family:'Courier New', Courier, monospace;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 body {
@@ -46,6 +59,7 @@ h1 {
 h4 {
   text-align: center;
   margin: 0 0 5px;
+  text-transform: uppercase;
 }
 
 a {
@@ -132,6 +146,10 @@ td, th {
   text-align: left;
   padding: 2px 6px 2px 0;
   border: 0;
+}
+
+th {
+  opacity: .6
 }
 
 input[type="number"] {
