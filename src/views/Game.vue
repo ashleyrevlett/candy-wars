@@ -73,33 +73,29 @@ function restart() {
 
 function onAdvanceTime(days : number) {
   while (days > 0) {
-    nextDay()
     days--
+    inventory.randomizeGoods()
+    store.updateDebt()
+    store.recoverHealth()
+    calendarStore.advanceDate()
   }
-}
-
-function nextDay() {
-  inventory.randomizeGoods()
-  store.updateDebt()
-  store.recoverHealth()
-  calendarStore.advanceDate()
-
   if (Math.random() < SETTINGS.event_chance) {
     randomEvent()
   }
 }
 
 function randomEvent() {
-  // select random non-player good
-  const randomIndex = randomNumberInRange(0, Object.keys(SETTINGS.locations).length * SETTINGS.spiceOrder.length)
-  const randomGood = inventory.getGoodByIndex(randomIndex)
+  // select random non-player good at currentLocation
+  const locationGoods = inventory.getCurrentLocationGoods
+  const randomIndex = randomNumberInRange(0, locationGoods.length)
+  const randomGood = locationGoods[randomIndex]
   if (!randomGood) return
   const rng = Math.random()
   if (rng < 0.4) {
-    inventory.priceSpike(randomIndex)
+    inventory.priceSpike(randomGood.id)
     store.logMessage(`<span class="text-blue">${randomGood.spiceType} has spiked in value at ${randomGood.location}!</span>`)
   } else if (rng < .8) {
-    inventory.priceDrop(randomIndex)
+    inventory.priceDrop(randomGood.id)
     store.logMessage(`<span class="text-blue">${randomGood.spiceType} has dropped in value at ${randomGood.location}!</span>`)
   } else {
     emit('startEncounter')
@@ -116,7 +112,7 @@ function waitDay() {
   setTimeout(() => {
     store.logMessage('Waited a day')
     gameState.value = 'Default'
-    nextDay()
+    onAdvanceTime(1)
     isWaiting.value = false
   }, 2100)
 }

@@ -98,18 +98,25 @@ export const useInventoryStore = defineStore({
       });
     },
 
-    priceSpike(idx: number) {
-      const priceRange = SETTINGS.priceRanges[this.tradeGoods[idx].spiceType]
-      this.tradeGoods[idx].price = priceRange.max + Math.ceil(priceRange.max * .25)
+    priceSpike(id: string) {
+      const goodIndex = this.tradeGoods.findIndex((item) => item.id === id)
+      if (goodIndex == -1) return
+      const priceRange = SETTINGS.priceRanges[this.tradeGoods[goodIndex].spiceType]
+      this.tradeGoods[goodIndex].price = priceRange.max + Math.ceil(priceRange.max * .25)
     },
 
-    priceDrop(idx: number) {
-      const priceRange = SETTINGS.priceRanges[this.tradeGoods[idx].spiceType]
-      this.tradeGoods[idx].price = priceRange.min - Math.ceil(priceRange.min * .15)
+    priceDrop(id: string) {
+      const goodIndex = this.tradeGoods.findIndex((item) => item.id === id)
+      if (goodIndex == -1) return
+      const priceRange = SETTINGS.priceRanges[this.tradeGoods[goodIndex].spiceType]
+      this.tradeGoods[goodIndex].price = priceRange.min - Math.ceil(priceRange.min * .15)
     },
 
   },
   getters: {
+    getGoodById: state => (id: string) => {
+      return state.tradeGoods.find((item) => item.id === id)
+    },
     getGoodByIndex: state => (index: number) => {
       if (index > 0 && index <= state.tradeGoods.length) {
         return state.tradeGoods[index]
