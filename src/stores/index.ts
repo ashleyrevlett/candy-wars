@@ -9,7 +9,6 @@ export type RootState = {
   bank: number,
   locations: Location[],
   currentLocationIndex: number,
-  messages: string[],
   health: number,
   weapon: WeaponType,
 };
@@ -22,7 +21,6 @@ export const useMainStore = defineStore({
       bank: 0,
       locations: [],
       currentLocationIndex: 0,
-      messages: [],
       health: SETTINGS.startingHealth,
       weapon: 'Fists'
   } as RootState),
@@ -33,7 +31,6 @@ export const useMainStore = defineStore({
       this.cash = SETTINGS.cash
       this.debt = SETTINGS.debt
       this.bank = 0
-      this.messages = []
       this.health = SETTINGS.startingHealth
       this.weapon = 'Fists'
 
@@ -68,7 +65,6 @@ export const useMainStore = defineStore({
       payment = Math.min(this.debt, Math.max(0, Math.min(this.cash, payment)))
       this.debt -= payment
       this.cash -= payment
-      this.logMessage(`Paid $${payment.toLocaleString()} on loan`)
     },
 
     updateDebt() {
@@ -80,18 +76,12 @@ export const useMainStore = defineStore({
       amount = Math.max(0, Math.min(this.cash, amount))
       this.bank += amount
       this.cash -= amount
-      this.logMessage(`Deposited $${amount.toLocaleString()} in bank`)
     },
 
     withdrawal(amount: number) {
       amount = Math.max(0, Math.min(this.bank, amount))
       this.bank -= amount
       this.cash += amount
-      this.logMessage(`Withdrew $${amount.toLocaleString()} in bank`)
-    },
-
-    logMessage(message: string) {
-      this.messages.push(message)
     },
 
     takeDamage(amount: number) {

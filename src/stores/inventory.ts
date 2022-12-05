@@ -62,7 +62,6 @@ export const useInventoryStore = defineStore({
 
       const store = useMainStore()
       store.spendCash(locationGood.price * quantity)
-      store.logMessage(`Bought ${quantity} ${locationGood.spiceType} in ${locationGood.location}`)
     },
 
     sell(id: string, quantity: number) {
@@ -82,7 +81,6 @@ export const useInventoryStore = defineStore({
       locationGood.quantity += quantity
 
       store.receiveCash(locationGood.price * quantity)
-      store.logMessage(`Sold ${quantity} ${playerGood.spiceType} in ${location.name}`)
     },
 
     findIndexById(id: string) {

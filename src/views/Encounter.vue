@@ -43,13 +43,11 @@ function tick() {
   } else {
     if (enemyHealth.value <= 0) {
       msg.value = "You knocked him out!"
-      store.logMessage(`<span class="text-green">You fought off the robber! You didn't lose any cash... this time.</span>`)
     } else {
       msg.value = "You got knocked out! They stole some of your cash!"
       const randomCashAmount = randomNumberInRange(store.cash * .4, store.cash * .8)
       if (randomCashAmount > 0) {
         store.spendCash(randomCashAmount)
-        store.logMessage(`<span class="text-red">You were robbed! You lost $${randomCashAmount.toLocaleString()}! Shoulda put it in the bank.</span>`)
       }
     }
     if (intervalId) {
@@ -71,11 +69,9 @@ function run() {
   const rng = Math.random()
   if (rng > .5) {
     msg.value = "You're pretty fast! You escape unharmed."
-    store.logMessage(`<span class="text-green">You outran the robber! You didn't lose any cash... this time.</span>`)
   } else {
     const randomCashAmount = randomNumberInRange(store.cash * .4, store.cash * .8)
     msg.value = `Not fast enough! They catch you and steal $${randomCashAmount.toLocaleString()}.`
-    store.logMessage(`<span class="text-red">You were robbed! You lost $${randomCashAmount.toLocaleString()}! Shoulda put it in the bank.</span>`)
   }
 }
 

@@ -12,11 +12,11 @@ import { useInventoryStore } from "../stores/inventory"
 
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
-import MessageBox from '../components/MessageBox.vue';
 import LocationsBox from '../components/LocationsBox.vue';
 import OrderModal from '../components/OrderModal.vue';
 import LoanModal from '../components/LoanModal.vue'
 import WinModal from '../components/WinModal.vue'
+import AlertModal from '../components/AlertModal.vue'
 import LoseModal from '../components/LoseModal.vue'
 import BankModal from '../components/BankModal.vue'
 import moneySFX from '../assets/audio/chaching.mp3'
@@ -52,7 +52,6 @@ onMounted(() => {
 onUpdated(() => {
   if (store.debt == 0 && calendarStore.daysSinceStart <= SETTINGS.maxDays) {
     gameState.value = 'Win'
-    store.logMessage(`Loan paid off!`)
   } else if (calendarStore.daysSinceStart > SETTINGS.maxDays && store.debt > 0) {
     // max days passed and didn't pay off debt
     gameState.value = 'Lose'
@@ -68,7 +67,6 @@ function restart() {
   store.initStore()
   calendarStore.initStore()
   inventory.initStore()
-  store.logMessage("New game started...")
 }
 
 function onAdvanceTime(days : number) {
@@ -93,10 +91,10 @@ function randomEvent() {
   const rng = Math.random()
   if (rng < 0.4) {
     inventory.priceSpike(randomGood.id)
-    store.logMessage(`<span class="text-blue">${randomGood.spiceType} has spiked in value at ${randomGood.location}!</span>`)
+    showAlert(`<span class="text-blue">${randomGood.spiceType} has spiked in value!</span>`)
   } else if (rng < .8) {
     inventory.priceDrop(randomGood.id)
-    store.logMessage(`<span class="text-blue">${randomGood.spiceType} has dropped in value at ${randomGood.location}!</span>`)
+    showAlert(`<span class="text-blue">${randomGood.spiceType} has dropped in value!</span>`)
   } else {
     emit('startEncounter')
   }
@@ -110,7 +108,6 @@ function waitDay() {
   isWaiting.value = true
   clockAudio.play()
   setTimeout(() => {
-    store.logMessage('Waited a day')
     gameState.value = 'Default'
     onAdvanceTime(1)
     isWaiting.value = false
@@ -131,9 +128,21 @@ function onSellDone() {
   gameState.value = 'Default'
 }
 
+
+const alertMessage = ref('')
+function showAlert(msg: string) {
+  alertMessage.value = msg
+}
+
 </script>
 
 <template>
+
+  <AlertModal
+    v-if="alertMessage"
+    :message="alertMessage"
+    @closeAlert="alertMessage = ''"
+  />
 
   <WinModal
     v-if="gameState == 'Win'"
@@ -214,10 +223,6 @@ function onSellDone() {
         </tbody>
       </table>
     </section>
-  </div>
-
-  <div class="row">
-    <MessageBox />
   </div>
 
   <div class="actions">
