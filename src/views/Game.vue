@@ -41,7 +41,7 @@ const calendarStore = useCalendarStore()
 const inventory = useInventoryStore()
 
 const gameState: Ref<GameState> = ref('Default')
-const activeSpice: Ref<TradeGood | null> = ref(null) // which spice is currently being traded
+const activeSpice: Ref<TradeGood | undefined | null> = ref(null) // which spice is currently being traded
 
 onMounted(() => {
   if (!props.loadGame) {
@@ -134,6 +134,16 @@ function showAlert(msg: string) {
   alertMessage.value = msg
 }
 
+function onBuy(id: string) {
+  activeSpice.value = inventory.getGoodById(id)
+  gameState.value = 'Buy'
+}
+
+function onSell(id: string) {
+  activeSpice.value = inventory.getGoodById(id)
+  gameState.value = 'Sell'
+}
+
 </script>
 
 <template>
@@ -181,12 +191,22 @@ function showAlert(msg: string) {
 
   <div class="row">
     <section>
-      <h4 v-if="store.currentLocation">Current Location: {{ store.currentLocation.name }}</h4>
+      <h4 v-if="store.currentLocation">
+        <span>
+          Current Location: {{ store.currentLocation.name }}
+        </span>
+        <span>
+          Space Available: {{ inventory.inventorySpace }} / {{ SETTINGS.inventorySpace }}
+        </span>
+      </h4>
       <table>
         <thead>
           <tr>
-            <th>Spice</th>
-            <th colspan="2">Price</th>
+            <th class="xl">Spice</th>
+            <th>Current Price</th>
+            <th>Price Paid</th>
+            <th>Qty</th>
+            <th class="xl"></th>
           </tr>
         </thead>
         <tbody>
@@ -195,30 +215,8 @@ function showAlert(msg: string) {
             v-for="(item, index) in inventory.getCurrentLocationGoods"
             :key="`item-${store.currentLocation.name}-${index}`"
             :good="item"
-            :disabled="inventory.inventorySpace == 0 || store.cash < item.price"
-            transaction-type="Buy"
-            @order="activeSpice = item; gameState = 'Buy'"
-          />
-        </tbody>
-      </table>
-    </section>
-    <section>
-      <h4>Player Inventory ({{ inventory.inventorySpace }} / {{ SETTINGS.inventorySpace }} )</h4>
-      <table>
-        <thead>
-          <tr>
-            <th>Spice</th>
-            <th>Qty</th>
-            <th colspan="2">Avg Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          <InventoryItem
-            v-for="(item, index) in inventory.getPlayerGoods()"
-            :key="`item-${index}`"
-            :good="item"
-            transaction-type="Sell"
-            @order="activeSpice = item; gameState = 'Sell'"
+            @buy="onBuy"
+            @sell="onSell"
           />
         </tbody>
       </table>
@@ -297,6 +295,29 @@ function showAlert(msg: string) {
   display: inline-block;
   width: 128px;
   text-align: center;
+}
+
+h4 {
+  display: flex;
+  width: 100%;
+  flex-flow: column;
+}
+
+@media screen and (min-width: 768px) {
+  h4 {
+    flex-flow: row;
+  }
+
+  h4 span:last-child {
+    margin-left: auto;
+  }
+}
+
+th {
+  width: 16%;
+}
+th.xl {
+  width: 25%;
 }
 
 </style>

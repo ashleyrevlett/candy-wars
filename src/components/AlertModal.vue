@@ -27,7 +27,7 @@ const emit = defineEmits<{
 <style scoped>
 section {
   height: 200px;
-  width: 400px;
+  width: 300px;
   display: flex;
   flex-direction: column;
   justify-content: center;

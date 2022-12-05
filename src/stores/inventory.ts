@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 import { TradeGood, generateStartingData, calculatePrice, getUpdatedQuantity } from "../models/tradegood.model"
-import { CityName, GameState } from "../types"
+import { CityName, GameState, SpiceType } from "../types"
 import SETTINGS from "../settings";
 import { useMainStore } from "./index";
 
@@ -120,6 +120,9 @@ export const useInventoryStore = defineStore({
         return state.tradeGoods[index]
       }
       return null
+    },
+    getPlayerGoodByName: state => (spiceType: SpiceType ) => {
+      return state.tradeGoods.find((item) => item.spiceType === spiceType && item.location == null)
     },
     getCurrentLocationGoods: state => {
       const store = useMainStore()

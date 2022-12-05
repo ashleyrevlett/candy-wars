@@ -76,7 +76,7 @@ const animFrames = [
         {{ location.name }} <span v-if="location.position != store.currentLocation.position">({{ travelTimeTo(store.currentLocation.position, location.position) }} days journey)</span>
       </button>
     </div>
-    <div v-else>
+    <div class="animation" v-else>
       <pre>
         {{ animFrames[framesElapsed] }}
       </pre>
@@ -90,16 +90,21 @@ h4 {
   margin:0 0 10px 0
 }
 
-
-
 .button-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 5px;
 }
 
+.button-grid,
+.animation {
+  height: 140px;
+  overflow: hidden;
+}
+
 button span {
   font-size: 10px;
   display: block;
 }
+
 </style>
