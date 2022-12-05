@@ -55,7 +55,7 @@ onUpdated(() => {
   } else if (calendarStore.daysSinceStart > SETTINGS.maxDays && store.debt > 0) {
     // max days passed and didn't pay off debt
     gameState.value = 'Lose'
-  } else if (store.cash == 0 && inventory.inventorySpace == SETTINGS.inventorySpace) {
+  } else if (store.cash == 0 && store.bank == 0 && inventory.inventorySpace == SETTINGS.inventorySpace) {
     // no money, no goods = stalemate
     gameState.value = 'Lose'
   }

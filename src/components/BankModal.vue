@@ -1,47 +1,66 @@
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useMainStore } from "../stores/index"
 
 const store = useMainStore()
 
-const deposit = ref(0)
-const withdrawal = ref(0)
+const deposit = ref(store.cash)
+const withdrawal = ref(store.bank)
 const doDeposit = ref(false)
 const doWithdrawal = ref(false)
 
 const emit = defineEmits<{
   (e: 'closeForm'): void
 }>()
+
+const error = ref('')
+watch(deposit, async (newVal, oldVal) => {
+  if (!doDeposit.value) return
+  if (newVal > store.cash || newVal <= 0) {
+    error.value = 'Invalid amount'
+  } else if (error.value != '') {
+    error.value = ''
+  }
+})
+watch(withdrawal, async (newVal, oldVal) => {
+  if (!doWithdrawal.value) return
+  if (newVal > store.bank || newVal <= 0) {
+    error.value = 'Invalid amount'
+  } else if (error.value != '') {
+    error.value = ''
+  }
+})
 </script>
 
 <template>
   <section class="modal">
     <button class="cancel" @click.prevent="emit('closeForm')">X</button>
     <div class="buttons" v-if="!doWithdrawal && !doDeposit">
-      <button @click.prevent="doDeposit = true; doWithdrawal = false">Deposit Cash</button>
-      <button @click.prevent="doDeposit = false; doWithdrawal = true">Withdrawal Cash</button>
+      <button @click.prevent="doDeposit = true; doWithdrawal = false" :disabled="(store.cash <= 0)">Deposit Cash</button>
+      <button @click.prevent="doDeposit = false; doWithdrawal = true" :disabled="(store.bank <= 0)">Withdrawal Cash</button>
     </div>
     <div v-if="doDeposit">
-      <h4 class="text-center">Deposit Cash</h4>
+      <h4>Deposit Cash</h4>
       <form>
-        <label for="qty">Amount: </label>
+        <label for="qty">$ </label>
         <input name="qty" type="number" v-model="deposit" min="0" :max="store.cash" />
-        <button :disabled="store.cash == 0 || deposit == 0" type="submit" @click.prevent="store.deposit(deposit); emit('closeForm')">Deposit</button>
+        <button :disabled="error != ''" type="submit" @click.prevent="store.deposit(deposit); emit('closeForm')">Deposit</button>
       </form>
-      <p>Max you can deposit: <a href="/#" @click.prevent="deposit = store.cash">${{ store.cash.toLocaleString() }}</a></p>
-      <a @click.prevent="doDeposit = false" href="/#">‹ Back</a>
+      <p class="text-red error">{{error}}</p>
+      <small>Max you can deposit: ${{ store.cash.toLocaleString() }}</small>
     </div>
     <div v-if="doWithdrawal">
-      <h4 class="text-center">Withdrawal Cash</h4>
+      <h4>Withdrawal Cash</h4>
       <form>
-        <label for="qty">Amount: </label>
+        <label for="qty">$ </label>
         <input name="qty" type="number" v-model="withdrawal" min="0" :max="store.bank" />
-        <button :disabled="store.bank == 0 || withdrawal == 0" type="submit" @click.prevent="store.withdrawal(withdrawal); emit('closeForm')">Withdrawal</button>
+        <button :disabled="error != ''" type="submit" @click.prevent="store.withdrawal(withdrawal); emit('closeForm')">Withdrawal</button>
       </form>
-      <p>Max you can withdrawal: <a href="/#" @click.prevent="(withdrawal = store.bank)">${{ store.bank.toLocaleString() }}</a></p>
-      <a @click.prevent="doWithdrawal = false" href="/#">‹ Back</a>
+      <p class="text-red error">{{error}}</p>
+      <small>Max you can withdrawal: ${{ store.bank.toLocaleString() }}</small>
     </div>
+    <p v-if="(doDeposit || doWithdrawal)"><a @click.prevent="doWithdrawal = false; doDeposit = false" href="/#">‹ Back</a></p>
   </section>
 </template>
 
@@ -53,6 +72,7 @@ section {
   width: 320px;
   display: flex;
   flex-direction: column;
+  text-align: center;
 }
 
 button.cancel {
@@ -61,7 +81,7 @@ button.cancel {
 }
 
 div {
-  padding: 0 10px 10px 10px;
+  padding: 0 10px;
 }
 
 h4 {
@@ -70,6 +90,15 @@ h4 {
 
 p {
   margin-bottom: 10px;
+}
+
+p.error {
+  margin: 5px 0 0;
+}
+
+small {
+  display: inline-block;
+  margin-top: 10px;
 }
 
 .buttons button {

@@ -1,19 +1,27 @@
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useMainStore } from "../stores/index"
 
 const store = useMainStore()
 
-const debtPayment = ref(0)
+const emit = defineEmits<{
+  (e: 'closeForm'): void
+}>()
 
 const maxDebtPayment = computed(() => {
   return Math.min(store.debt, store.cash)
 })
+const debtPayment = ref(maxDebtPayment.value)
+const error = ref('')
+watch(debtPayment, async (newVal, oldVal) => {
+  if (newVal > maxDebtPayment.value || newVal <= 0) {
+    error.value = 'Invalid payment'
+  } else if (error.value != '') {
+    error.value = ''
+  }
+})
 
-const emit = defineEmits<{
-  (e: 'closeForm'): void
-}>()
 
 </script>
 
@@ -26,11 +34,12 @@ const emit = defineEmits<{
       <form>
         <label for="qty">Payment: </label>
         <input name="qty" type="number" v-model="debtPayment" min="0" :max="maxDebtPayment" />
-        <button :disabled="store.cash == 0 || debtPayment == 0" type="submit" @click.prevent="store.payDebt(debtPayment); emit('closeForm')">Pay Now</button>
+        <button :disabled="store.cash == 0 || debtPayment == 0 || error != ''" type="submit" @click.prevent="store.payDebt(debtPayment); emit('closeForm')">Pay Now</button>
       </form>
-      <p>Debt Remaining: ${{ store.debt.toLocaleString() }}</p>
-      <p>Max you can afford: <a href="/#" @click.prevent="(debtPayment=maxDebtPayment)">${{ maxDebtPayment.toLocaleString() }}</a></p>
+      <p class="text-red error">{{error}}</p>
     </div>
+    <p class="mt-auto">Debt Remaining: ${{ store.debt.toLocaleString() }}</p>
+    <small>Max you can afford: ${{ maxDebtPayment.toLocaleString() }}</small>
   </section>
 </template>
 
@@ -42,6 +51,7 @@ section {
   width: 320px;
   display: flex;
   flex-direction: column;
+  text-align: center;
 }
 
 button.cancel {
@@ -64,5 +74,10 @@ form {
 p {
   margin: 0;
 }
+
+.error {
+  margin: 0
+}
+
 
 </style>

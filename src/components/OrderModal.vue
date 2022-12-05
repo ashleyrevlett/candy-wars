@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, PropType, computed } from 'vue'
+import { ref, PropType, computed, watch } from 'vue'
 import { TradeGood } from '../models/tradegood.model'
 import { GameState } from '../types'
 import { useInventoryStore } from "../stores/inventory"
@@ -31,7 +31,7 @@ const emit = defineEmits<{
   (e: 'sellDone'): void,
 }>()
 
-let tradeQuantity = ref(0)
+let tradeQuantity = ref(maxQuantity.value)
 function transact() {
   tradeQuantity.value = Math.min(maxQuantity.value, tradeQuantity.value)
   if (tradeQuantity.value == 0) return
@@ -44,6 +44,16 @@ function transact() {
   }
   tradeQuantity.value = 0
 }
+
+const error = ref('')
+watch(tradeQuantity, async (newVal, oldVal) => {
+  if (newVal > maxQuantity.value || newVal <= 0) {
+    error.value = 'Invalid quantity'
+  } else if (error.value != '') {
+    error.value = ''
+  }
+})
+
 </script>
 
 
@@ -51,14 +61,15 @@ function transact() {
   <section class="modal">
     <button class="cancel" @click="emit('closeForm')">X</button>
     <div>
-      {{ spice.spiceType }}: ${{ inventory.transactionPrice(transactionType, spice).toLocaleString() }}
+      <h4>{{ spice.spiceType }}: ${{ inventory.transactionPrice(transactionType, spice).toLocaleString() }}</h4>
       <form>
         <label for="qty">Qty: </label>
         <input name="qty" type="number" v-model="tradeQuantity" min="0" :max="maxQuantity" />
-        <button :disabled="maxQuantity == 0" type="submit" @click.prevent="transact">{{ transactionType }}</button>
+        <button :disabled="maxQuantity == 0 || error != ''" type="submit" @click.prevent="transact">{{ transactionType }}</button>
       </form>
-      <p>Max you can {{ transactionType?.toLowerCase() }}: <a href="/#" @click.prevent="(tradeQuantity = maxQuantity)">{{ maxQuantity }}</a></p>
+      <p class="text-red error"> {{error}}</p>
     </div>
+    <small>Max you can {{ transactionType?.toLowerCase() }}: {{ maxQuantity }}</small>
   </section>
 </template>
 
@@ -70,6 +81,19 @@ section {
   width: 320px;
   display: flex;
   flex-direction: column;
+  text-align: center;
+}
+
+form {
+  margin: 10px auto
+}
+
+.error {
+  margin: 0
+}
+
+small {
+  margin-top: auto;
 }
 
 button.cancel {
