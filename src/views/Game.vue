@@ -21,6 +21,7 @@ import LoseModal from '../components/LoseModal.vue'
 import BankModal from '../components/BankModal.vue'
 import moneySFX from '../assets/audio/chaching.mp3'
 import yeahSFX from '../assets/audio/403828__alshred__16-ohyeah.wav'
+import clockSFX from '../assets/audio/ticktock.mp3'
 
 const props = defineProps({
   loadGame: {
@@ -103,12 +104,25 @@ function randomEvent() {
   } else {
     emit('startEncounter')
   }
-
 }
 
+const clockAudio = new Audio(clockSFX);
+clockAudio.volume = .2
+const isWaiting = ref(false)
+function waitDay() {
+  if (isWaiting.value) return
+  isWaiting.value = true
+  clockAudio.play()
+  setTimeout(() => {
+    store.logMessage('Waited a day')
+    gameState.value = 'Default'
+    nextDay()
+    isWaiting.value = false
+  }, 2100)
+}
 
-const moneyAudio = new Audio(moneySFX);
-const yeahAudio = new Audio(yeahSFX);
+const moneyAudio = new Audio(moneySFX)
+const yeahAudio = new Audio(yeahSFX)
 moneyAudio.volume = 0.2
 yeahAudio.volume = 0.5
 function onBuyDone() {
@@ -211,7 +225,10 @@ function onSellDone() {
   </div>
 
   <div class="actions">
-    <button @click.prevent="store.logMessage('Waited a day'); gameState = 'Default'; nextDay(); ">Wait a day</button>
+    <button class="waitBtn" :disabled="isWaiting" @click.prevent="waitDay()">
+        <span v-if="isWaiting">Waiting...</span>
+        <span v-else>Wait a day</span>
+    </button>
     <button @click.prevent="gameState = 'Loan'">Pay Loan</button>
     <button @click.prevent="gameState = 'Bank'">Visit Bank</button>
     <button @click.prevent="restart">New Game</button>
@@ -275,5 +292,10 @@ function onSellDone() {
   }
 }
 
+.waitBtn span {
+  display: inline-block;
+  width: 128px;
+  text-align: center;
+}
 
 </style>
