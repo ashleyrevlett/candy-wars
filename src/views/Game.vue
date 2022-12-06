@@ -293,7 +293,6 @@ function onSell(id: string) {
 
 .waitBtn span {
   display: inline-block;
-  width: 128px;
   text-align: center;
 }
 

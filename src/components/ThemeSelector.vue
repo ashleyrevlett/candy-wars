@@ -27,5 +27,6 @@ watchEffect(() => {
     position: absolute;
     top: 5px;
     right: 5px;
+    z-index: 15;
   }
 </style>

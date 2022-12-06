@@ -33,8 +33,8 @@ const emit = defineEmits<{
 
 <style scoped>
 section {
-  height: 250px;
-  width: 400px;
+  height: auto;
+  width: 320px;
   display: flex;
   flex-direction: column;
 }

@@ -12,7 +12,6 @@ const endWorth = computed(() => store.bank + store.cash)
 
 const emit = defineEmits<{
   (e: 'restart'): void
-  (e: 'closeForm'): void
 }>()
 
 </script>
@@ -28,7 +27,6 @@ const emit = defineEmits<{
     </div>
     <div class="flex">
       <button @click.prevent="emit('restart')">New Game</button>
-      <button @click.prevent="emit('closeForm')">Keep Playing</button>
     </div>
   </section>
   <div class="modal-overlay-bg"></div>
@@ -38,8 +36,8 @@ const emit = defineEmits<{
 <style scoped>
 
 section {
-  height: 250px;
-  width: 400px;
+  height: auto;
+  width: 320px;
   display: flex;
   flex-direction: column;
 }

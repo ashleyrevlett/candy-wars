@@ -98,7 +98,7 @@ h4 {
 
 .button-grid,
 .animation {
-  height: 140px;
+  height: 145px;
   overflow: hidden;
 }
 

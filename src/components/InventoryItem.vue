@@ -41,8 +41,8 @@ const playerGood = computed(() => inventory.getPlayerGoodByName(props.good.spice
       <span v-else>–</span>
     </td>
     <td>
-      <div class="actions">
-        <button :disabled="(good.price > store.cash)" @click="$emit('buy', good.id)">Buy</button>
+      <div class="order-actions">
+        <button :disabled="((good.price > store.cash) || inventory.inventorySpace <= 0)" @click="$emit('buy', good.id)">Buy</button>
         <button :disabled="(!playerGood?.quantity || playerGood?.quantity <= 0)" @click="$emit('sell', playerGood?.id)">Sell</button>
       </div>
     </td>
@@ -57,7 +57,7 @@ section {
   align-items: baseline;
 }
 
-.actions {
+.order-actions {
   text-align: right;
 }
 
@@ -65,9 +65,10 @@ section {
   td {
     padding-bottom:10px;
   }
-  .actions {
+  .order-actions {
     display: flex;
     justify-content: flex-end;
+    flex-flow: column;
   }
 
   button {

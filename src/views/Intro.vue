@@ -28,7 +28,7 @@ const hasSaveGame = localStorage.getItem('mainStore') != null ? true : false
 
 <template>
 
-  <div class="text-center">
+  <div class="text-center main">
     <h2>Spice Wars</h2>
     <p>This is a game of buying and selling. The object of the game is to pay off your debt to the bank. Then, make as much money as you can in a 1 year period. The prices of spices per unit are:</p>
     <ul>
@@ -45,7 +45,7 @@ const hasSaveGame = localStorage.getItem('mainStore') != null ? true : false
 
 <style scoped>
 
-  main {
+  .main {
     max-width: 80%;
     margin: 0 auto;
   }
