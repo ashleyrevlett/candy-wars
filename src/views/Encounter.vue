@@ -4,6 +4,8 @@ import { useUtils } from '../composables/useUtils'
 import { useMainStore } from "../stores/."
 import SETTINGS from '../settings'
 import HealthBar from '../components/HealthBar.vue'
+import playerHitSFX from '../assets/audio/punchArgh.mp3'
+import enemyHitSFX from '../assets/audio/punch.mp3'
 
 const store = useMainStore()
 const { randomNumberInRange } = useUtils()
@@ -30,14 +32,20 @@ function endEncounter() {
   emit('resumeGame')
 }
 
+const playerAudio = new Audio(playerHitSFX);
+const enemyAudio = new Audio(enemyHitSFX);
+playerAudio.volume = .5
+enemyAudio.volume = .5
 function tick() {
   if (store.health > 0 && enemyHealth.value > 0) {
     const rng = Math.random()
     if (rng < enemyStrength.value * .1)  {
       store.takeDamage(enemyStrength.value)
+      playerAudio.play()
       msg.value = "You're hit!"
     } else {
       enemyHealth.value -= playerStrength.value
+      enemyAudio.play()
       msg.value = "You land a punch!"
     }
   } else {

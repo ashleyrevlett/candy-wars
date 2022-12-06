@@ -27,6 +27,8 @@ html.dark-theme {
 html {
   font-family: 'dosfont', 'Courier New', Courier, monospace;
   font-size: 18px;
+  /* font-family: 'Courier New', Courier, monospace;
+  font-size: 16px; */
   line-height: 24px;
   font-weight: 400;
   color: var(--text-color);
@@ -34,7 +36,7 @@ html {
 }
 
 pre {
-  font-family:'Courier New', Courier, monospace;
+  font-family: 'Courier New', Courier, monospace;
   font-size: 12px;
   line-height: 16px;
 }
@@ -111,7 +113,7 @@ main {
   align-items: center;
   min-width: 320px;
   max-width: 800px;
-  width: 90%;
+  width: 98%;
   min-height: 100vh;
   margin: 0 auto;
 }
