@@ -19,7 +19,7 @@ watchEffect(() => {
 
 <template>
   <form>
-    <label for="useDarkMode">Dark Mode</label>
+    <label for="useDarkMode">Dark</label>
     <input type="checkbox" id="useDarkMode" v-model="useDarkMode" />
   </form>
 </template>
@@ -30,5 +30,11 @@ watchEffect(() => {
     top: 5px;
     right: 5px;
     z-index: 15;
+    display: flex;
+  }
+
+  label {
+    font-size: 12px;
+    text-transform: uppercase;
   }
 </style>

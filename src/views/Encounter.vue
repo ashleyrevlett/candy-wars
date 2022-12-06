@@ -121,7 +121,7 @@ const emit = defineEmits<{
 
 section {
   text-align: center;
-  width: 100%;
+  width: 90%;
   min-height: 80vh;
   display: flex;
   align-items: center;

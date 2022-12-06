@@ -31,7 +31,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-  (e: 'startEncounter'): void
+  (e: 'startEncounter'): void,
+  (e: 'endGame'): void,
 }>()
 
 const { randomNumberInRange } = useUtils()
@@ -230,7 +231,7 @@ function onSell(id: string) {
     </button>
     <button @click.prevent="gameState = 'Loan'">Pay Loan</button>
     <button @click.prevent="gameState = 'Bank'">Visit Bank</button>
-    <button @click.prevent="restart">New Game</button>
+    <button @click.prevent="emit('endGame')">New Game</button>
   </div>
 
 </template>

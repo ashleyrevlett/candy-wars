@@ -17,7 +17,7 @@ const activeEncounter = ref(false)
   <main class="app">
     <Intro v-if="(showIntro && !activeEncounter)" @start="showIntro=false" @load="loadGame=true; showIntro=false" />
     <Encounter v-if="activeEncounter" @resumeGame="activeEncounter=false; loadGame=true"  />
-    <Game v-if="(!showIntro && !activeEncounter)" :loadGame="loadGame" @startEncounter="(activeEncounter=true)" />
+    <Game v-if="(!showIntro && !activeEncounter)" :loadGame="loadGame" @startEncounter="(activeEncounter=true)" @endGame="() => {loadGame = false; showIntro = true}" />
   </main>
 </template>
 
