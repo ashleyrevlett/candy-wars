@@ -8,8 +8,10 @@ watchEffect(() => {
   const el = document.getElementsByTagName('html')[0]
   if (useDarkMode.value == true && !el.classList.contains('dark-theme')) {
     el.classList.add('dark-theme')
+    el.classList.remove('light-theme')
   } else if (useDarkMode.value == false && el.classList.contains('dark-theme')) {
     el.classList.remove('dark-theme')
+    el.classList.add('light-theme')
   }
 })
 

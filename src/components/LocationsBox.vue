@@ -73,7 +73,7 @@ const animFrames = [
     <h4 class="text-center bold">Travel to...</h4>
     <div class="button-grid" v-if="!isTraveling">
       <button v-for="(location, index) in store.locations" :key="location.name" :disabled="store.currentLocation.name == location.name" @click="travelTo(index, travelTimeTo(store.currentLocation.position, location.position))" >
-        {{ location.name }} <span v-if="location.position != store.currentLocation.position">({{ travelTimeTo(store.currentLocation.position, location.position) }} days journey)</span>
+        {{ location.name }} <span v-if="location.position != store.currentLocation.position">{{ travelTimeTo(store.currentLocation.position, location.position) }} {{ travelTimeTo(store.currentLocation.position, location.position) > 1 ? 'days' : 'day' }}</span>
       </button>
     </div>
     <div class="animation" v-else>
@@ -98,7 +98,7 @@ h4 {
 
 .button-grid,
 .animation {
-  height: 145px;
+  height: 146px;
   overflow: hidden;
 }
 
