@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { getAuth, signInAnonymously } from "firebase/auth"
 
 import Intro from './views/Intro.vue'
 import Game from './views/Game.vue'
@@ -9,6 +10,18 @@ import ThemeSelector from './components/ThemeSelector.vue'
 const showIntro = ref(true)
 const loadGame = ref(false)
 const activeEncounter = ref(false)
+
+onMounted(() => {
+  // sign in anonymously to firebase so we can access high scores
+  const auth = getAuth();
+  signInAnonymously(auth)
+    .then(() => {
+      console.log("login success")
+    })
+    .catch((error) => {
+      console.log("login error:", error);
+    });
+})
 
 </script>
 
