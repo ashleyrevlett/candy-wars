@@ -17,13 +17,21 @@ const {
 const store = useMainStore()
 const playerName = ref('')
 const hasSubmitted = ref(false)
+let errorMsg = ref('')
 
 async function submitScore() {
   hasSubmitted.value = true
-  const docRef = await addDoc(collection(db, "scores"), {
-    name: playerName.value,
-    score: store.cash + store.bank
-  });
+  const score = store.cash + store.bank
+  const name = playerName.value.substring(0, 100)  // limit to 100 chars
+  try {
+    const docRef = await addDoc(collection(db, "scores"), {
+      name: name,
+      score: score
+    })
+  } catch (e) {
+    errorMsg.value = "Sorry, but there was an error recording your high score"
+    console.error("Error adding document: ", e)
+  }
 }
 
 const emit = defineEmits<{
@@ -50,6 +58,7 @@ const emit = defineEmits<{
     <button @click.prevent="submitScore" :disabled="playerName == ''">Submit</button>
   </form>
   <div v-else>
+    <p v-if="errorMsg">{{ errorMsg }}</p>
     <button @click.prevent="emit('restart')">New Game</button>
   </div>
 

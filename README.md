@@ -21,6 +21,29 @@ npm run dev
 
 Build for production with `npm run build`
 
+### Using Firebase for High Scores
+
+This app uses Google Firebase (with anonymous login) and Firestore for storing high scores. To set it up, create a Firestore database, then update the `.env` file with your config info.
+
+For the db rules, use:
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read: if request.auth != null
+      allow create: if request.auth != null &&
+        // must have exactly 2 fields with keys 'name', 'score'
+        request.resource.data.size() == 2 && request.resource.data.keys().hasAll(['name', 'score']) &&
+        // string field must be less than 101 characters
+        request.resource.data.name is string && request.resource.data.name.size() < 101 &&
+        // score field must be positive int
+        request.resource.data.score is int && request.resource.data.score > -1
+    }
+  }
+}
+```
+
 ---
 
 ## Acknowledgments
