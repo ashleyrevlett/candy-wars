@@ -10,6 +10,7 @@ import { useMainStore } from "../stores/index"
 import { useCalendarStore } from "../stores/calendar"
 import { useInventoryStore } from "../stores/inventory"
 
+import HighScores from '../components/HighScores.vue';
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
 import LocationsBox from '../components/LocationsBox.vue';
@@ -51,7 +52,7 @@ onMounted(() => {
 })
 
 onUpdated(() => {
-  if (store.debt == 0 && calendarStore.daysSinceStart <= SETTINGS.maxDays) {
+  if (store.debt == 0 && calendarStore.daysSinceStart <= SETTINGS.maxDays && gameState.value != 'HighScore') {
     gameState.value = 'Win'
   } else if (calendarStore.daysSinceStart > SETTINGS.maxDays && store.debt > 0) {
     // max days passed and didn't pay off debt
@@ -149,6 +150,11 @@ function onSell(id: string) {
 
 <template>
 
+  <HighScores
+    v-if="gameState == 'HighScore'"
+    @restart="restart"
+   />
+
   <AlertModal
     v-if="alertMessage"
     :message="alertMessage"
@@ -158,7 +164,7 @@ function onSell(id: string) {
   <WinModal
     v-if="gameState == 'Win'"
     @restart="restart"
-    @closeForm="gameState = 'Default'"
+    @highScore="gameState = 'HighScore'"
   />
 
   <LoseModal

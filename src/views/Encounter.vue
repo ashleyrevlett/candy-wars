@@ -68,7 +68,7 @@ function tick() {
 function fight() {
   state.value = 'Fight'
   if (!intervalId) {
-    intervalId = setInterval(tick, 1000);
+    intervalId = window.setInterval(tick, 1000);
   }
 }
 

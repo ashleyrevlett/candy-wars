@@ -17,7 +17,7 @@ const travelAudio = new Audio(travelSFX)
 function travelTo(index: number, days: number) {
   isTraveling.value = true
   travelAudio.play()
-  intID.value = setInterval(() => {
+  intID.value = window.setInterval(() => {
     framesElapsed.value += 1
   }, 300)
   setTimeout(() => {
