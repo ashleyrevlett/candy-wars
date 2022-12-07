@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import { VueFire } from 'vuefire'
+import { VueFire, VueFireAuth } from 'vuefire'
 import { firebaseApp } from './firebaseConfig'
 
 import './style.css'
@@ -14,6 +14,8 @@ app.use(pinia)
 app
   .use(VueFire, {
     firebaseApp,
-    modules: [],
+    modules: [
+      VueFireAuth()
+    ],
   })
 app.mount("#app")

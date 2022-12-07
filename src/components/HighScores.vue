@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useFirestore } from 'vuefire'
-import { useCollection } from 'vuefire'
+import { useFirestore, useCollection } from 'vuefire'
 import { query, orderBy, limit, addDoc, collection } from 'firebase/firestore'
 import { useMainStore } from "../stores/index"
 
@@ -30,7 +29,6 @@ async function submitScore() {
 const emit = defineEmits<{
   (e: 'restart'): void,
 }>()
-
 
 </script>
 
