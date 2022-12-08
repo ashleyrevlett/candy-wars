@@ -54,3 +54,4 @@ service cloud.firestore {
 - "Oh yeah" SFX by [Alshred](https://freesound.org/people/Alshred/sounds/403828/)
 - Car SFX by [AMrdjan](https://freesound.org/people/AMrdjan/sounds/635194/)
 - Cha-ching SFX from [Soundboard](https://www.soundboard.com/sb/sound/962818)
+- Boxing bell SFX by [Benboncan](https://freesound.org/people/Benboncan/sounds/66951/)
