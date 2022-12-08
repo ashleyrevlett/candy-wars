@@ -33,10 +33,10 @@ interface Settings {
 const SETTINGS : Settings = {
   startDate: new Date('June 1, 1984 12:01:01'),
   maxDays: 30,
-  cash: 1000,
-  debt: 5000,
+  cash: 100,
+  debt: 500,
   debtAPR: 0.005,
-  inventorySpace: 100,
+  inventorySpace: 500,
   volatility: {
     min: 0.05,
     max: 0.25
@@ -50,11 +50,11 @@ const SETTINGS : Settings = {
     'Los Angeles': { x: 20, y: 80 },
   },
   goods: {
-    'Pepper':   { quantityRange: { min: 600, max: 1200 }, priceRange: { min: 10,   max: 40   } },
-    'Cinnamon': { quantityRange: { min: 300, max: 900  }, priceRange: { min: 50,   max: 100  } },
-    'Nutmeg':   { quantityRange: { min: 100, max: 500  }, priceRange: { min: 100,  max: 200  } },
-    'Saffron':  { quantityRange: { min: 50,  max: 200  }, priceRange: { min: 500,  max: 800  } },
-    'Silk':     { quantityRange: { min: 10,  max: 50   }, priceRange: { min: 1000, max: 1600 } },
+    'Candy':   { quantityRange: { min: 600, max: 1200 }, priceRange: { min: 1,   max: 3   } },
+    'Gummy Bears': { quantityRange: { min: 300, max: 900  }, priceRange: { min: 5,   max: 9  } },
+    'Lollipops':   { quantityRange: { min: 100, max: 500  }, priceRange: { min: 10,  max: 20  } },
+    'Caramels':  { quantityRange: { min: 50,  max: 200  }, priceRange: { min: 15,  max: 25  } },
+    'Chocolate Bars':     { quantityRange: { min: 10,  max: 50   }, priceRange: { min: 20, max: 40 } },
   },
   eventChance: 0.5,
   weapons: {

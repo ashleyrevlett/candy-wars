@@ -61,7 +61,7 @@ watch(tradeQuantity, async (newVal, oldVal) => {
   <section class="modal">
     <button class="cancel" @click="emit('closeForm')">X</button>
     <div>
-      <h4>{{ good.goodType }}: ${{ inventory.transactionPrice(transactionType, good).toLocaleString() }}</h4>
+      <h4>{{ good.goodType }}: ${{ inventory.transactionPrice(transactionType, good).toLocaleString(undefined, {minimumFractionDigits: 2}) }}</h4>
       <form>
         <label for="qty">Qty: </label>
         <input name="qty" type="number" v-model="tradeQuantity" min="0" :max="maxQuantity" />

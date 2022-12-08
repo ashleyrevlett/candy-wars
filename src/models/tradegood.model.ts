@@ -14,8 +14,9 @@ export function calculatePrice(goodType: GoodType, qty: number) : number {
   const quantityRange = SETTINGS.goods[goodType].quantityRange
   const oldRange = (quantityRange.max - quantityRange.min)
   const newRange = (priceRange.max - priceRange.min)
-  const price = (((qty - quantityRange.min) * newRange) / oldRange) + priceRange.min
-  return Math.floor(priceRange.max - price) + priceRange.min
+  let price = (((qty - quantityRange.min) * newRange) / oldRange) + priceRange.min
+  price = priceRange.max - price + priceRange.min
+  return Number(price.toFixed(2))
 }
 
 function getRandomQty(goodType: GoodType) : number  {
