@@ -24,7 +24,7 @@ const msg = ref(`Your weapon is: ${store.weapon}`)
 
 const playerStrength = computed(() => {
   const w = SETTINGS.weapons.find((w) => w.weaponType == store.weapon)
-  return w?.damage
+  return w ? w.damage : 0
 })
 
 let intervalId : number | undefined
