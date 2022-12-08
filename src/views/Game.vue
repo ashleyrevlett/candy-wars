@@ -209,9 +209,9 @@ function onSell(id: string) {
       <table>
         <thead>
           <tr>
-            <th class="xl">Good</th>
-            <th>Current Price</th>
-            <th>Price Paid</th>
+            <th class="xl"></th>
+            <th>Price</th>
+            <th>Paid</th>
             <th>Qty</th>
             <th class="xl"></th>
           </tr>
@@ -244,9 +244,6 @@ function onSell(id: string) {
 
 
 <style scoped>
-.top {
-  padding-top: 35px;
-}
 .row {
   display: flex;
   flex-flow: column;

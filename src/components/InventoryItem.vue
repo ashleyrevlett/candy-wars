@@ -61,6 +61,10 @@ section {
   text-align: right;
 }
 
+button {
+  margin: 0 2px;
+}
+
 @media screen and (max-width: 767px) {
   td {
     padding-bottom:10px;
