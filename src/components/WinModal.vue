@@ -8,6 +8,7 @@ import { query, orderBy, limit, collection } from 'firebase/firestore'
 import SETTINGS from '../settings'
 import { useMainStore } from "../stores/index"
 import { useCalendarStore } from "../stores/calendar"
+import winSFX from '../assets/audio/gameWin.wav'
 
 const store = useMainStore()
 const calendar = useCalendarStore()
@@ -24,12 +25,15 @@ const db = useFirestore()
 const coll = collection(db, 'scores')
 const q = query(coll, orderBy('score', 'desc'), limit(5))
 const gotHighScore = ref(false)
+const winAudio = new Audio(winSFX)
+winAudio.volume = 0.3
 onMounted(() => {
   const querySnapshot = getDocs(q).then(results => {
     const scores = results.docs.map(x => x.data().score)
     if (scores.length > 0 && endWorth.value > scores[scores.length-1]) {
       gotHighScore.value = true
     }
+    winAudio.play()
   })
 })
 </script>

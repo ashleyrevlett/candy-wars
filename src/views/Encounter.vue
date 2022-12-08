@@ -42,7 +42,7 @@ const enemyAudio = new Audio(enemyHitSFX)
 const endRoundAudio = new Audio(endRoundSFX)
 playerAudio.volume = .8
 enemyAudio.volume = .5
-endRoundAudio.volume = .6
+endRoundAudio.volume = .2
 function tick() {
   if (store.health > 0 && enemyHealth.value > 0) {
     const rng = Math.random()

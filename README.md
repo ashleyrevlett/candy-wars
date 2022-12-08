@@ -55,3 +55,4 @@ service cloud.firestore {
 - Car SFX by [AMrdjan](https://freesound.org/people/AMrdjan/sounds/635194/)
 - Cha-ching SFX from [Soundboard](https://www.soundboard.com/sb/sound/962818)
 - Boxing bell SFX by [Benboncan](https://freesound.org/people/Benboncan/sounds/66951/)
+- Win Jingle by [LittleRobotSoundFactory](https://freesound.org/people/LittleRobotSoundFactory/sounds/270331/)

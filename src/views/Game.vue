@@ -102,7 +102,7 @@ function randomEvent() {
   }
 }
 
-const clockAudio = new Audio(clockSFX);
+const clockAudio = new Audio(clockSFX)
 clockAudio.volume = .2
 const isWaiting = ref(false)
 function waitDay() {

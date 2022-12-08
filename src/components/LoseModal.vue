@@ -1,9 +1,10 @@
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import SETTINGS from '../settings'
 import { useMainStore } from "../stores/index"
 import { useCalendarStore } from "../stores/calendar"
+import loseSFX from '../assets/audio/gameLose.wav'
 
 const store = useMainStore()
 const calendar = useCalendarStore()
@@ -14,6 +15,13 @@ const endWorth = computed(() => store.bank + store.cash - store.debt)
 const emit = defineEmits<{
   (e: 'restart'): void
 }>()
+
+const loseAudio = new Audio(loseSFX)
+loseAudio.volume = 0.8
+onMounted(() => {
+  setTimeout(() => {loseAudio.play() }, 350)
+})
+
 </script>
 
 <template>
