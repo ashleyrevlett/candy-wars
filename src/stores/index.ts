@@ -69,7 +69,7 @@ export const useMainStore = defineStore({
 
     updateDebt() {
       // apply interest
-      this.debt += Math.floor(this.debt * SETTINGS.debt_apr)
+      this.debt += Math.floor(this.debt * SETTINGS.debtAPR)
     },
 
     deposit(amount: number) {

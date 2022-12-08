@@ -2,18 +2,18 @@
 import SETTINGS from '../settings'
 import { GoodType, NumberRange } from '../types'
 
-interface Good {
+interface IntroGood {
   goodType: GoodType,
   priceRange: NumberRange
 }
 
 function getGoods() {
-  return SETTINGS.goodOrder.map(good => {
-    const s: Good = {
-      goodType: good,
-      priceRange: SETTINGS.priceRanges[good]
+  return Object.keys(SETTINGS.goods).map(good => {
+    const g: IntroGood = {
+      goodType: good as GoodType,
+      priceRange: SETTINGS.goods[good as GoodType].priceRange
     }
-    return s
+    return g
   })
 }
 

@@ -10,8 +10,8 @@ export interface TradeGood {
 }
 
 export function calculatePrice(goodType: GoodType, qty: number) : number {
-  const priceRange = SETTINGS.priceRanges[goodType]
-  const quantityRange = SETTINGS.quantityRanges[goodType]
+  const priceRange = SETTINGS.goods[goodType].priceRange
+  const quantityRange = SETTINGS.goods[goodType].quantityRange
   const oldRange = (quantityRange.max - quantityRange.min)
   const newRange = (priceRange.max - priceRange.min)
   const price = (((qty - quantityRange.min) * newRange) / oldRange) + priceRange.min
@@ -19,7 +19,7 @@ export function calculatePrice(goodType: GoodType, qty: number) : number {
 }
 
 function getRandomQty(goodType: GoodType) : number  {
-  const quantityRange = SETTINGS.quantityRanges[goodType]
+  const quantityRange = SETTINGS.goods[goodType].quantityRange
   return Math.floor(Math.random() * (quantityRange.max - quantityRange.min + 1)) + quantityRange.min
 }
 
@@ -37,7 +37,7 @@ export function generateStartingData(id: string, goodType: GoodType, location?: 
 
 export function getUpdatedQuantity(goodType: GoodType, quantity: number) {
     // semi-randomize quantity
-    const quantityRange = SETTINGS.quantityRanges[goodType]
+    const quantityRange = SETTINGS.goods[goodType].quantityRange
     const plusOrMinus = Math.random() < 0.5 ? -1 : 1
     const percentChange = (Math.random() * (SETTINGS.volatility.max - SETTINGS.volatility.min) + SETTINGS.volatility.min) * plusOrMinus
     quantity += Math.floor(quantity * percentChange)

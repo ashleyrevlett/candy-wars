@@ -19,22 +19,22 @@ export const useInventoryStore = defineStore({
       // location goods
       this.tradeGoods = []
       Object.keys(SETTINGS.locations).forEach((city, i) => {
-        SETTINGS.goodOrder.forEach((s, j) => {
+        Object.keys(SETTINGS.goods).forEach((good, j) => {
           const id = i.toString() + '-' + j.toString()
-          this.tradeGoods.push(generateStartingData(id, s, city as CityName))
+          this.tradeGoods.push(generateStartingData(id, good as GoodType, city as CityName))
         })
       })
 
       // player goods
-      SETTINGS.goodOrder.forEach((s, i) => {
+      Object.keys(SETTINGS.goods).forEach((good, i) => {
         const id = 'player-' + i.toString()
-        const good : TradeGood = {
+        const g : TradeGood = {
           id: id,
           price: 0,
           quantity: 0,
-          goodType: s,
+          goodType: good as GoodType,
         }
-        this.tradeGoods.push(good)
+        this.tradeGoods.push(g)
       })
     },
 
@@ -99,14 +99,14 @@ export const useInventoryStore = defineStore({
     priceSpike(id: string) {
       const goodIndex = this.tradeGoods.findIndex((item) => item.id === id)
       if (goodIndex == -1) return
-      const priceRange = SETTINGS.priceRanges[this.tradeGoods[goodIndex].goodType]
+      const priceRange = SETTINGS.goods[this.tradeGoods[goodIndex].goodType].priceRange
       this.tradeGoods[goodIndex].price = priceRange.max + Math.ceil(priceRange.max * .25)
     },
 
     priceDrop(id: string) {
       const goodIndex = this.tradeGoods.findIndex((item) => item.id === id)
       if (goodIndex == -1) return
-      const priceRange = SETTINGS.priceRanges[this.tradeGoods[goodIndex].goodType]
+      const priceRange = SETTINGS.goods[this.tradeGoods[goodIndex].goodType].priceRange
       this.tradeGoods[goodIndex].price = priceRange.min - Math.ceil(priceRange.min * .15)
     },
 

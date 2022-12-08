@@ -4,12 +4,15 @@ type LocationPositions = {
   [key in CityName]: Position
 }
 
-type PriceRanges = {
-  [key in GoodType]: NumberRange
-}
-
 type WeaponStats = {
   [key in WeaponType]: number
+}
+
+type Goods = {
+  [key in GoodType]: {
+    quantityRange: NumberRange,
+    priceRange: NumberRange,
+  }
 }
 
 interface Settings {
@@ -17,25 +20,23 @@ interface Settings {
   maxDays: number,
   cash: number,
   debt: number,
+  debtAPR: number,
   inventorySpace: number,
-  goodOrder: Array<GoodType>,
   locations: LocationPositions,
+  goods: Goods
   volatility: NumberRange,
-  priceRanges: PriceRanges,
-  quantityRanges: PriceRanges,
-  debt_apr: number,
-  event_chance: number,
+  eventChance: number,
   weapons: WeaponStats,
   startingHealth: number,
 }
 
 const SETTINGS : Settings = {
-  startDate: new Date('January 1, 1572 12:01:01'),
+  startDate: new Date('June 1, 1984 12:01:01'),
   maxDays: 30,
   cash: 1000,
   debt: 5000,
+  debtAPR: 0.005,
   inventorySpace: 100,
-  goodOrder: [ 'Pepper', 'Cinnamon', 'Nutmeg', 'Saffron', 'Silk' ],
   volatility: {
     min: 0.05,
     max: 0.25
@@ -48,22 +49,14 @@ const SETTINGS : Settings = {
     'New Orleans': { x: 130, y: 110 },
     'Los Angeles': { x: 20, y: 80 },
   },
-  quantityRanges: {
-    'Pepper': { min: 600, max: 1200},
-    'Cinnamon': { min: 300, max: 900},
-    'Nutmeg': { min: 100, max: 500},
-    'Saffron': { min: 50, max: 200},
-    'Silk': { min: 10, max: 50}
+  goods: {
+    'Pepper':   { quantityRange: { min: 600, max: 1200 }, priceRange: { min: 10,   max: 40   } },
+    'Cinnamon': { quantityRange: { min: 300, max: 900  }, priceRange: { min: 50,   max: 100  } },
+    'Nutmeg':   { quantityRange: { min: 100, max: 500  }, priceRange: { min: 100,  max: 200  } },
+    'Saffron':  { quantityRange: { min: 50,  max: 200  }, priceRange: { min: 500,  max: 800  } },
+    'Silk':     { quantityRange: { min: 10,  max: 50   }, priceRange: { min: 1000, max: 1600 } },
   },
-  priceRanges: {
-    'Pepper': { min: 10, max: 40},
-    'Cinnamon': { min: 50, max: 100},
-    'Nutmeg': { min: 100, max: 200},
-    'Saffron': { min: 500, max: 800},
-    'Silk': { min: 1000, max: 1660 }
-  },
-  debt_apr: 0.005,
-  event_chance: 0.5,
+  eventChance: 0.5,
   weapons: {
     'Fists': 2,
     'Pistol': 10,

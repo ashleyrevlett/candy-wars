@@ -79,7 +79,7 @@ function onAdvanceTime(days : number) {
     store.recoverHealth()
     calendarStore.advanceDate()
   }
-  if (Math.random() < SETTINGS.event_chance) {
+  if (Math.random() < SETTINGS.eventChance) {
     randomEvent()
   }
 }
