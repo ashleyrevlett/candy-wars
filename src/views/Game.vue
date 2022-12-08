@@ -20,6 +20,8 @@ import WinModal from '../components/WinModal.vue'
 import AlertModal from '../components/AlertModal.vue'
 import LoseModal from '../components/LoseModal.vue'
 import BankModal from '../components/BankModal.vue'
+import ShopModal from '../components/ShopModal.vue'
+
 import moneySFX from '../assets/audio/chaching.mp3'
 import yeahSFX from '../assets/audio/403828__alshred__16-ohyeah.wav'
 import clockSFX from '../assets/audio/ticktock.mp3'
@@ -172,6 +174,11 @@ function onSell(id: string) {
     @restart="restart"
   />
 
+  <ShopModal
+    v-if="gameState == 'Shop'"
+    @closeForm="gameState = 'Default'"
+  />
+
   <BankModal
     v-if="gameState == 'Bank'"
     @closeForm="gameState = 'Default'"
@@ -236,7 +243,8 @@ function onSell(id: string) {
         <span v-else>Wait a day</span>
     </button>
     <button @click.prevent="gameState = 'Loan'">Pay Loan</button>
-    <button @click.prevent="gameState = 'Bank'">Visit Bank</button>
+    <button v-if="store.currentLocation.hasBank" @click.prevent="gameState = 'Bank'">Visit Bank</button>
+    <button v-if="store.currentLocation.hasShop" @click.prevent="gameState = 'Shop'">Shop</button>
     <button @click.prevent="emit('endGame')">New Game</button>
   </div>
 

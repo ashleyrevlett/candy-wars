@@ -54,6 +54,7 @@ function doPayment() {
     <p class="mt-auto">Debt Remaining: ${{ store.debt.toLocaleString() }}</p>
     <small>Max you can afford: ${{ maxDebtPayment.toLocaleString() }}</small>
   </section>
+  <div class="modal-overlay-bg"></div>
 </template>
 
 

@@ -23,7 +23,8 @@ const enemyStrength = ref(2)
 const msg = ref(`Your weapon is: ${store.weapon}`)
 
 const playerStrength = computed(() => {
-  return SETTINGS.weapons[store.weapon]
+  const w = SETTINGS.weapons.find((w) => w.weaponType == store.weapon)
+  return w?.damage
 })
 
 let intervalId : number | undefined

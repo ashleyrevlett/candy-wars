@@ -1,11 +1,17 @@
 import { CityName, GoodType, NumberRange, Position, WeaponType } from "../types"
 
-type LocationPositions = {
-  [key in CityName]: Position
+type Locations = {
+  [key in CityName]: {
+    position: Position,
+    hasBank: boolean,
+    hasShop: boolean
+  }
 }
 
-type WeaponStats = {
-  [key in WeaponType]: number
+type Weapon = {
+  weaponType: WeaponType
+  damage: number,
+  price: number,
 }
 
 type Goods = {
@@ -22,11 +28,11 @@ interface Settings {
   debt: number,
   debtAPR: number,
   inventorySpace: number,
-  locations: LocationPositions,
+  locations: Locations,
   goods: Goods
   volatility: NumberRange,
   eventChance: number,
-  weapons: WeaponStats,
+  weapons: Weapon[],
   startingHealth: number,
 }
 
@@ -42,12 +48,12 @@ const SETTINGS : Settings = {
     max: 0.25
   },
   locations: {
-    'New York': { x: 190, y: 50 },
-    'Detroit': { x: 150, y: 40 },
-    'Chicago': { x: 130, y: 50 },
-    'St. Louis': { x: 120, y: 60 },
-    'New Orleans': { x: 130, y: 110 },
-    'Los Angeles': { x: 20, y: 80 },
+    'New York':    { position: { x: 190, y: 50 },  hasBank: true, hasShop: true },
+    'Detroit':     { position: { x: 150, y: 40 },  hasBank: false, hasShop: false },
+    'Chicago':     { position: { x: 130, y: 50 },  hasBank: true, hasShop: false },
+    'St. Louis':   { position: { x: 120, y: 60 },  hasBank: false, hasShop: false },
+    'New Orleans': { position: { x: 130, y: 110 }, hasBank: false, hasShop: true },
+    'Los Angeles': { position: { x: 20, y: 80 },   hasBank: true, hasShop: true },
   },
   goods: {
     'Pepper':   { quantityRange: { min: 600, max: 1200 }, priceRange: { min: 10,   max: 40   } },
@@ -57,10 +63,12 @@ const SETTINGS : Settings = {
     'Silk':     { quantityRange: { min: 10,  max: 50   }, priceRange: { min: 1000, max: 1600 } },
   },
   eventChance: 0.5,
-  weapons: {
-    'Fists': 2,
-    'Pistol': 10,
-  },
+  weapons: [
+    { weaponType: 'Fists', price: 0, damage: 2 },
+    { weaponType: 'Pistol', price: 300, damage: 5 },
+    { weaponType: 'Shotgun', price: 500, damage: 8 },
+    { weaponType: 'Machine Gun', price: 1000, damage: 12 },
+  ],
   startingHealth: 12,
 }
 

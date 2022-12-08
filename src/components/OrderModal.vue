@@ -71,6 +71,7 @@ watch(tradeQuantity, async (newVal, oldVal) => {
     </div>
     <small>Max you can {{ transactionType?.toLowerCase() }}: {{ maxQuantity }}</small>
   </section>
+  <div class="modal-overlay-bg"></div>
 </template>
 
 

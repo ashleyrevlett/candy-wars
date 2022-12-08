@@ -2,7 +2,9 @@ import { CityName, Position } from '../types'
 
 export interface Location {
   name: CityName
-  position: Position
+  position: Position,
+  hasShop: boolean,
+  hasBank: boolean,
 }
 
 export function travelTimeTo(here: Position, there: Position) {

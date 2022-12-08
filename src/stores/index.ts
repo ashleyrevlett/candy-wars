@@ -37,10 +37,12 @@ export const useMainStore = defineStore({
       // locations
       this.locations = []
       Object.keys(SETTINGS.locations).forEach((loc) => {
-        const l : unknown = SETTINGS.locations[loc as CityName]
+        const l : any = SETTINGS.locations[loc as CityName]
         const location : Location = {
           name: loc as CityName,
-          position: l as Position,
+          position: l.position as Position,
+          hasBank: l.hasBank as boolean,
+          hasShop: l.hasShop as boolean
         }
         this.locations.push(location)
       })
@@ -90,13 +92,17 @@ export const useMainStore = defineStore({
 
     recoverHealth() {
       this.health = Math.min(SETTINGS.startingHealth, this.health + 1)
+    },
+
+    changeWeapon(weapon: WeaponType) {
+      this.weapon = weapon
     }
   },
 
   getters: {
     currentLocation: state => {
       return state.locations[state.currentLocationIndex]
-    }
+    },
   }
 
 });

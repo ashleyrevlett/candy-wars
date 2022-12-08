@@ -82,6 +82,7 @@ function doPayment(transaction : TransactionState) {
     </div>
     <p v-if="state != 'Choose'"><a @click.prevent="state = 'Choose'" href="/#">‹ Back</a></p>
   </section>
+  <div class="modal-overlay-bg"></div>
 </template>
 
 
