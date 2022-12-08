@@ -1,4 +1,4 @@
-# Spice Wars
+# Trade Wars
 
 Homage to Dope Wars in Javascript
 

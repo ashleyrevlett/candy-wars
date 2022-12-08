@@ -19,7 +19,7 @@ const emit = defineEmits<{
 
 const store = useMainStore()
 const inventory = useInventoryStore()
-const playerGood = computed(() => inventory.getPlayerGoodByName(props.good.spiceType))
+const playerGood = computed(() => inventory.getPlayerGoodByName(props.good.goodType))
 
 </script>
 
@@ -27,7 +27,7 @@ const playerGood = computed(() => inventory.getPlayerGoodByName(props.good.spice
 <template>
   <tr>
     <td>
-      {{good.spiceType}}
+      {{good.goodType}}
     </td>
     <td>
       ${{good.price?.toLocaleString()}}

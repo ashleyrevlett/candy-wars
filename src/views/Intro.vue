@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import SETTINGS from '../settings'
-import { SpiceType, NumberRange } from '../types'
+import { GoodType, NumberRange } from '../types'
 
 interface Good {
-  spiceType: SpiceType,
+  goodType: GoodType,
   priceRange: NumberRange
 }
 
-function getSpices() {
-  return SETTINGS.spiceOrder.map(spice => {
+function getGoods() {
+  return SETTINGS.goodOrder.map(good => {
     const s: Good = {
-      spiceType: spice,
-      priceRange: SETTINGS.priceRanges[spice]
+      goodType: good,
+      priceRange: SETTINGS.priceRanges[good]
     }
     return s
   })
@@ -29,10 +29,10 @@ const hasSaveGame = localStorage.getItem('mainStore') != null ? true : false
 <template>
 
   <div class="text-center main">
-    <h2>Spice Wars</h2>
-    <p>This is a game of buying and selling. The object of the game is to pay off your debt to the bank. Then, make as much money as you can in a 1 year period. The prices of spices per unit are:</p>
+    <h2>Trade Wars</h2>
+    <p>This is a game of buying and selling. The object of the game is to pay off your debt to the bank. Then, make as much money as you can in a 1 year period. The prices of goods per unit are:</p>
     <ul>
-      <li v-for="spice in getSpices()">{{ spice.spiceType }}: ${{spice.priceRange.min}} – {{spice.priceRange.max}} </li>
+      <li v-for="good in getGoods()">{{ good.goodType }}: ${{good.priceRange.min}} – {{good.priceRange.max}} </li>
     </ul>
     <div>
       <button v-if="hasSaveGame" @click="emit('load')">Continue Game</button>

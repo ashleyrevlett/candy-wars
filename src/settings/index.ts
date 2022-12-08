@@ -1,11 +1,11 @@
-import { CityName, SpiceType, NumberRange, Position, WeaponType } from "../types"
+import { CityName, GoodType, NumberRange, Position, WeaponType } from "../types"
 
 type LocationPositions = {
   [key in CityName]: Position
 }
 
 type PriceRanges = {
-  [key in SpiceType]: NumberRange
+  [key in GoodType]: NumberRange
 }
 
 type WeaponStats = {
@@ -18,7 +18,7 @@ interface Settings {
   cash: number,
   debt: number,
   inventorySpace: number,
-  spiceOrder: Array<SpiceType>,
+  goodOrder: Array<GoodType>,
   locations: LocationPositions,
   volatility: NumberRange,
   priceRanges: PriceRanges,
@@ -35,7 +35,7 @@ const SETTINGS : Settings = {
   cash: 1000,
   debt: 5000,
   inventorySpace: 100,
-  spiceOrder: [ 'Pepper', 'Cinnamon', 'Nutmeg', 'Saffron' ],
+  goodOrder: [ 'Pepper', 'Cinnamon', 'Nutmeg', 'Saffron', 'Silk' ],
   volatility: {
     min: 0.05,
     max: 0.25
@@ -52,13 +52,15 @@ const SETTINGS : Settings = {
     'Pepper': { min: 600, max: 1200},
     'Cinnamon': { min: 300, max: 900},
     'Nutmeg': { min: 100, max: 500},
-    'Saffron': { min: 50, max: 200}
+    'Saffron': { min: 50, max: 200},
+    'Silk': { min: 10, max: 50}
   },
   priceRanges: {
     'Pepper': { min: 10, max: 40},
     'Cinnamon': { min: 50, max: 100},
     'Nutmeg': { min: 100, max: 200},
-    'Saffron': { min: 500, max: 800}
+    'Saffron': { min: 500, max: 800},
+    'Silk': { min: 1000, max: 1660 }
   },
   debt_apr: 0.005,
   event_chance: 0.5,

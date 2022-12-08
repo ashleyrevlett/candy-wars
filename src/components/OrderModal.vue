@@ -9,7 +9,7 @@ const props = defineProps({
     type: String as PropType<GameState>,
     required: true
   },
-  spice: {
+  good: {
     type: Object as PropType<TradeGood>,
     required: true
   }
@@ -19,9 +19,9 @@ const inventory = useInventoryStore()
 
 const maxQuantity = computed(() => {
   if (props.transactionType == 'Buy') {
-    return Math.min(inventory.inventorySpace, inventory.maxBuyQuantity(props.spice.id))
+    return Math.min(inventory.inventorySpace, inventory.maxBuyQuantity(props.good.id))
   } else {
-    return inventory.maxSellQuantity(props.spice.id)
+    return inventory.maxSellQuantity(props.good.id)
   }
 })
 
@@ -36,10 +36,10 @@ function transact() {
   tradeQuantity.value = Math.min(maxQuantity.value, tradeQuantity.value)
   if (tradeQuantity.value == 0) return
   if (props.transactionType == 'Buy'){
-    inventory.buy(props.spice.id, tradeQuantity.value)
+    inventory.buy(props.good.id, tradeQuantity.value)
     emit('buyDone')
   } else {
-    inventory.sell(props.spice.id, tradeQuantity.value)
+    inventory.sell(props.good.id, tradeQuantity.value)
     emit('sellDone')
   }
   tradeQuantity.value = 0
@@ -61,7 +61,7 @@ watch(tradeQuantity, async (newVal, oldVal) => {
   <section class="modal">
     <button class="cancel" @click="emit('closeForm')">X</button>
     <div>
-      <h4>{{ spice.spiceType }}: ${{ inventory.transactionPrice(transactionType, spice).toLocaleString() }}</h4>
+      <h4>{{ good.goodType }}: ${{ inventory.transactionPrice(transactionType, good).toLocaleString() }}</h4>
       <form>
         <label for="qty">Qty: </label>
         <input name="qty" type="number" v-model="tradeQuantity" min="0" :max="maxQuantity" />

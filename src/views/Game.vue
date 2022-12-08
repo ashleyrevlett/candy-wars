@@ -43,7 +43,7 @@ const calendarStore = useCalendarStore()
 const inventory = useInventoryStore()
 
 const gameState: Ref<GameState> = ref('Default')
-const activeSpice: Ref<TradeGood | undefined | null> = ref(null) // which spice is currently being traded
+const activeGood: Ref<TradeGood | undefined | null> = ref(null) // which good is currently being traded
 
 onMounted(() => {
   if (!props.loadGame) {
@@ -65,7 +65,7 @@ onUpdated(() => {
 
 function restart() {
   gameState.value = 'Default'
-  activeSpice.value = null
+  activeGood.value = null
   store.initStore()
   calendarStore.initStore()
   inventory.initStore()
@@ -93,10 +93,10 @@ function randomEvent() {
   const rng = Math.random()
   if (rng < 0.4) {
     inventory.priceSpike(randomGood.id)
-    showAlert(`<span class="text-blue">${randomGood.spiceType} has spiked in value!</span>`)
+    showAlert(`<span class="text-blue">${randomGood.goodType} has spiked in value!</span>`)
   } else if (rng < .8) {
     inventory.priceDrop(randomGood.id)
-    showAlert(`<span class="text-blue">${randomGood.spiceType} has dropped in value!</span>`)
+    showAlert(`<span class="text-blue">${randomGood.goodType} has dropped in value!</span>`)
   } else {
     emit('startEncounter')
   }
@@ -137,12 +137,12 @@ function showAlert(msg: string) {
 }
 
 function onBuy(id: string) {
-  activeSpice.value = inventory.getGoodById(id)
+  activeGood.value = inventory.getGoodById(id)
   gameState.value = 'Buy'
 }
 
 function onSell(id: string) {
-  activeSpice.value = inventory.getGoodById(id)
+  activeGood.value = inventory.getGoodById(id)
   gameState.value = 'Sell'
 }
 
@@ -183,9 +183,9 @@ function onSell(id: string) {
   />
 
   <OrderModal
-    v-if="(gameState == 'Buy' || gameState == 'Sell') && activeSpice != null"
+    v-if="(gameState == 'Buy' || gameState == 'Sell') && activeGood != null"
     :transaction-type="gameState"
-    :spice="activeSpice"
+    :good="activeGood"
     @closeForm="gameState = 'Default'"
     @buyDone="onBuyDone"
     @sellDone="onSellDone"
@@ -209,7 +209,7 @@ function onSell(id: string) {
       <table>
         <thead>
           <tr>
-            <th class="xl">Spice</th>
+            <th class="xl">Good</th>
             <th>Current Price</th>
             <th>Price Paid</th>
             <th>Qty</th>

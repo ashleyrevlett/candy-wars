@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 import { TradeGood, generateStartingData, calculatePrice, getUpdatedQuantity } from "../models/tradegood.model"
-import { CityName, GameState, SpiceType } from "../types"
+import { CityName, GameState, GoodType } from "../types"
 import SETTINGS from "../settings";
 import { useMainStore } from "./index";
 
@@ -19,28 +19,28 @@ export const useInventoryStore = defineStore({
       // location goods
       this.tradeGoods = []
       Object.keys(SETTINGS.locations).forEach((city, i) => {
-        SETTINGS.spiceOrder.forEach((s, j) => {
+        SETTINGS.goodOrder.forEach((s, j) => {
           const id = i.toString() + '-' + j.toString()
           this.tradeGoods.push(generateStartingData(id, s, city as CityName))
         })
       })
 
       // player goods
-      SETTINGS.spiceOrder.forEach((s, i) => {
+      SETTINGS.goodOrder.forEach((s, i) => {
         const id = 'player-' + i.toString()
         const good : TradeGood = {
           id: id,
           price: 0,
           quantity: 0,
-          spiceType: s,
+          goodType: s,
         }
         this.tradeGoods.push(good)
       })
     },
 
-    getAvgPricePaid(spice: TradeGood, newQuantity : number, newPrice : number) {
-      if (spice.quantity == 0) return newPrice
-      const priceList = Array(spice.quantity).fill(spice.price)
+    getAvgPricePaid(good: TradeGood, newQuantity : number, newPrice : number) {
+      if (good.quantity == 0) return newPrice
+      const priceList = Array(good.quantity).fill(good.price)
       const newList = Array(newQuantity).fill(newPrice)
       const allPrices = priceList.concat(newList)
       const total = allPrices.reduce((acc, c) => acc + c, 0)
@@ -52,7 +52,7 @@ export const useInventoryStore = defineStore({
       if (locationGoodIndex == -1) return
       const locationGood = this.tradeGoods[locationGoodIndex]
 
-      const playerGoodIndex = this.tradeGoods.findIndex((item) => item.spiceType === locationGood.spiceType && item.location == null)
+      const playerGoodIndex = this.tradeGoods.findIndex((item) => item.goodType === locationGood.goodType && item.location == null)
       if (playerGoodIndex == -1) return
       const playerGood = this.tradeGoods[playerGoodIndex]
 
@@ -72,7 +72,7 @@ export const useInventoryStore = defineStore({
       if (playerGoodIndex == -1) return
       const playerGood = this.tradeGoods[playerGoodIndex]
 
-      const locationGoodIndex = this.tradeGoods.findIndex((item) => item.spiceType === playerGood.spiceType && item.location == location.name);
+      const locationGoodIndex = this.tradeGoods.findIndex((item) => item.goodType === playerGood.goodType && item.location == location.name);
       if (locationGoodIndex == -1) return
       const locationGood = this.tradeGoods[locationGoodIndex]
 
@@ -91,22 +91,22 @@ export const useInventoryStore = defineStore({
       // calculatePrice
       this.tradeGoods.forEach(good => {
         if (!good.location) return // ignore player goods
-        good.quantity = getUpdatedQuantity(good.spiceType, good.quantity)
-        good.price = calculatePrice(good.spiceType, good.quantity)
+        good.quantity = getUpdatedQuantity(good.goodType, good.quantity)
+        good.price = calculatePrice(good.goodType, good.quantity)
       });
     },
 
     priceSpike(id: string) {
       const goodIndex = this.tradeGoods.findIndex((item) => item.id === id)
       if (goodIndex == -1) return
-      const priceRange = SETTINGS.priceRanges[this.tradeGoods[goodIndex].spiceType]
+      const priceRange = SETTINGS.priceRanges[this.tradeGoods[goodIndex].goodType]
       this.tradeGoods[goodIndex].price = priceRange.max + Math.ceil(priceRange.max * .25)
     },
 
     priceDrop(id: string) {
       const goodIndex = this.tradeGoods.findIndex((item) => item.id === id)
       if (goodIndex == -1) return
-      const priceRange = SETTINGS.priceRanges[this.tradeGoods[goodIndex].spiceType]
+      const priceRange = SETTINGS.priceRanges[this.tradeGoods[goodIndex].goodType]
       this.tradeGoods[goodIndex].price = priceRange.min - Math.ceil(priceRange.min * .15)
     },
 
@@ -121,8 +121,8 @@ export const useInventoryStore = defineStore({
       }
       return null
     },
-    getPlayerGoodByName: state => (spiceType: SpiceType ) => {
-      return state.tradeGoods.find((item) => item.spiceType === spiceType && item.location == null)
+    getPlayerGoodByName: state => (goodType: GoodType ) => {
+      return state.tradeGoods.find((item) => item.goodType === goodType && item.location == null)
     },
     getCurrentLocationGoods: state => {
       const store = useMainStore()
@@ -134,18 +134,18 @@ export const useInventoryStore = defineStore({
         return []
     },
     getPlayerGoods: state => () => state.tradeGoods.filter(good => good.location == null),
-    maxBuyQuantity: state => (spiceId : string | null) => {
+    maxBuyQuantity: state => (goodId : string | null) => {
       const store = useMainStore()
 
-      if (spiceId === null) return 0
-      const idx = state.tradeGoods.findIndex((item) => item.id === spiceId)
+      if (goodId === null) return 0
+      const idx = state.tradeGoods.findIndex((item) => item.id === goodId)
       if (idx === -1) return 0
       const price = state.tradeGoods[idx].price
       return Math.floor(store.cash / price)
     },
-    maxSellQuantity: state => (spiceId : string | null) => {
-      if (spiceId === null) return 0
-      const idx = state.tradeGoods.findIndex((item) => item.id === spiceId)
+    maxSellQuantity: state => (goodId : string | null) => {
+      if (goodId === null) return 0
+      const idx = state.tradeGoods.findIndex((item) => item.id === goodId)
       if (idx === -1) return 0
       return state.tradeGoods[idx].quantity
     },
@@ -156,15 +156,15 @@ export const useInventoryStore = defineStore({
       const sum = qtys.reduce((partialSum: number, a: number) => partialSum + a, 0);
       return SETTINGS.inventorySpace - sum
     },
-    transactionPrice: state => (gameState : GameState, spice: TradeGood) => {
+    transactionPrice: state => (gameState : GameState, good: TradeGood) => {
       if (gameState == 'Buy') {
-        return spice.price
+        return good.price
       } else if (gameState == 'Sell') {
-        // find current going price for this spice at current location
+        // find current going price for this good at current location
         const store = useMainStore()
         const loc = store.currentLocation
-        const locSpice = state.tradeGoods.find(good => good.location == loc.name && good.spiceType == spice.spiceType)
-        if (locSpice) return locSpice.price
+        const locGood = state.tradeGoods.find(good => good.location == loc.name && good.goodType == good.goodType)
+        if (locGood) return locGood.price
       }
       return 0
     },
