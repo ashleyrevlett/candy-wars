@@ -29,7 +29,7 @@ const hasSaveGame = localStorage.getItem('mainStore') != null ? true : false
 <template>
 
   <div class="text-center main">
-    <h2>Trade Wars</h2>
+    <h2>Candy Wars</h2>
     <p>This is a game of buying and selling. The object of the game is to pay off your debt to the bank. Then, make as much money as you can in a 1 year period. The prices of goods per unit are:</p>
     <ul>
       <li v-for="good in getGoods()">{{ good.goodType }}: ${{good.priceRange.min}} – {{good.priceRange.max}} </li>

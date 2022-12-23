@@ -30,15 +30,15 @@ const playerGood = computed(() => inventory.getPlayerGoodByName(props.good.goodT
       {{good.goodType}}
     </td>
     <td>
-      ${{good.price?.toLocaleString()}}
+      ${{good.price?.toLocaleString(undefined, {minimumFractionDigits: 2})}}
     </td>
     <td>
-      <span v-if="playerGood">${{playerGood?.price?.toLocaleString()}}</span>
-      <span v-else>–</span>
+      <span v-if="(playerGood && playerGood?.price > 0)">${{playerGood?.price?.toLocaleString(undefined, {minimumFractionDigits: 2})}}</span>
+      <span v-else>––</span>
     </td>
     <td>
       <span v-if="(playerGood?.quantity && playerGood?.quantity > 0)">{{playerGood?.quantity.toLocaleString()}}</span>
-      <span v-else>–</span>
+      <span v-else>––</span>
     </td>
     <td>
       <div class="order-actions">

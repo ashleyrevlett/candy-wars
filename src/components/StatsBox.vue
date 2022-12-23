@@ -22,9 +22,9 @@ const day = computed(() => new Date(calendar.currentDay))
 
     </div>
     <div>
-      <p class="text-green">Cash: ${{store.cash.toLocaleString()}}</p>
-      <p class="text-green">Bank: ${{store.bank.toLocaleString()}}</p>
-      <p class="text-red">Debt: ${{store.debt.toLocaleString()}}</p>
+      <p class="text-green">Cash: ${{store.cash.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
+      <p class="text-green">Bank: ${{store.bank.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
+      <p class="text-red">Debt: ${{store.debt.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
       <p>Weapon: {{store.weapon}}</p>
       <HealthBar title="Health" :total="SETTINGS.startingHealth" :remaining="store.health" />
     </div>

@@ -11,12 +11,13 @@ const emit = defineEmits<{
 }>()
 
 const maxDebtPayment = computed(() => {
-  return Math.min(store.debt, store.cash)
+  return Math.min(store.debt, store.cash).toLocaleString(undefined, {minimumFractionDigits: 2})
 })
 const debtPayment = ref(maxDebtPayment.value)
 const error = ref('')
 watch(debtPayment, async (newVal, oldVal) => {
-  if (newVal > maxDebtPayment.value || newVal <= 0) {
+  const num = Number(newVal)
+  if (num > Number(maxDebtPayment.value) || num <= 0) {
     error.value = 'Invalid payment'
   } else if (error.value != '') {
     error.value = ''
@@ -51,8 +52,8 @@ function doPayment() {
       </form>
       <p class="text-red error">{{error}}</p>
     </div>
-    <p class="mt-auto">Debt Remaining: ${{ store.debt.toLocaleString() }}</p>
-    <small>Max you can afford: ${{ maxDebtPayment.toLocaleString() }}</small>
+    <p class="mt-auto">Debt Remaining: ${{ store.debt.toLocaleString(undefined, {minimumFractionDigits: 2}) }}</p>
+    <small>Max you can afford: ${{ maxDebtPayment.toLocaleString(undefined, {minimumFractionDigits: 2}) }}</small>
   </section>
   <div class="modal-overlay-bg"></div>
 </template>
@@ -83,6 +84,10 @@ h4 {
 
 form {
   margin-bottom: 10px;
+}
+
+input[type="number"] {
+  width: 80px;
 }
 
 p {
