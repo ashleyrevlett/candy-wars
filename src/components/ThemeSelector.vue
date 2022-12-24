@@ -1,17 +1,21 @@
-
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 
-const useDarkMode = ref(true)
+const theme = ref("dark")
 
-watchEffect(() => {
+watch(theme, (newValue) => {
   const el = document.getElementsByTagName('html')[0]
-  if (useDarkMode.value == true && !el.classList.contains('dark-theme')) {
-    el.classList.add('dark-theme')
-    el.classList.remove('light-theme')
-  } else if (useDarkMode.value == false && el.classList.contains('dark-theme')) {
-    el.classList.remove('dark-theme')
-    el.classList.add('light-theme')
+  if (!el.classList.contains(newValue)) {
+    el.className = ""
+    el.classList.add(newValue)
+    localStorage.setItem('candyTheme', newValue)
+  }
+})
+
+onMounted(() => {
+  const setting = localStorage.getItem('candyTheme')
+  if (setting) {
+    theme.value = setting;
   }
 })
 
@@ -19,8 +23,11 @@ watchEffect(() => {
 
 <template>
   <form>
-    <label for="useDarkMode">Dark</label>
-    <input type="checkbox" id="useDarkMode" v-model="useDarkMode" />
+    <select name="theme" v-model="theme">
+      <option selected value="dark">Dark Theme</option>
+      <option value="light">Light Theme</option>
+      <option value="vintage">Vintage Theme</option>
+    </select>
   </form>
 </template>
 
@@ -33,8 +40,7 @@ watchEffect(() => {
     display: flex;
   }
 
-  label {
-    font-size: 12px;
-    text-transform: uppercase;
+  select {
+    font-size: 11px;
   }
 </style>

@@ -19,7 +19,7 @@ const props = defineProps({
 <template>
   <aside>
     {{ title }}:
-    <div v-for="(n,index) in total" :key="index" :class="{'alive': n <= remaining}">
+    <div v-for="(n,index) in total" :key="index" :class="{'alive': n <= remaining}" class="bars">
       <span v-if="(n <= remaining)">|</span>
       <span v-else>.</span>
     </div>
@@ -32,5 +32,10 @@ div {
 }
 div.alive {
   color: var(--success-color)
+}
+
+.bars {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
 }
 </style>

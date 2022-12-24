@@ -6,16 +6,25 @@
 }
 
 :root,
-html.dark-theme {
+html.dark {
   --text-color: #FCFCFC;
   --bg-color: #111;
   --success-color: rgb(0, 255, 0);
   --warning-color: rgb(255, 0, 0);
-  --notice-color: rgb(0, 0, 255);
+  --notice-color: #5453F9;
   --font-setting:  15px/22px 'Courier New', Courier, monospace;
 }
 
-html.light-theme {
+html.light {
+  --text-color: #111;
+  --bg-color: #FCFCFC;
+  --success-color: #29D730;
+  --warning-color: rgb(255, 0, 0);
+  --notice-color: #0100AB;
+  --font-setting:  14px/22px 'Helvetica Neue', Helvetica, sans-serif;
+}
+
+html.vintage {
   --text-color: #C2C2C2;
   --bg-color: #0100AB;
   --notice-color: rgb(255, 255, 255);
@@ -25,24 +34,6 @@ html.light-theme {
     outline: 3px solid #C2C2C2;
     outline-style: double;
     border: 0;
-  }
-
-  button {
-    background: var(--text-color);
-    color: var(--bg-color);
-    border: 1px solid var(--text-color);
-  }
-
-  button:disabled {
-    opacity: .5;
-    background: var(--text-color);
-    color: var(--bg-color);
-  }
-
-  button:not(:disabled):hover {
-    background: var(--bg-color);
-    color: var(--text-color);
-    border-color: var(--text-color);
   }
 
   .modal {
@@ -108,10 +99,10 @@ a {
   font-weight: 500;
   color: var(--text-color);
   text-decoration: underline;
-}
 
-a:hover {
-  color: var(--success-color)
+  &:hover {
+    color: var(--success-color)
+  }
 }
 
 input {
@@ -119,31 +110,30 @@ input {
 }
 
 button {
+  background: var(--text-color);
+  color: var(--bg-color);
+  border: 1px solid var(--bg-color);
   border-radius: 0;
-  border: 1px solid var(--text-color);
   padding: 0.3em 1em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: var(--bg-color);
-  color: var(--text-color);
   cursor: pointer;
-  transition: border-color color 0.25s;
+  transition: all 0.25s;
+
+  &:disabled {
+    opacity: .3;
+    background: var(--text-color);
+    color: var(--bg-color);
+    cursor: default;
+  }
+
+  &:not(:disabled):hover {
+    background: var(--success-color);
+    color: var(--bg-color);
+  }
 }
 
-button:not(:disabled):hover {
-  border-color: var(--success-color);
-  color: var(--success-color);
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-button:disabled {
-  opacity: .3;
-}
 
 #app {
   min-height: 100vh;
@@ -201,9 +191,10 @@ th {
 
 input[type="number"] {
   width: 50px;
-  height: 28px;
+  height: 24px;
   margin-right: 3px;
   border: 0;
+  border: 1px solid var(--text-color);
 }
 
 .modal {
