@@ -237,7 +237,7 @@ function onSell(id: string) {
     </section>
   </div>
 
-  <div class="actions">
+  <div class="actions" v-if="store.currentLocation">
     <button class="waitBtn" :disabled="isWaiting" @click.prevent="waitDay()">
         <span v-if="isWaiting">Waiting...</span>
         <span v-else>Wait a day</span>

@@ -32,7 +32,7 @@ function doPayment() {
   isPaying.value = true
   moneyAudio.play()
   setTimeout(() => {
-    store.payDebt(debtPayment.value)
+    store.payDebt(parseFloat(debtPayment.value))
     isPaying.value = false
     emit('closeForm')
   }, 800)
@@ -46,14 +46,14 @@ function doPayment() {
     <div>
       <h4 class="text-center">Pay Loan</h4>
       <form>
-        <label for="qty">Payment: </label>
+        <label for="qty">$&nbsp;</label>
         <input name="qty" type="number" v-model="debtPayment" min="0" :max="maxDebtPayment" />
-        <button :disabled="isPaying || store.cash == 0 || debtPayment == 0 || error != ''" type="submit" @click.prevent="doPayment">Pay Now</button>
+        <button :disabled="isPaying || store.cash == 0 || parseFloat(debtPayment) == 0 || error != ''" type="submit" @click.prevent="doPayment">Pay Now</button>
       </form>
       <p class="text-red error">{{error}}</p>
     </div>
     <p class="mt-auto">Debt Remaining: ${{ store.debt.toLocaleString(undefined, {minimumFractionDigits: 2}) }}</p>
-    <small>Max you can afford: ${{ maxDebtPayment.toLocaleString(undefined, {minimumFractionDigits: 2}) }}</small>
+    <small>Max you can afford: ${{ parseFloat(maxDebtPayment).toLocaleString(undefined, {minimumFractionDigits: 2}) }}</small>
   </section>
   <div class="modal-overlay-bg"></div>
 </template>
