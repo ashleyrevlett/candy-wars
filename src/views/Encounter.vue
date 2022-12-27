@@ -20,10 +20,10 @@ const state : Ref<EncounterState> = ref('Wait')
 const enemyStartingHealth = 12
 const enemyHealth = ref(enemyStartingHealth)
 const enemyStrength = ref(2)
-const msg = ref(`Your weapon is: ${store.weapon}`)
+const msg = ref(`Your weapon is: ${store.activeWeapon}`)
 
 const playerStrength = computed(() => {
-  const w = SETTINGS.weapons.find((w) => w.weaponType == store.weapon)
+  const w = SETTINGS.weapons.find((w) => w.weaponType == store.activeWeapon)
   return w ? w.damage : 0
 })
 

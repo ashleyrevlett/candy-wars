@@ -10,7 +10,8 @@ export type RootState = {
   locations: Location[],
   currentLocationIndex: number,
   health: number,
-  weapon: WeaponType,
+  activeWeapon: WeaponType,
+  weapons: WeaponType[],
 };
 
 export const useMainStore = defineStore({
@@ -22,7 +23,8 @@ export const useMainStore = defineStore({
       locations: [],
       currentLocationIndex: 0,
       health: SETTINGS.startingHealth,
-      weapon: 'Fists'
+      activeWeapon: 'Fists',
+      weapons: [],
   } as RootState),
   persist: true,
   actions: {
@@ -32,7 +34,8 @@ export const useMainStore = defineStore({
       this.debt = SETTINGS.debt
       this.bank = 0
       this.health = SETTINGS.startingHealth
-      this.weapon = 'Fists'
+      this.activeWeapon = 'Fists'
+      this.weapons = ['Fists']
 
       // locations
       this.locations = []
@@ -95,7 +98,25 @@ export const useMainStore = defineStore({
     },
 
     changeWeapon(weapon: WeaponType) {
-      this.weapon = weapon
+      this.activeWeapon = weapon
+    },
+
+    purchaseWeapon(weapon: WeaponType) {
+      const price = SETTINGS.weapons.find(w => w.weaponType == weapon)?.price
+      if (!price) return
+      if (!this.weapons.includes(weapon) && this.cash >= price) {
+        this.spendCash(price)
+        this.weapons.push(weapon)
+        this.activeWeapon = weapon
+      }
+    },
+
+    sellWeapon(weapon: WeaponType) {
+      const price = SETTINGS.weapons.find(w => w.weaponType == weapon)?.price
+      if (!price || !this.weapons.includes(weapon)) return
+      this.receiveCash(price)
+      this.weapons = this.weapons.filter((w) => w != weapon)
+      this.activeWeapon = this.weapons[this.weapons.length - 1]
     }
   },
 

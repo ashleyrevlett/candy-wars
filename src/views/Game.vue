@@ -21,6 +21,7 @@ import AlertModal from '../components/AlertModal.vue'
 import LoseModal from '../components/LoseModal.vue'
 import BankModal from '../components/BankModal.vue'
 import ShopModal from '../components/ShopModal.vue'
+import WeaponsModal from '../components/WeaponsModal.vue'
 
 import moneySFX from '../assets/audio/chaching.mp3'
 import yeahSFX from '../assets/audio/403828__alshred__16-ohyeah.wav'
@@ -198,8 +199,13 @@ function onSell(id: string) {
     @sellDone="onSellDone"
   />
 
+  <WeaponsModal
+    v-if="gameState == 'Weapons'"
+    @closeForm="gameState = 'Default'"
+  />
+
   <div class="row top">
-    <StatsBox />
+    <StatsBox @openWeaponsDialog="gameState = 'Weapons'" />
     <LocationsBox @advanceTime="onAdvanceTime" />
   </div>
 

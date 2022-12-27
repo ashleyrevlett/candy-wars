@@ -15,14 +15,6 @@ const weaponsForPurchse = computed(() => {
   return SETTINGS.weapons.filter((x) => x.weaponType != 'Fists')
 })
 
-function purchase(w: WeaponType) {
-  const weapon = SETTINGS.weapons.find((x) => x.weaponType == w)
-  if (!weapon) return
-  store.changeWeapon(w)
-  store.spendCash(weapon.price)
-  emit('closeForm')
-}
-
 </script>
 
 
@@ -32,9 +24,17 @@ function purchase(w: WeaponType) {
     <div class="weapons">
       <h4 class="text-center">Shop</h4>
       <p>What would you like to buy?</p>
-      <button v-for="w in weaponsForPurchse" :disabled="(store.cash < w.price || store.weapon == w.weaponType)" @click="purchase(w.weaponType)">
-        {{ w.weaponType }} – ${{w.price.toLocaleString()}}
-      </button>
+      <table>
+        <tr v-for="w in weaponsForPurchse">
+          <td>{{ w.weaponType }}</td>
+          <td>${{w.price.toLocaleString()}}</td>
+          <td class="btns">
+            <button :disabled="(store.cash < w.price || store.activeWeapon == w.weaponType)" @click="store.purchaseWeapon(w.weaponType); emit('closeForm')">Buy</button>
+            <button :disabled="!store.weapons.includes(w.weaponType)" @click="store.sellWeapon(w.weaponType); emit('closeForm')">Sell</button>
+          </td>
+        </tr>
+      </table>
+
     </div>
   </section>
   <div class="modal-overlay-bg"></div>
@@ -59,9 +59,10 @@ div {
   margin-bottom: 10px;
 }
 
-.weapons button {
-  margin-bottom: 10px;
-  width: 100%;
+.btns {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  gap: 1px;
 }
 
 

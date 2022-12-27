@@ -10,6 +10,10 @@ const store = useMainStore()
 const calendar = useCalendarStore()
 const day = computed(() => new Date(calendar.currentDay))
 
+const emit = defineEmits<{
+  (e: 'openWeaponsDialog'): void
+}>()
+
 </script>
 
 <template>
@@ -25,7 +29,7 @@ const day = computed(() => new Date(calendar.currentDay))
       <p class="text-green">Cash: ${{store.cash.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
       <p class="text-green">Bank: ${{store.bank.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
       <p class="text-red">Debt: ${{store.debt.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
-      <p>Weapon: {{store.weapon}}</p>
+      <p>Weapon: {{store.activeWeapon}} <button class="secondary" v-if="store.weapons.length > 1" @click.prevent="emit('openWeaponsDialog')">Change</button></p>
       <HealthBar title="Health" :total="SETTINGS.startingHealth" :remaining="store.health" />
     </div>
   </section>
@@ -43,4 +47,5 @@ p {
 input[type="number"] {
   width: 50px;
 }
+
 </style>
