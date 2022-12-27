@@ -61,6 +61,7 @@ div {
 
 .weapons button {
   margin-bottom: 10px;
+  width: 100%;
 }
 
 

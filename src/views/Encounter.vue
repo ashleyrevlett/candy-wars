@@ -152,7 +152,7 @@ const emit = defineEmits<{
 
 <template>
   <section v-if="state=='Wait'">
-    <h4>Some punk is trying to rob you!</h4>
+    <h4>Some bully is trying to rob you!</h4>
     <p>What will you do?</p>
     <div class="flex">
       <button @click.prevent="fight">Fight</button>
