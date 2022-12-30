@@ -149,12 +149,19 @@ export const useInventoryStore = defineStore({
       if (idx === -1) return 0
       return state.tradeGoods[idx].quantity
     },
-    inventorySpace: state => {
+    spaceUsed: (state) => {
       const goods = state.tradeGoods.filter(good => good.location == null)
       if (!goods || goods.length == 0) return 0 // should never happen
       const qtys = goods.map((g: TradeGood) => g.quantity)
-      const sum = qtys.reduce((partialSum: number, a: number) => partialSum + a, 0);
-      return SETTINGS.inventorySpace - sum
+      const sum = qtys.reduce((partialSum: number, a: number) => partialSum + a, 0)
+      return sum ? sum : 0
+    },
+    inventorySpace () {
+      // remaining inventory space
+      const store = useMainStore()
+      const maxSpace = store.totalSpace ? store.totalSpace : 0
+      const used : number = this.spaceUsed
+      return maxSpace - used
     },
     transactionPrice: state => (gameState : GameState, good: TradeGood) => {
       if (gameState == 'Buy') {

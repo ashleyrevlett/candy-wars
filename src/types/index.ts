@@ -6,3 +6,4 @@ export type NumberRange = { min: number, max: number }
 export type GameState = 'Default' | 'Buy' | 'Sell' | 'Loan' | 'Bank' | 'Win' | 'Lose' | 'HighScore' | 'Shop' | 'Weapons'
 export type Position = { x: number, y: number }
 export type WeaponType = 'Fists' | 'Spitball Shooter' | 'Slingshot' | 'Cherrybomb'
+export type GearType = 'Pockets' | 'Belt Bag' | 'Backpack' | 'Duffel Bag'

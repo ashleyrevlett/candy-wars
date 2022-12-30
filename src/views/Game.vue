@@ -60,7 +60,7 @@ onUpdated(() => {
   } else if (calendarStore.daysSinceStart > SETTINGS.maxDays && store.debt > 0) {
     // max days passed and didn't pay off debt
     gameState.value = 'Lose'
-  } else if (store.cash == 0 && store.bank == 0 && inventory.inventorySpace == SETTINGS.inventorySpace) {
+  } else if (store.cash == 0 && store.bank == 0 && inventory.inventorySpace == store.totalSpace) {
     // no money, no goods = stalemate
     gameState.value = 'Lose'
   }
@@ -216,7 +216,7 @@ function onSell(id: string) {
           Current Location: {{ store.currentLocation.name }}
         </span>
         <span>
-          Space Available: {{ inventory.inventorySpace }} / {{ SETTINGS.inventorySpace }}
+          {{ store.activeGear }} – Space Available: {{ inventory.inventorySpace }} / {{ store.totalSpace }}
         </span>
       </h4>
       <table>

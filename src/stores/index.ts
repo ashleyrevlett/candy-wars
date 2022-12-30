@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 import { Location } from "../models/location.model"
-import { CityName, Position, WeaponType } from "../types"
+import { CityName, Position, WeaponType, GearType } from "../types"
 import SETTINGS from "../settings";
 
 export type RootState = {
@@ -12,6 +12,8 @@ export type RootState = {
   health: number,
   activeWeapon: WeaponType,
   weapons: WeaponType[],
+  activeGear: GearType,
+  gear: GearType[],
 };
 
 export const useMainStore = defineStore({
@@ -25,6 +27,8 @@ export const useMainStore = defineStore({
       health: SETTINGS.startingHealth,
       activeWeapon: 'Fists',
       weapons: [],
+      activeGear: 'Pockets',
+      gear: [],
   } as RootState),
   persist: true,
   actions: {
@@ -34,8 +38,10 @@ export const useMainStore = defineStore({
       this.debt = SETTINGS.debt
       this.bank = 0
       this.health = SETTINGS.startingHealth
-      this.activeWeapon = 'Fists'
       this.weapons = ['Fists']
+      this.activeWeapon = this.weapons[0]
+      this.gear = ['Pockets']
+      this.activeGear = this.gear[0]
 
       // locations
       this.locations = []
@@ -117,6 +123,24 @@ export const useMainStore = defineStore({
       this.receiveCash(price)
       this.weapons = this.weapons.filter((w) => w != weapon)
       this.activeWeapon = this.weapons[this.weapons.length - 1]
+    },
+
+    purchaseGear(g: GearType) {
+      const price = SETTINGS.gear.find(x => x.gearType == g)?.price
+      if (!price) return
+      if (!this.gear.includes(g) && this.cash >= price) {
+        this.spendCash(price)
+        this.gear.push(g)
+        this.activeGear = g
+      }
+    },
+
+    sellGear(g: GearType) {
+      const price = SETTINGS.gear.find(x => x.gearType == g)?.price
+      if (!price || !this.gear.includes(g)) return
+      this.receiveCash(price)
+      this.gear = this.gear.filter((x) => x != g)
+      this.activeGear = this.gear[this.gear.length - 1]
     }
   },
 
@@ -124,6 +148,11 @@ export const useMainStore = defineStore({
     currentLocation: state => {
       return state.locations[state.currentLocationIndex]
     },
+
+    totalSpace: state => {
+      return SETTINGS.gear.find((e) => e.gearType == state.activeGear )?.space
+    }
+
   }
 
 });
