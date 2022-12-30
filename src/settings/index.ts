@@ -42,17 +42,17 @@ interface Settings {
 }
 
 const SETTINGS : Settings = {
-  startDate: new Date('June 1, 1984 09:00:00'),
+  startDate: new Date('June 4, 1990 09:00:00'),
   startingHealth: 12,
   maxDays: 5,
   cash: 20,
-  debt: 20,
+  debt: 100,
   debtAPR: 0.1,
   volatility: {
     min: 0.05,
     max: 0.25
   },
-  eventChance: 0.3,
+  eventChance: 0.4,
   locations: {
     'Playground': { hasBank: true, hasShop: true },
     'Gym':        { hasBank: false, hasShop: false },
