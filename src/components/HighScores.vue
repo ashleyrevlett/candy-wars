@@ -64,7 +64,6 @@ const emit = defineEmits<{
 
 
 </section>
-<div class="modal-overlay-bg"></div>
 </template>
 
 <style scoped>

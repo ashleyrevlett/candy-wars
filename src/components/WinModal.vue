@@ -5,6 +5,8 @@ import { useFirestore } from 'vuefire'
 import { getDocs } from 'firebase/firestore'
 import { query, orderBy, limit, collection } from 'firebase/firestore'
 
+import HighScores from './HighScores.vue';
+
 import SETTINGS from '../settings'
 import { useMainStore } from "../stores/index"
 import { useCalendarStore } from "../stores/calendar"
@@ -17,8 +19,9 @@ const endWorth = computed(() => store.bank + store.cash)
 
 const emit = defineEmits<{
   (e: 'restart'): void,
-  (e: 'highScore'): void,
 }>()
+
+const enterHighScore = ref(false)
 
 // check to see if this is in high scores list
 const db = useFirestore()
@@ -40,22 +43,30 @@ onMounted(() => {
 
 
 <template>
-  <section class="modal">
+
+  <HighScores
+    v-if="enterHighScore"
+    @restart="emit('restart')"
+  />
+
+  <section v-else class="modal">
     <div class="text-center">
-      <h3>Congratulations!</h3>
-      <p>You have successfully paid off your loan within the time limit!</p>
+      <h3>You Win!</h3>
+      <p>Congratulations! You successfully paid off your loan within the time limit!</p>
       <p>${{SETTINGS.debt.toLocaleString()}} repaid in {{calendar.daysSinceStart}} days.</p>
       <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
       <div class="highScoreBox" v-if="gotHighScore">
         <h4 class="text-green">You got a high score!</h4>
-        <button @click.prevent="emit('highScore')">Enter High Score</button>
+        <button class="alt" @click.prevent="enterHighScore=true">Enter High Score</button>
       </div>
     </div>
     <div class="flex">
-      <button @click.prevent="emit('restart')">New Game</button>
+      <button @click.prevent="emit('restart')">Play Again</button>
     </div>
   </section>
+
   <div class="modal-overlay-bg"></div>
+
 </template>
 
 
@@ -63,7 +74,8 @@ onMounted(() => {
 
 section {
   height: auto;
-  width: 320px;
+  width: 420px;
+  max-width: 90%;
   min-height: 300px;
   display: flex;
   flex-direction: column;
@@ -97,6 +109,21 @@ p {
 
 button {
   margin: 5px 5px 0 5px;
+}
+
+button.alt {
+  background-color: var(--bg-color);
+  border-color: var(--success-color);
+  color: var(--success-color);
+
+  &:hover {
+    background-color: var(--success-color);
+    color: var(--bg-color);
+  }
+}
+
+.modal-overlay-bg {
+  background: var(--success-color);
 }
 
 </style>

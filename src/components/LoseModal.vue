@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import SETTINGS from '../settings'
@@ -29,11 +28,11 @@ onMounted(() => {
     <div class="text-center">
       <h3>You Lost!</h3>
       <p>You didn't repay your loan within the time limit!</p>
-      <p>${{debtPaid.toLocaleString()}} of ${{SETTINGS.debt.toLocaleString()}} loan repaid in {{calendar.daysSinceStart - 1}} days.</p>
-      <p class="text-green">Net Worth: ${{endWorth.toLocaleString()}}</p>
+      <p>${{debtPaid.toLocaleString(undefined, {minimumFractionDigits: 2}) }} of ${{SETTINGS.debt.toLocaleString(undefined, {minimumFractionDigits: 2}) }} loan repaid in {{calendar.daysSinceStart - 1}} days.</p>
+      <p class="text-red">Net Worth: ${{endWorth.toLocaleString(undefined, {minimumFractionDigits: 2}) }}</p>
     </div>
     <div class="flex">
-      <button @click.prevent="emit('restart')">New Game</button>
+      <button @click.prevent="emit('restart')">Try Again</button>
     </div>
   </section>
   <div class="modal-overlay-bg"></div>
@@ -42,7 +41,8 @@ onMounted(() => {
 <style scoped>
 section {
   height: auto;
-  width: 320px;
+  width: 420px;
+  max-width: 90%;
   display: flex;
   flex-direction: column;
 }
@@ -68,5 +68,9 @@ p {
 
 button {
   margin: 5px 5px 0 5px;
+}
+
+.modal-overlay-bg {
+  background-color: var(--warning-color);
 }
 </style>

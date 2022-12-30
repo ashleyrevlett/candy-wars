@@ -10,15 +10,12 @@ import { useMainStore } from "../stores/index"
 import { useCalendarStore } from "../stores/calendar"
 import { useInventoryStore } from "../stores/inventory"
 
-import HighScores from '../components/HighScores.vue';
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
 import LocationsBox from '../components/LocationsBox.vue';
 import OrderModal from '../components/OrderModal.vue';
 import LoanModal from '../components/LoanModal.vue'
-import WinModal from '../components/WinModal.vue'
 import AlertModal from '../components/AlertModal.vue'
-import LoseModal from '../components/LoseModal.vue'
 import BankModal from '../components/BankModal.vue'
 import ShopModal from '../components/ShopModal.vue'
 import WeaponsModal from '../components/WeaponsModal.vue'
@@ -36,7 +33,9 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (e: 'startEncounter'): void,
-  (e: 'endGame'): void,
+  (e: 'restartGame'): void,
+  (e: 'lose'): void,
+  (e: 'win'): void,
 }>()
 
 const { randomNumberInRange } = useUtils()
@@ -55,14 +54,22 @@ onMounted(() => {
 })
 
 onUpdated(() => {
-  if (store.debt == 0 && calendarStore.daysSinceStart <= SETTINGS.maxDays && gameState.value != 'HighScore') {
-    gameState.value = 'Win'
-  } else if (calendarStore.daysSinceStart > SETTINGS.maxDays && store.debt > 0) {
-    // max days passed and didn't pay off debt
-    gameState.value = 'Lose'
+  if (calendarStore.daysSinceStart > SETTINGS.maxDays) {
+    // time's up
+    if (store.debt <= 0) {
+      gameState.value = 'Win'
+    } else {
+      gameState.value = 'Lose'
+    }
   } else if (store.cash == 0 && store.bank == 0 && inventory.inventorySpace == store.totalSpace) {
     // no money, no goods = stalemate
     gameState.value = 'Lose'
+  }
+  // if we set win or lose state, emit event to show gameover view
+  if (gameState.value == 'Win') {
+    emit('win')
+  } else if (gameState.value == 'Lose') {
+    emit('lose')
   }
 })
 
@@ -153,26 +160,10 @@ function onSell(id: string) {
 
 <template>
 
-  <HighScores
-    v-if="gameState == 'HighScore'"
-    @restart="restart"
-   />
-
   <AlertModal
     v-if="alertMessage"
     :message="alertMessage"
     @closeAlert="alertMessage = ''"
-  />
-
-  <WinModal
-    v-if="gameState == 'Win'"
-    @restart="restart"
-    @highScore="gameState = 'HighScore'"
-  />
-
-  <LoseModal
-    v-if="gameState == 'Lose'"
-    @restart="restart"
   />
 
   <ShopModal
@@ -188,6 +179,7 @@ function onSell(id: string) {
   <LoanModal
     v-if="gameState == 'Loan'"
     @closeForm="gameState = 'Default'"
+    @changeState="(s) => gameState = s"
   />
 
   <OrderModal
@@ -248,10 +240,10 @@ function onSell(id: string) {
         <span v-if="isWaiting">Waiting...</span>
         <span v-else>Wait a day</span>
     </button>
-    <button @click.prevent="gameState = 'Loan'">Pay Loan</button>
+    <button v-if="store.debt > 0" @click.prevent="gameState = 'Loan'">Pay Loan</button>
     <button v-if="store.currentLocation.hasBank" @click.prevent="gameState = 'Bank'">Visit Bank</button>
     <button v-if="store.currentLocation.hasShop" @click.prevent="gameState = 'Shop'">Shop</button>
-    <button @click.prevent="emit('endGame')">New Game</button>
+    <button @click.prevent="emit('restartGame')">New Game</button>
   </div>
 
 </template>
