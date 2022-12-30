@@ -26,10 +26,20 @@ onMounted(() => {
     });
 })
 
+function newGame() {
+  showIntro.value = true
+  loadGame.value = false
+  activeEncounter.value = false
+  endgameState.value = null
+}
+
 </script>
 
 <template>
-  <ThemeSelector />
+  <aside class="utilities">
+    <button v-if="!showIntro" @click.prevent="newGame()">New Game</button>
+    <ThemeSelector />
+  </aside>
   <main class="app">
     <Intro v-if="(showIntro && !activeEncounter)" @start="showIntro=false" @load="loadGame=true; showIntro=false" />
     <Encounter v-if="activeEncounter" @resumeGame="activeEncounter=false; loadGame=true"  />
@@ -37,13 +47,29 @@ onMounted(() => {
       v-if="(!showIntro && !activeEncounter && !endgameState)"
       :loadGame="loadGame"
       @startEncounter="(activeEncounter=true)"
-      @restartGame="() => {loadGame = false; showIntro = true}"
+      @restartGame="newGame()"
       @lose="endgameState = 'Lose'"
       @win="endgameState = 'Win'"
        />
-    <GameOver v-if="endgameState" :gameState="endgameState" @restartGame="() => {loadGame = false; showIntro = true; endgameState = null}" />
+    <GameOver v-if="endgameState" :gameState="endgameState" @restartGame="newGame()" />
   </main>
 </template>
 
 <style scoped>
+.utilities {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 2px;
+  z-index: 15;
+
+  button {
+    background-color: transparent;
+    border: 0;
+    color: var(--text-color);
+    font-size: 12px;
+    text-decoration: underline;
+  }
+}
 </style>

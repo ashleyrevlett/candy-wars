@@ -243,7 +243,6 @@ function onSell(id: string) {
     <button v-if="store.debt > 0" @click.prevent="gameState = 'Loan'">Pay Loan</button>
     <button v-if="store.currentLocation.hasBank" @click.prevent="gameState = 'Bank'">Visit Bank</button>
     <button v-if="store.currentLocation.hasShop" @click.prevent="gameState = 'Shop'">Shop</button>
-    <button @click.prevent="emit('restartGame')">New Game</button>
   </div>
 
 </template>
@@ -293,11 +292,6 @@ function onSell(id: string) {
   .actions button {
     flex-basis: auto;
     margin-right: 10px;
-  }
-
-  .actions button:last-child {
-    margin-left: auto !important;
-    margin-right: 5px;
   }
 }
 

@@ -32,15 +32,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
-  form {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    z-index: 15;
-    display: flex;
-  }
-
-  select {
-    font-size: 11px;
-  }
+form {
+  position: relative;
+}
+select {
+  font-size: 11px;
+}
 </style>
