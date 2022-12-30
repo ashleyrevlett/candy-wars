@@ -1,6 +1,6 @@
 import { defineStore } from "pinia"
 import { Location } from "../models/location.model"
-import { CityName, Position, WeaponType, GearType } from "../types"
+import { CityName, WeaponType, GearType } from "../types"
 import SETTINGS from "../settings";
 
 export type RootState = {
@@ -49,7 +49,6 @@ export const useMainStore = defineStore({
         const l : any = SETTINGS.locations[loc as CityName]
         const location : Location = {
           name: loc as CityName,
-          position: l.position as Position,
           hasBank: l.hasBank as boolean,
           hasShop: l.hasShop as boolean
         }

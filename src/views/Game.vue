@@ -61,7 +61,7 @@ onUpdated(() => {
     } else {
       gameState.value = 'Lose'
     }
-  } else if (store.cash == 0 && store.bank == 0 && inventory.inventorySpace == store.totalSpace) {
+  } else if (store.cash == 0 && store.bank == 0 && inventory.inventorySpace == store.totalSpace && store.debt > 0) {
     // no money, no goods = stalemate
     gameState.value = 'Lose'
   }
@@ -208,7 +208,7 @@ function onSell(id: string) {
           Current Location: {{ store.currentLocation.name }}
         </span>
         <span>
-          {{ store.activeGear }} – Space Available: {{ inventory.inventorySpace }} / {{ store.totalSpace }}
+          {{ store.activeGear }}: {{ inventory.spaceUsed }} / {{ store.totalSpace }}
         </span>
       </h4>
       <table>
@@ -238,7 +238,7 @@ function onSell(id: string) {
   <div class="actions" v-if="store.currentLocation">
     <button class="waitBtn" :disabled="isWaiting" @click.prevent="waitDay()">
         <span v-if="isWaiting">Waiting...</span>
-        <span v-else>Wait a day</span>
+        <span v-else>Wait</span>
     </button>
     <button v-if="store.debt > 0" @click.prevent="gameState = 'Loan'">Pay Loan</button>
     <button v-if="store.currentLocation.hasBank" @click.prevent="gameState = 'Bank'">Visit Bank</button>

@@ -30,7 +30,8 @@ const hasSaveGame = localStorage.getItem('mainStore') != null ? true : false
 
   <div class="text-center main">
     <h2>Candy Wars</h2>
-    <p>This is a game of buying and selling. The object of the game is to pay off your debt to the bank. Then, make as much money as you can in a 1 year period. The prices of goods per unit are:</p>
+    <p>You have {{  SETTINGS.maxDays }} days to pay off your loan and make as much money as you can.<br />School is open from 9am - 3pm.</p>
+    <p>The prices of goods per unit are:</p>
     <ul>
       <li v-for="good in getGoods()">{{ good.goodType }}: ${{good.priceRange.min}} – {{good.priceRange.max}} </li>
     </ul>

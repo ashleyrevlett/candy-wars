@@ -5,11 +5,13 @@ import SETTINGS from '../settings'
 import { GameState } from '../types'
 import { useMainStore } from "../stores/index"
 import { useCalendarStore } from "../stores/calendar"
+import { useInventoryStore } from "../stores/inventory"
 
 import moneySFX from '../assets/audio/moneyCounter.mp3'
 
 const store = useMainStore()
 const calendar = useCalendarStore()
+const inventory = useInventoryStore()
 
 const emit = defineEmits<{
   (e: 'closeForm'): void,
@@ -64,9 +66,9 @@ function doPayment() {
     <div class="text-center">
       <h3>Congratulations!</h3>
       <p>You have successfully paid off your loan!</p>
-      <div v-if="calendar.daysSinceStart < SETTINGS.maxDays">
+      <div v-if="calendar.daysSinceStart < SETTINGS.maxDays && (store.cash > 0 || store.bank > 0 || inventory.spaceUsed > 0)">
         <p>Continue playing and aim for a high score?</p>
-        <button @click.prevent="emit('changeState', 'ContinuePlaying')">Keep Playing</button>
+        <button @click.prevent="emit('closeForm')">Keep Playing</button>
         <button @click.prevent="emit('changeState', 'Win')">End Game</button>
       </div>
       <div v-else>

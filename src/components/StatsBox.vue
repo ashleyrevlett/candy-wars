@@ -20,7 +20,7 @@ const emit = defineEmits<{
   <section>
     <div>
       <p style="text-transform: uppercase;">
-        <strong>{{ day.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}}</strong><br />
+        <strong>{{ day.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}} {{ day.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}</strong><br />
         Day {{ calendar.daysSinceStart }} of {{ SETTINGS.maxDays }}
       </p>
 

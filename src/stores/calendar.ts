@@ -1,6 +1,8 @@
 import dayjs from 'dayjs'
 import { defineStore } from "pinia"
 import SETTINGS from "../settings";
+import bellSFX from '../assets/audio/schoolBell.mp3'
+
 
 export type CalendarState = {
   currentDay: Date,
@@ -19,7 +21,16 @@ export const useCalendarStore = defineStore({
     advanceDate() {
       // currentDay could be a string if rehydrated from pinia,
       // or a date if page hasn't been refreshed
-      const newDay = dayjs(this.currentDay).add(1, 'day')
+      let newDay = null
+      if (dayjs(this.currentDay).hour() > 14) {
+        const bellAudio = new Audio(bellSFX)
+        bellAudio.volume = .6
+        bellAudio.play()
+        newDay = dayjs(this.currentDay).add(18, 'hour')
+      } else {
+        console.log("Before 3 pm, adding 1 hour")
+        newDay = dayjs(this.currentDay).add(1, 'hour')
+      }
       this.currentDay = newDay.toDate()
     }
   },
