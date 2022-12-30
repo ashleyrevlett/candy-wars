@@ -8,10 +8,12 @@ import Game from './views/Game.vue'
 import Encounter from './views/Encounter.vue'
 import GameOver from './views/GameOver.vue'
 import ThemeSelector from './components/ThemeSelector.vue'
+import HighScoreList from './components/HighScoreList.vue'
 
 const showIntro = ref(true)
 const loadGame = ref(false)
 const activeEncounter = ref(false)
+const showHighScores = ref(false)
 const endgameState: Ref<GameState | null> = ref(null)
 
 onMounted(() => {
@@ -32,15 +34,16 @@ function newGame() {
   activeEncounter.value = false
   endgameState.value = null
 }
-
 </script>
 
 <template>
   <aside class="utilities">
     <button v-if="!showIntro" @click.prevent="newGame()">New Game</button>
+    <button v-if="!showIntro" @click.prevent="showHighScores = true">High Scores</button>
     <ThemeSelector />
   </aside>
   <main class="app">
+    <HighScoreList v-if="showHighScores" @closeWindow="showHighScores = false" />
     <Intro v-if="(showIntro && !activeEncounter)" @start="showIntro=false" @load="loadGame=true; showIntro=false" />
     <Encounter v-if="activeEncounter" @resumeGame="activeEncounter=false; loadGame=true"  />
     <Game
@@ -70,6 +73,7 @@ function newGame() {
     color: var(--text-color);
     font-size: 12px;
     text-decoration: underline;
+    padding-left: 0;
   }
 }
 </style>

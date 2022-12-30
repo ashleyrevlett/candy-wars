@@ -5,7 +5,8 @@ import { useFirestore } from 'vuefire'
 import { getDocs } from 'firebase/firestore'
 import { query, orderBy, limit, collection } from 'firebase/firestore'
 
-import HighScores from './HighScores.vue';
+import HighScoreList from './HighScoreList.vue';
+import HighScoreForm from './HighScoreForm.vue';
 
 import SETTINGS from '../settings'
 import { useMainStore } from "../stores/index"
@@ -44,10 +45,9 @@ onMounted(() => {
 
 <template>
 
-  <HighScores
-    v-if="enterHighScore"
-    @restart="emit('restart')"
-  />
+  <HighScoreList v-if="enterHighScore" @closeWindow="emit('restart')">
+    <HighScoreForm />
+  </HighScoreList>
 
   <section v-else class="modal">
     <div class="text-center">
