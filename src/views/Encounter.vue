@@ -6,6 +6,9 @@ import SETTINGS from '../settings'
 import HealthBar from '../components/HealthBar.vue'
 import playerHitSFX from '../assets/audio/punchArgh.mp3'
 import enemyHitSFX from '../assets/audio/punch.mp3'
+import spitSFX from '../assets/audio/spit.wav'
+import slingshotSFX from '../assets/audio/slingshot.wav'
+import bombSFX from '../assets/audio/bomb.wav'
 import endRoundSFX from '../assets/audio/boxingBell.wav'
 import runSFX from '../assets/audio/running.mp3'
 import whooSFX from '../assets/audio/whoo.wav'
@@ -40,6 +43,9 @@ function endEncounter() {
 const fightOver = ref(false)
 const playerAudio = new Audio(playerHitSFX)
 const enemyAudio = new Audio(enemyHitSFX)
+const spitAudio = new Audio(spitSFX)
+const slingshotAudio = new Audio(slingshotSFX)
+const bombAudio = new Audio(bombSFX)
 const endRoundAudio = new Audio(endRoundSFX)
 playerAudio.volume = .8
 enemyAudio.volume = .5
@@ -53,15 +59,31 @@ function tick() {
       msg.value = "You're hit!"
     } else {
       enemyHealth.value -= playerStrength.value
-      enemyAudio.play()
-      msg.value = "You land a punch!"
+      switch (store.activeWeapon) {
+        case 'Spitball Shooter':
+          spitAudio.play()
+          msg.value = "You shot 'em!"
+          break
+        case 'Slingshot':
+          slingshotAudio.play()
+          msg.value = "You shot 'em!"
+          break
+        case 'Cherrybomb':
+          bombAudio.play()
+          msg.value = "Got 'em!"
+          break
+        default:
+          enemyAudio.play()
+          msg.value = "You land a punch!"
+          break
+      }
     }
   } else {
     if (enemyHealth.value <= 0) {
-      msg.value = "You knocked him out! You escape with all your cash."
+      msg.value = "You won! You escape with all your cash."
     } else {
       const randomCashAmount = randomNumberInRange(store.cash * .4, store.cash * .8)
-      msg.value = `You got knocked out! They stole $${randomCashAmount.toLocaleString()}!`
+      msg.value = `You lost! They stole $${randomCashAmount.toLocaleString()}!`
       if (randomCashAmount > 0) {
         store.spendCash(randomCashAmount)
       }
