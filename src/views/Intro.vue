@@ -22,7 +22,26 @@ const emit = defineEmits<{
   (e: 'load'): void
 }>()
 
-const hasSaveGame = localStorage.getItem('mainStore') != null ? true : false
+function hasSaveGame() {
+  // has the player moved beyond the first turn
+  const calendarStore = localStorage.getItem('calendarStore')
+  if (calendarStore) {
+    const currentDate = new Date(JSON.parse(calendarStore).currentDay)
+    if (currentDate.getTime() !== SETTINGS.startDate.getTime()) {
+      return true
+    }
+  }
+  // has the player spent any money
+  const mainStore = localStorage.getItem('mainStore')
+  if (mainStore) {
+    const gameData = JSON.parse(mainStore)
+    if (gameData.cash != SETTINGS.cash || gameData.debt != SETTINGS.debt) {
+      return true
+    }
+  }
+  // no savegame found in localstorage or player hasn't taken a turn yet
+  return false
+}
 
 </script>
 
@@ -35,9 +54,12 @@ const hasSaveGame = localStorage.getItem('mainStore') != null ? true : false
     <ul>
       <li v-for="good in getGoods()">{{ good.goodType }}: ${{good.priceRange.min}} – {{good.priceRange.max}} </li>
     </ul>
-    <div>
-      <button v-if="hasSaveGame" @click="emit('load')">Continue Game</button>
+    <div v-if="hasSaveGame()">
+      <button @click="emit('load')">Continue Game</button>
       <button @click="emit('start')">New Game</button>
+    </div>
+    <div v-else>
+      <button @click="emit('start')">Start Game</button>
     </div>
   </div>
 

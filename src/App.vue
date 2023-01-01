@@ -33,6 +33,9 @@ function newGame() {
   loadGame.value = false
   activeEncounter.value = false
   endgameState.value = null
+  localStorage.removeItem('mainStore')
+  localStorage.removeItem('calendarStore')
+  localStorage.removeItem('inventoryStore')
 }
 </script>
 
