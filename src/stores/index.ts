@@ -150,6 +150,10 @@ export const useMainStore = defineStore({
 
     totalSpace: state => {
       return SETTINGS.gear.find((e) => e.gearType == state.activeGear )?.space
+    },
+
+    getLocationIndex: state => {
+      return (name: string) => state.locations.findIndex((l) => l.name == name )
     }
 
   }

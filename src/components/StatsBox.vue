@@ -20,12 +20,12 @@ const emit = defineEmits<{
   <section>
     <div>
       <p style="text-transform: uppercase;">
-        <strong>{{ day.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}} {{ day.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}</strong><br />
+        <strong>{{ day.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}} {{ day.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}</strong> –
         Day {{ calendar.daysSinceStart }} of {{ SETTINGS.maxDays }}
       </p>
 
     </div>
-    <div>
+    <div class="stats">
       <p class="text-green">Cash: ${{store.cash.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
       <p class="text-green">Bank: ${{store.bank.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
       <p class="text-red">Debt: ${{store.debt.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
@@ -40,12 +40,11 @@ const emit = defineEmits<{
 p {
   margin:0
 }
-.actions {
-  margin-left: auto;
-}
 
-input[type="number"] {
-  width: 50px;
+@media screen and (min-width: 768px) {
+  .stats {
+    display: flex;
+    justify-content: space-between;
+  }
 }
-
 </style>

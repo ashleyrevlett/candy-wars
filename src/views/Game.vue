@@ -12,7 +12,7 @@ import { useInventoryStore } from "../stores/inventory"
 
 import InventoryItem from '../components/InventoryItem.vue';
 import StatsBox from '../components/StatsBox.vue';
-import LocationsBox from '../components/LocationsBox.vue';
+import TravelModal from '../components/TravelModal.vue';
 import OrderModal from '../components/OrderModal.vue';
 import LoanModal from '../components/LoanModal.vue'
 import AlertModal from '../components/AlertModal.vue'
@@ -92,6 +92,7 @@ function onAdvanceTime(days : number) {
   if (Math.random() < SETTINGS.eventChance) {
     randomEvent()
   }
+  gameState.value = 'Default'
 }
 
 function randomEvent() {
@@ -160,6 +161,12 @@ function onSell(id: string) {
 
 <template>
 
+  <TravelModal
+    v-if="gameState == 'Travel'"
+    @advanceTime="onAdvanceTime"
+    @closeForm="gameState = 'Default'"
+  />
+
   <AlertModal
     v-if="alertMessage"
     :message="alertMessage"
@@ -198,7 +205,6 @@ function onSell(id: string) {
 
   <div class="row top">
     <StatsBox @openWeaponsDialog="gameState = 'Weapons'" />
-    <LocationsBox @advanceTime="onAdvanceTime" />
   </div>
 
   <div class="row">
@@ -236,6 +242,7 @@ function onSell(id: string) {
   </div>
 
   <div class="actions" v-if="store.currentLocation">
+    <button @click.prevent="gameState = 'Travel'">Travel</button>
     <button class="waitBtn" :disabled="isWaiting" @click.prevent="waitDay()">
         <span v-if="isWaiting">Waiting...</span>
         <span v-else>Wait</span>
@@ -271,7 +278,7 @@ function onSell(id: string) {
   display: flex;
   margin: 5px;
   width: 100%;
-  margin-bottom: 2rem;
+  /* margin-bottom: 2rem; */
   flex-wrap: wrap;
   justify-content: space-between;
 }
@@ -286,12 +293,21 @@ function onSell(id: string) {
 .actions button {
   flex-basis: 48%;
   margin: 5px 1%;
+  background-color: transparent;
+  border: 1px solid var(--success-color);
+  color: var(--text-color);
+
+  &:hover {
+    background-color: var(--success-color);
+    color: var(--bg-color);
+  }
 }
 
 @media screen and (min-width: 768px) {
   .actions button {
     flex-basis: auto;
     margin-right: 10px;
+    flex: 1;
   }
 }
 
