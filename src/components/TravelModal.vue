@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useMainStore } from "../stores/index"
-import travelSFX from '../assets/audio/hallway.wav'
+import travelSFX from '../assets/audio/ticktock.mp3'
 
 const store = useMainStore()
 
@@ -11,8 +11,33 @@ const emit = defineEmits<{
 }>()
 
 const travelAudio = new Audio(travelSFX)
-travelAudio.volume = 0.5
+travelAudio.volume = 0.2
 const isTraveling = ref(false)
+
+let intervalId : null | number = null
+const frameIndex = ref(0)
+const animFrames = [
+`
+ |
+ |
+`,
+`
+  /
+/
+`,
+`
+
+---
+
+`,
+`
+\\
+  \\
+`,
+]
+function advanceFrame() {
+  frameIndex.value = (frameIndex.value + 1) % animFrames.length
+}
 
 function travel(name: string) {
   if (isTraveling.value) return
@@ -26,7 +51,14 @@ function travel(name: string) {
     store.travelTo(idx)
     emit('advanceTime', 1)
     isTraveling.value = false
-  }, 1500)
+    travelAudio.pause()
+    if (intervalId) {
+      clearInterval(intervalId)
+      intervalId = null
+    }
+  }, 1800)
+
+  intervalId = window.setInterval(advanceFrame, 300)
 }
 
 function isActive(loc: string) {
@@ -41,9 +73,9 @@ function isActive(loc: string) {
 <template>
   <section class="modal">
     <button :disabled="isTraveling" class="cancel" @click.prevent="emit('closeForm')">X</button>
-    <h4 v-if="!isTraveling" class="text-center bold">Travel to...</h4>
-    <h4 v-else>... Traveling ...</h4>
-    <div class="map">
+    <div v-if="!isTraveling">
+      <h4 class="text-center bold">Travel to...</h4>
+      <div class="map">
 <pre>
                           =--------------------------=
                           |                          |
@@ -68,6 +100,13 @@ function isActive(loc: string) {
                           |                          |
                           =--------------------------=
 </pre>
+    </div>
+  </div>
+<div v-else>
+  <h4>Traveling</h4>
+  <div class="clock">
+    <pre>{{ animFrames[frameIndex] }}</pre>
+  </div>
 </div>
   </section>
   <div class="modal-overlay-bg"></div>
@@ -77,7 +116,7 @@ function isActive(loc: string) {
 <style scoped>
 
 section {
-  min-height: 200px;
+  min-height: 350px;
   width: 550px;
   display: flex;
   flex-direction: column;
@@ -128,6 +167,20 @@ button span {
       cursor: text;
       text-decoration: none !important;
     }
+  }
+}
+
+.clock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  width: 100%;
+  min-height: 250px;
+
+  pre {
+    width: 100px;
+    height: 60px;
   }
 }
 
