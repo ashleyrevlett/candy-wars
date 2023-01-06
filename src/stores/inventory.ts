@@ -119,6 +119,15 @@ export const useInventoryStore = defineStore({
       this.tradeGoods[goodIndex].price = Number(p)
     },
 
+    clearPlayerInventory() {
+      this.tradeGoods.forEach(g => {
+        if (!g.location) {
+          g.price = 0
+          g.quantity = 0
+        }
+      });
+    }
+
   },
   getters: {
     getGoodById: state => (id: string) => {

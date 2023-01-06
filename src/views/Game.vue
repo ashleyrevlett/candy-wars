@@ -126,14 +126,21 @@ function randomEvent() {
   if (randomGood.goodType.endsWith('s')) {
     verb = 'have'
   }
-  if (rng < 0.4) {
+  if (rng < 0.35) {
     inventory.priceSpike(randomGood.id)
-    showAlert(`<span class="text-blue">${randomGood.goodType} ${verb} spiked in value!</span>`)
-  } else if (rng < .8) {
+    showAlert(`<h4 class="text-green">PRICE JUMP!</h4><p>${randomGood.goodType} ${verb} spiked in value!</p>`)
+  } else if (rng < .7) {
     inventory.priceDrop(randomGood.id)
-    showAlert(`<span class="text-blue">${randomGood.goodType} ${verb} dropped in value!</span>`)
-  } else {
+    showAlert(`<h4 class="text-green">PRICE DROP!</h4><p>${randomGood.goodType} ${verb} dropped in value!</p>`)
+  } else if (rng < .9) {
+    // bully encounter
     emit('startEncounter')
+  } else {
+    // teacher encounter
+    if (inventory.spaceUsed > 0) {
+      inventory.clearPlayerInventory()
+      showAlert(`<h4 class="text-red">BUSTED!</h4><p>A teacher spotted you dealing and confiscated all your candy!</p>`)
+    }
   }
 }
 
@@ -179,11 +186,9 @@ function onSell(id: string) {
     @closeForm="gameState = 'Default'"
   />
 
-  <AlertModal
-    v-if="alertMessage"
-    :message="alertMessage"
-    @closeAlert="alertMessage = ''"
-  />
+  <AlertModal v-if="alertMessage" @closeAlert="alertMessage = ''">
+    <div v-html="alertMessage"></div>
+  </AlertModal>
 
   <BankModal
     v-if="gameState == 'Bank'"

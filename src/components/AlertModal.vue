@@ -1,13 +1,6 @@
 
 <script setup lang="ts">
 
-const props = defineProps({
-  message: {
-    type: String,
-    required: true,
-  },
-})
-
 const emit = defineEmits<{
   (e: 'closeAlert'): void
 }>()
@@ -16,8 +9,7 @@ const emit = defineEmits<{
 <template>
   <section class="modal">
     <div class="text-center">
-      <h4>ALERT!</h4>
-      <p v-html="message"></p>
+      <slot></slot>
       <button @click.prevent="emit('closeAlert')">OK</button>
     </div>
   </section>
