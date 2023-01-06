@@ -47,7 +47,7 @@ const SETTINGS : Settings = {
   maxDays: 5,
   cash: 20,
   debt: 100,
-  debtAPR: 0.1,
+  debtAPR: 0.05,
   volatility: {
     min: 0.05,
     max: 0.25
@@ -62,22 +62,24 @@ const SETTINGS : Settings = {
     'Hallway':    { hasBank: true, hasShop: true },
   },
   goods: {
-    'Hard Candy':     { priceRange: { min: 1,   max: 3   }, quantityRange: { min: 600, max: 1200 } },
-    'Jelly Beans':    { priceRange: { min: 3,   max: 6  },  quantityRange: { min: 300, max: 900  } },
-    'Gummy Bears':    { priceRange: { min: 5,   max: 12  }, quantityRange: { min: 100, max: 500  } },
-    'Lollipops':      { priceRange: { min: 10,  max: 15  }, quantityRange: { min: 50,  max: 200  } },
-    'Chocolate Bars': { priceRange: { min: 15,  max: 25 },  quantityRange: { min: 10,  max: 50   } },
+    'Hard Candy':     { priceRange: { min: .5,  max: 1   }, quantityRange: { min: 600, max: 1200 } },
+    'Bubblegum':      { priceRange: { min: .6,  max: 1.5 }, quantityRange: { min: 80,  max: 120  } },
+    'Peppermints':    { priceRange: { min: .75, max: 2   }, quantityRange: { min: 500, max: 800  } },
+    'Jelly Beans':    { priceRange: { min: 1,   max: 2   }, quantityRange: { min: 300, max: 900  } },
+    'Gummy Bears':    { priceRange: { min: 1.5, max: 3   }, quantityRange: { min: 100, max: 500  } },
+    'Lollipops':      { priceRange: { min: 2,   max: 3.5 }, quantityRange: { min: 50,  max: 200  } },
+    'Chocolate Bars': { priceRange: { min: 3,   max: 8   }, quantityRange: { min: 10,  max: 50   } },
   },
   weapons: [
     { weaponType: 'Fists',            price: 0,  damage: 2 },
-    { weaponType: 'Spitball Shooter', price: 10, damage: 5 },
-    { weaponType: 'Slingshot',        price: 20, damage: 8 },
-    { weaponType: 'Cherrybomb',       price: 50, damage: 12 },
+    { weaponType: 'Spitball Shooter', price: 5, damage: 5 },
+    { weaponType: 'Slingshot',        price: 10, damage: 8 },
+    { weaponType: 'Cherrybomb',       price: 40, damage: 12 },
   ],
   gear: [
     { gearType: 'Pockets',    price: 0,   space: 10 },
-    { gearType: 'Belt Bag',   price: 20,  space: 20 },
-    { gearType: 'Backpack',   price: 35,  space: 50 },
+    { gearType: 'Belt Bag',   price: 15,  space: 20 },
+    { gearType: 'Backpack',   price: 30,  space: 50 },
     { gearType: 'Duffel Bag', price: 60,  space: 100 },
   ],
 }
