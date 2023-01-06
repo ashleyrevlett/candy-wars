@@ -17,10 +17,11 @@ import OrderModal from '../components/OrderModal.vue';
 import LoanModal from '../components/LoanModal.vue'
 import AlertModal from '../components/AlertModal.vue'
 import BankModal from '../components/BankModal.vue'
+import DraggableModal from '../components/DraggableModal.vue'
+import PriceList from '../components/PriceList.vue'
 
 import moneySFX from '../assets/audio/chaching.mp3'
 import yeahSFX from '../assets/audio/403828__alshred__16-ohyeah.wav'
-import clockSFX from '../assets/audio/ticktock.mp3'
 
 const props = defineProps({
   continueGame: {
@@ -42,6 +43,8 @@ const { randomNumberInRange } = useUtils()
 const store = useMainStore()
 const calendarStore = useCalendarStore()
 const inventory = useInventoryStore()
+
+const viewPrices = ref(false)
 
 const gameState: Ref<GameState> = ref('Default')
 const activeGood: Ref<TradeGood | undefined | null> = ref(null) // which good is currently being traded
@@ -130,20 +133,6 @@ function randomEvent() {
   }
 }
 
-const clockAudio = new Audio(clockSFX)
-clockAudio.volume = .2
-const isWaiting = ref(false)
-function waitDay() {
-  if (isWaiting.value) return
-  isWaiting.value = true
-  clockAudio.play()
-  setTimeout(() => {
-    gameState.value = 'Default'
-    doTurn()
-    isWaiting.value = false
-  }, 2100)
-}
-
 const moneyAudio = new Audio(moneySFX)
 const yeahAudio = new Audio(yeahSFX)
 moneyAudio.volume = 0.2
@@ -176,6 +165,9 @@ function onSell(id: string) {
 </script>
 
 <template>
+  <DraggableModal v-if="viewPrices" @closeWindow="viewPrices = false">
+    <PriceList />
+  </DraggableModal>
 
   <TravelModal
     v-if="gameState == 'Travel'"
@@ -249,11 +241,8 @@ function onSell(id: string) {
 
   <div class="actions" v-if="store.currentLocation">
     <button @click.prevent="gameState = 'Travel'">Travel</button>
-    <button class="waitBtn" :disabled="isWaiting" @click.prevent="waitDay()">
-        <span v-if="isWaiting">Waiting...</span>
-        <span v-else>Wait</span>
-    </button>
     <button v-if="store.debt > 0" @click.prevent="gameState = 'Loan'">Pay Loan</button>
+    <button @click="viewPrices = true">View Price List</button>
     <button v-if="store.currentLocation.hasBank" @click.prevent="gameState = 'Bank'">Visit Locker</button>
   </div>
 
@@ -314,11 +303,6 @@ function onSell(id: string) {
     margin-right: 10px;
     flex: 1;
   }
-}
-
-.waitBtn span {
-  display: inline-block;
-  text-align: center;
 }
 
 h4 {

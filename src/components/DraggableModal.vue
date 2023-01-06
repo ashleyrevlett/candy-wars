@@ -29,6 +29,7 @@ const emit = defineEmits<{
   text-align: center;
   box-shadow: none;
   cursor: move;
+  z-index: 5;
 }
 
 button.cancel {
