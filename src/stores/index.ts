@@ -50,7 +50,6 @@ export const useMainStore = defineStore({
         const location : Location = {
           name: loc as CityName,
           hasBank: l.hasBank as boolean,
-          hasShop: l.hasShop as boolean
         }
         this.locations.push(location)
       })
@@ -100,6 +99,10 @@ export const useMainStore = defineStore({
 
     recoverHealth() {
       this.health = Math.min(SETTINGS.startingHealth, this.health + 1)
+    },
+
+    restoreHealth() {
+      this.health = SETTINGS.startingHealth
     },
 
     changeWeapon(weapon: WeaponType) {

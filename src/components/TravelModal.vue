@@ -6,7 +6,7 @@ import travelSFX from '../assets/audio/ticktock.mp3'
 const store = useMainStore()
 
 const emit = defineEmits<{
-  (e: 'advanceTime', days: number): void,
+  (e: 'advanceTime'): void,
   (e: 'closeForm'): void
 }>()
 
@@ -49,7 +49,7 @@ function travel(name: string) {
 
   setTimeout(() => {
     store.travelTo(idx)
-    emit('advanceTime', 1)
+    emit('advanceTime')
     isTraveling.value = false
     travelAudio.pause()
     if (intervalId) {
@@ -85,7 +85,7 @@ function isActive(loc: string) {
   | ROOM |     ROOM       |                          |    MAIN           |
   |      |                |                          |    OFFICE         |
   |------|----------------|-----------+=   =+--------|-------------------|
-  =                           <span :class="{ active: isActive('Hallway') }" @click="travel('Hallway')">HALL</span>                                       =
+  =                           <span :class="{ active: isActive('Hallway') }" @click="travel('Hallway')">HALLWAY *</span>                                  =
   =                                                                      =
   |---------+   +---------+-----------+     +--------+----------+--------|
   |  MR.    |   | MS.     |           |     |        |  MS.     | MS.    |
@@ -99,6 +99,7 @@ function isActive(loc: string) {
          -----------------|                          |
                           |                          |
                           =--------------------------=
+* HAS LOCKER
 </pre>
     </div>
   </div>

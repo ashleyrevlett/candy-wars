@@ -3,7 +3,6 @@ import { CityName, GoodType, NumberRange, WeaponType, GearType } from "../types"
 type Locations = {
   [key in CityName]: {
     hasBank: boolean,
-    hasShop: boolean
   }
 }
 
@@ -28,6 +27,8 @@ type Goods = {
 
 interface Settings {
   startDate: Date,
+  schoolEndHour: number,
+  lunchCost: number,
   maxDays: number,
   cash: number,
   debt: number,
@@ -42,24 +43,26 @@ interface Settings {
 }
 
 const SETTINGS : Settings = {
-  startDate: new Date('June 4, 1990 09:00:00'),
+  startDate: new Date('May 16, 1990 09:00:00'),
+  schoolEndHour: 14, // 2pm
+  lunchCost: 5,
   startingHealth: 12,
-  maxDays: 5,
+  maxDays: 2,
   cash: 20,
   debt: 100,
-  debtAPR: 0.05,
+  debtAPR: 0.04,
   volatility: {
     min: 0.05,
     max: 0.25
   },
   eventChance: 0.4,
   locations: {
-    'Playground': { hasBank: true, hasShop: true },
-    'Gym':        { hasBank: false, hasShop: false },
-    'Cafeteria':  { hasBank: true, hasShop: false },
-    'Library':    { hasBank: false, hasShop: false },
-    'Bathroom':   { hasBank: false, hasShop: true },
-    'Hallway':    { hasBank: true, hasShop: true },
+    'Playground': { hasBank: false, },
+    'Gym':        { hasBank: false, },
+    'Cafeteria':  { hasBank: false, },
+    'Library':    { hasBank: false, },
+    'Bathroom':   { hasBank: false, },
+    'Hallway':    { hasBank: true,  },
   },
   goods: {
     'Hard Candy':     { priceRange: { min: .5,  max: 1   }, quantityRange: { min: 600, max: 1200 } },

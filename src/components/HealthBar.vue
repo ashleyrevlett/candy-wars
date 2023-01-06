@@ -17,8 +17,8 @@ const props = defineProps({
 </script>
 
 <template>
-  <aside>
-    {{ title }}:
+  <aside class="healthBar">
+    <span class="label">{{ title }}: </span>
     <div v-for="(n,index) in total" :key="index" :class="{'alive': n <= remaining}" class="bars">
       <span v-if="(n <= remaining)">|</span>
       <span v-else>.</span>

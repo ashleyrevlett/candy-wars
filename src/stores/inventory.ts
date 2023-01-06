@@ -18,14 +18,9 @@ export const useInventoryStore = defineStore({
     initStore() {
       // location goods
       this.tradeGoods = []
-      Object.keys(SETTINGS.locations).forEach((city, i) => {
-        Object.keys(SETTINGS.goods).forEach((good, j) => {
-          const id = i.toString() + '-' + j.toString()
-          this.tradeGoods.push(generateStartingData(id, good as GoodType, city as CityName))
-        })
-      })
+      this.resetLocationInventory()
 
-      // player goods
+      // init player goods
       Object.keys(SETTINGS.goods).forEach((good, i) => {
         const id = 'player-' + i.toString()
         const g : TradeGood = {
@@ -35,6 +30,18 @@ export const useInventoryStore = defineStore({
           goodType: good as GoodType,
         }
         this.tradeGoods.push(g)
+      })
+    },
+
+    resetLocationInventory() {
+      // clear all non-player goods
+      this.tradeGoods = this.tradeGoods.filter(g => g.location == null)
+      // re-init location goods
+      Object.keys(SETTINGS.locations).forEach((city, i) => {
+        Object.keys(SETTINGS.goods).forEach((good, j) => {
+          const id = i.toString() + '-' + j.toString()
+          this.tradeGoods.push(generateStartingData(id, good as GoodType, city as CityName))
+        })
       })
     },
 
@@ -172,7 +179,7 @@ export const useInventoryStore = defineStore({
         // find current going price for this good at current location
         const store = useMainStore()
         const loc = store.currentLocation
-        const locGood = state.tradeGoods.find(good => good.location == loc.name && good.goodType == good.goodType)
+        const locGood = state.tradeGoods.find(g => g.location == loc.name && g.goodType == good.goodType)
         if (locGood) return locGood.price
       }
       return 0

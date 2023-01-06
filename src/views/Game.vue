@@ -17,15 +17,13 @@ import OrderModal from '../components/OrderModal.vue';
 import LoanModal from '../components/LoanModal.vue'
 import AlertModal from '../components/AlertModal.vue'
 import BankModal from '../components/BankModal.vue'
-import ShopModal from '../components/ShopModal.vue'
-import WeaponsModal from '../components/WeaponsModal.vue'
 
 import moneySFX from '../assets/audio/chaching.mp3'
 import yeahSFX from '../assets/audio/403828__alshred__16-ohyeah.wav'
 import clockSFX from '../assets/audio/ticktock.mp3'
 
 const props = defineProps({
-  loadGame: {
+  continueGame: {
     type: Boolean,
     required: true
   }
@@ -36,6 +34,7 @@ const emit = defineEmits<{
   (e: 'restartGame'): void,
   (e: 'lose'): void,
   (e: 'win'): void,
+  (e: 'dayEnd'): void,
 }>()
 
 const { randomNumberInRange } = useUtils()
@@ -48,12 +47,16 @@ const gameState: Ref<GameState> = ref('Default')
 const activeGood: Ref<TradeGood | undefined | null> = ref(null) // which good is currently being traded
 
 onMounted(() => {
-  if (!props.loadGame) {
+  if (!props.continueGame) {
     restart()
   }
 })
 
 onUpdated(() => {
+  checkWinOrLose()
+})
+
+function checkWinOrLose() {
   if (calendarStore.daysSinceStart > SETTINGS.maxDays) {
     // time's up
     if (store.debt <= 0) {
@@ -71,7 +74,7 @@ onUpdated(() => {
   } else if (gameState.value == 'Lose') {
     emit('lose')
   }
-})
+}
 
 function restart() {
   gameState.value = 'Default'
@@ -81,18 +84,32 @@ function restart() {
   inventory.initStore()
 }
 
-function onAdvanceTime(days : number) {
-  while (days > 0) {
-    days--
+function doTurn() {
+  if (calendarStore.currentHour + 1 < SETTINGS.schoolEndHour) {
+    // this turn will be on the same day
+    gameState.value = 'Default' // close any open modals
     inventory.randomizeGoods()
-    store.updateDebt()
     store.recoverHealth()
-    calendarStore.advanceDate()
+    store.updateDebt()
+    calendarStore.advanceTime()
+
+    if (Math.random() < SETTINGS.eventChance) {
+      randomEvent()
+    }
+  } else {
+    if (SETTINGS.maxDays - calendarStore.daysSinceStart > 0) {
+      // a new day should start
+      inventory.resetLocationInventory()
+      store.restoreHealth()
+      store.updateDebt()
+      calendarStore.advanceTime()
+      emit('dayEnd')
+    } else {
+      // time's up
+      calendarStore.advanceTime()
+      checkWinOrLose()
+    }
   }
-  if (Math.random() < SETTINGS.eventChance) {
-    randomEvent()
-  }
-  gameState.value = 'Default'
 }
 
 function randomEvent() {
@@ -122,7 +139,7 @@ function waitDay() {
   clockAudio.play()
   setTimeout(() => {
     gameState.value = 'Default'
-    onAdvanceTime(1)
+    doTurn()
     isWaiting.value = false
   }, 2100)
 }
@@ -140,7 +157,6 @@ function onSellDone() {
   yeahAudio.play()
   gameState.value = 'Default'
 }
-
 
 const alertMessage = ref('')
 function showAlert(msg: string) {
@@ -163,7 +179,7 @@ function onSell(id: string) {
 
   <TravelModal
     v-if="gameState == 'Travel'"
-    @advanceTime="onAdvanceTime"
+    @advanceTime="doTurn"
     @closeForm="gameState = 'Default'"
   />
 
@@ -171,11 +187,6 @@ function onSell(id: string) {
     v-if="alertMessage"
     :message="alertMessage"
     @closeAlert="alertMessage = ''"
-  />
-
-  <ShopModal
-    v-if="gameState == 'Shop'"
-    @closeForm="gameState = 'Default'"
   />
 
   <BankModal
@@ -198,13 +209,8 @@ function onSell(id: string) {
     @sellDone="onSellDone"
   />
 
-  <WeaponsModal
-    v-if="gameState == 'Weapons'"
-    @closeForm="gameState = 'Default'"
-  />
-
   <div class="row top">
-    <StatsBox @openWeaponsDialog="gameState = 'Weapons'" />
+    <StatsBox />
   </div>
 
   <div class="row">
@@ -248,8 +254,7 @@ function onSell(id: string) {
         <span v-else>Wait</span>
     </button>
     <button v-if="store.debt > 0" @click.prevent="gameState = 'Loan'">Pay Loan</button>
-    <button v-if="store.currentLocation.hasBank" @click.prevent="gameState = 'Bank'">Visit Bank</button>
-    <button v-if="store.currentLocation.hasShop" @click.prevent="gameState = 'Shop'">Shop</button>
+    <button v-if="store.currentLocation.hasBank" @click.prevent="gameState = 'Bank'">Visit Locker</button>
   </div>
 
 </template>

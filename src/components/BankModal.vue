@@ -56,29 +56,29 @@ function doPayment(transaction : TransactionState) {
   <section class="modal">
     <button class="cancel" @click.prevent="emit('closeForm')">X</button>
     <div class="buttons" v-if="state == 'Choose'">
-      <button @click.prevent="state = 'Deposit'" :disabled="(store.cash <= 0)">Deposit Cash</button>
-      <button @click.prevent="state = 'Withdrawal'" :disabled="(store.bank <= 0)">Withdrawal Cash</button>
-      <button @click.prevent="emit('closeForm')">Leave Bank</button>
+      <button @click.prevent="state = 'Deposit'" :disabled="(store.cash <= 0)">Stash Cash</button>
+      <button @click.prevent="state = 'Withdrawal'" :disabled="(store.bank <= 0)">Take Cash</button>
+      <button @click.prevent="emit('closeForm')">Leave Locker</button>
     </div>
     <div v-if="state == 'Deposit'">
-      <h4>Deposit Cash</h4>
+      <h4>Stash Cash</h4>
       <form>
         <label for="qty">$ </label>
         <input name="qty" type="number" v-model="deposit" min="0" :max="store.cash" />
-        <button :disabled="(error != '' || isPaying)" type="submit" @click.prevent="doPayment('Deposit')">Deposit</button>
+        <button :disabled="(error != '' || isPaying)" type="submit" @click.prevent="doPayment('Deposit')">Put in Locker</button>
       </form>
       <p class="text-red error">{{error}}</p>
-      <small>Max you can deposit: ${{ store.cash.toLocaleString() }}</small>
+      <small>Max you can stash: ${{ store.cash.toLocaleString(undefined, {minimumFractionDigits: 2}) }}</small>
     </div>
     <div v-if="state == 'Withdrawal'">
       <h4>Withdrawal Cash</h4>
       <form>
         <label for="qty">$ </label>
         <input name="qty" type="number" v-model="withdrawal" min="0" :max="store.bank" />
-        <button :disabled="(error != '' || isPaying)" type="submit" @click.prevent="doPayment('Withdrawal')">Withdrawal</button>
+        <button :disabled="(error != '' || isPaying)" type="submit" @click.prevent="doPayment('Withdrawal')">Take from Locker</button>
       </form>
       <p class="text-red error">{{error}}</p>
-      <small>Max you can withdrawal: ${{ store.bank.toLocaleString() }}</small>
+      <small>Max you can take: ${{ store.bank.toLocaleString(undefined, {minimumFractionDigits: 2}) }}</small>
     </div>
     <p v-if="state != 'Choose'"><a @click.prevent="state = 'Choose'" href="/#">‹ Back</a></p>
   </section>

@@ -10,10 +10,6 @@ const store = useMainStore()
 const calendar = useCalendarStore()
 const day = computed(() => new Date(calendar.currentDay))
 
-const emit = defineEmits<{
-  (e: 'openWeaponsDialog'): void
-}>()
-
 </script>
 
 <template>
@@ -26,10 +22,10 @@ const emit = defineEmits<{
 
     </div>
     <div class="stats">
-      <p class="text-green">Cash: ${{store.cash.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
-      <p class="text-green">Bank: ${{store.bank.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
-      <p class="text-red">Debt: ${{store.debt.toLocaleString(undefined, {minimumFractionDigits: 2})}}</p>
-      <p>Weapon: {{store.activeWeapon}} <button class="secondary" v-if="store.weapons.length > 1" @click.prevent="emit('openWeaponsDialog')">Change</button></p>
+      <p class="text-green">Cash: <span>${{store.cash.toLocaleString(undefined, {minimumFractionDigits: 2})}}</span></p>
+      <p class="text-green">Stash: <span>${{store.bank.toLocaleString(undefined, {minimumFractionDigits: 2})}}</span></p>
+      <p class="text-red">Debt: <span>${{store.debt.toLocaleString(undefined, {minimumFractionDigits: 2})}}</span></p>
+      <p>Weapon: <span>{{store.activeWeapon}}</span></p>
       <HealthBar title="Health" :total="SETTINGS.startingHealth" :remaining="store.health" />
     </div>
   </section>
@@ -45,6 +41,16 @@ p {
   .stats {
     display: flex;
     justify-content: space-between;
+
+    span {
+      display: block;
+    }
+  }
+}
+
+@media screen and (min-width: 768px) {
+  :deep(.healthBar .label) {
+    display: block;
   }
 }
 </style>

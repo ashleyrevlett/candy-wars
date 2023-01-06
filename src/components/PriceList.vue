@@ -41,6 +41,6 @@ function getGoods() {
   }
 
   td {
-    padding: .2rem 1rem;
+    padding: .4rem 1rem;
   }
 </style>

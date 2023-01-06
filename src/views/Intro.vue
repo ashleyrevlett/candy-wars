@@ -34,7 +34,7 @@ function hasSaveGame() {
 
   <div class="text-center main">
     <h2>Candy Wars</h2>
-    <p>You have {{  SETTINGS.maxDays }} days to pay off your loan and make as much money as you can.<br />School is open from 9am - 3pm.</p>
+    <p>You have {{  SETTINGS.maxDays }} days to pay off your loan and make as much money as you can.<br />School ends at {{ SETTINGS.schoolEndHour % 12 }}pm.</p>
     <PriceList />
     <div v-if="hasSaveGame()">
       <button @click="emit('load')">Continue Game</button>

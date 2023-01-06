@@ -241,4 +241,12 @@ pre {
   height: 180px;
 }
 
+
+@media screen and (min-width: 768px) {
+  :deep(.healthBar .label) {
+    display: inline-block;
+    width: 130px;
+  }
+}
+
 </style>
