@@ -100,14 +100,16 @@ export const useInventoryStore = defineStore({
       const goodIndex = this.tradeGoods.findIndex((item) => item.id === id)
       if (goodIndex == -1) return
       const priceRange = SETTINGS.goods[this.tradeGoods[goodIndex].goodType].priceRange
-      this.tradeGoods[goodIndex].price = priceRange.max + (priceRange.max * .25)
+      const p = (priceRange.max + (priceRange.max * .25)).toFixed(2)
+      this.tradeGoods[goodIndex].price = Number(p)
     },
 
     priceDrop(id: string) {
       const goodIndex = this.tradeGoods.findIndex((item) => item.id === id)
       if (goodIndex == -1) return
       const priceRange = SETTINGS.goods[this.tradeGoods[goodIndex].goodType].priceRange
-      this.tradeGoods[goodIndex].price = priceRange.min - (priceRange.min * .15)
+      const p = (priceRange.min - (priceRange.min * .15)).toFixed(2)
+      this.tradeGoods[goodIndex].price = Number(p)
     },
 
   },
