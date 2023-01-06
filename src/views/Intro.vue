@@ -33,9 +33,18 @@ function hasSaveGame() {
 <template>
 
   <div class="text-center main">
+
     <h2>Candy Wars</h2>
-    <p>You have {{  SETTINGS.maxDays }} days to pay off your loan and make as much money as you can.<br />School ends at {{ SETTINGS.schoolEndHour % 12 }}pm.</p>
-    <PriceList />
+    <p class="intro">You're an enterprising teen, trying to make it big by hustling candy in the mean hallways of middle-school.
+      Do you have what it takes to make it to the candy-slinger hall of fame?</p>
+
+    <p style="margin-bottom:0"><strong class="text-green">HOW TO PLAY:</strong></p>
+    <ul>
+      <li><strong>BUY LOW</strong> and <strong>SELL HIGH</strong> to turn candy into cash.</li>
+      <li>Look out for bullies and teachers.</li>
+      <li>Pay off your loan before school's out for the summer.</li>
+    </ul>
+
     <div v-if="hasSaveGame()">
       <button @click="emit('load')">Continue Game</button>
       <button @click="emit('start')">New Game</button>
@@ -54,8 +63,39 @@ function hasSaveGame() {
     margin: 0 auto;
   }
 
+  h2 {
+    margin-bottom: .5rem;
+  }
+
+  .intro {
+    font-style:italic;
+    margin: 0 auto 2rem;
+  }
+
   button {
     margin-right: 5px;
     margin-left: 5px;
+    background-color: transparent;
+    border: 1px solid var(--success-color);
+    color: var(--text-color);
+
+    &:hover {
+      background-color: var(--success-color);
+      color: var(--bg-color);
+    }
+  }
+
+  p {
+    margin: 1.5rem auto;
+  }
+
+  ul {
+    margin: 0 auto 2rem;
+  }
+
+  li {
+    text-align: left;
+    max-width: 80%;
+    margin: .5rem auto;
   }
 </style>

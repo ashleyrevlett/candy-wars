@@ -13,14 +13,14 @@ const day = computed(() => new Date(calendar.currentDay))
 </script>
 
 <template>
-  <section>
-    <div>
+<div class="wrap">
+   <div class="date">
       <p style="text-transform: uppercase;">
         <strong>{{ day.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}} {{ day.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}</strong> –
         Day {{ calendar.daysSinceStart }} of {{ SETTINGS.maxDays }}
       </p>
-
     </div>
+  <section>
     <div class="stats">
       <p class="text-green">Cash: <span>${{store.cash.toLocaleString(undefined, {minimumFractionDigits: 2})}}</span></p>
       <p class="text-green">Stash: <span>${{store.bank.toLocaleString(undefined, {minimumFractionDigits: 2})}}</span></p>
@@ -29,10 +29,21 @@ const day = computed(() => new Date(calendar.currentDay))
       <HealthBar title="Health" :total="SETTINGS.startingHealth" :remaining="store.health" />
     </div>
   </section>
+</div>
 </template>
 
 
 <style scoped>
+
+.wrap {
+  width: 100%;
+  margin: 0 5px;
+}
+
+.date {
+  margin-bottom: .5rem;
+}
+
 p {
   margin:0
 }
