@@ -122,12 +122,16 @@ function randomEvent() {
   const randomGood = locationGoods[randomIndex]
   if (!randomGood) return
   const rng = Math.random()
+  let verb = 'has'
+  if (randomGood.goodType.endsWith('s')) {
+    verb = 'have'
+  }
   if (rng < 0.4) {
     inventory.priceSpike(randomGood.id)
-    showAlert(`<span class="text-blue">${randomGood.goodType} has spiked in value!</span>`)
+    showAlert(`<span class="text-blue">${randomGood.goodType} ${verb} spiked in value!</span>`)
   } else if (rng < .8) {
     inventory.priceDrop(randomGood.id)
-    showAlert(`<span class="text-blue">${randomGood.goodType} has dropped in value!</span>`)
+    showAlert(`<span class="text-blue">${randomGood.goodType} ${verb} dropped in value!</span>`)
   } else {
     emit('startEncounter')
   }
