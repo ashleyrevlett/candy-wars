@@ -9,11 +9,14 @@ import Encounter from './views/Encounter.vue'
 import GameOver from './views/GameOver.vue'
 import ThemeSelector from './components/ThemeSelector.vue'
 import HighScoreList from './components/HighScoreList.vue'
+import DraggableModal from './components/DraggableModal.vue'
+import PriceList from './components/PriceList.vue'
 
 const showIntro = ref(true)
 const loadGame = ref(false)
 const activeEncounter = ref(false)
 const showHighScores = ref(false)
+const showPriceList = ref(false)
 const endgameState: Ref<GameState | null> = ref(null)
 
 onMounted(() => {
@@ -43,9 +46,13 @@ function newGame() {
   <aside class="utilities">
     <button v-if="!showIntro" @click.prevent="newGame()">New Game</button>
     <button v-if="!showIntro" @click.prevent="showHighScores = true">High Scores</button>
+    <button v-if="!showIntro" @click.prevent="showPriceList = true">Price List</button>
     <ThemeSelector />
   </aside>
   <main class="app">
+    <DraggableModal v-if="showPriceList" @closeWindow="showPriceList=false">
+      <PriceList />
+    </DraggableModal>
     <HighScoreList v-if="showHighScores" @closeWindow="showHighScores = false" />
     <Intro v-if="(showIntro && !activeEncounter)" @start="showIntro=false" @load="loadGame=true; showIntro=false" />
     <Encounter v-if="activeEncounter" @resumeGame="activeEncounter=false; loadGame=true"  />

@@ -22,6 +22,7 @@
     "vuefire": "^3.0.0-beta.2"
   },
   "dependencies": {
+    "@vueuse/core": "^9.10.0",
     "dayjs": "^1.11.6",
     "vue": "^3.2.41"
   }
