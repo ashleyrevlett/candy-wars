@@ -44,10 +44,10 @@ interface Settings {
 
 const SETTINGS : Settings = {
   startDate: new Date('May 16, 1990 09:00:00'),
-  schoolEndHour: 14, // 2pm
+  schoolEndHour: 15, // 3pm
   lunchCost: 5,
   startingHealth: 12,
-  maxDays: 2,
+  maxDays: 5,
   cash: 20,
   debt: 100,
   debtAPR: 0.04,
