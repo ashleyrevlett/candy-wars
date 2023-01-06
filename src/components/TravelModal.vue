@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useMainStore } from "../stores/index"
 import travelSFX from '../assets/audio/ticktock.mp3'
 
@@ -9,6 +9,8 @@ const emit = defineEmits<{
   (e: 'advanceTime'): void,
   (e: 'closeForm'): void
 }>()
+
+const locs = computed(() => store.locations.map(x => x.name))
 
 const travelAudio = new Audio(travelSFX)
 travelAudio.volume = 0.2
@@ -102,6 +104,9 @@ function isActive(loc: string) {
 * HAS LOCKER
 </pre>
     </div>
+    <div class="mobileBtns">
+      <button v-for="x in locs" @click="travel(x)" :disabled="x == store.currentLocation.name">{{ x }}</button>
+    </div>
   </div>
 <div v-else>
   <h4>Traveling</h4>
@@ -118,10 +123,28 @@ function isActive(loc: string) {
 
 section {
   min-height: 350px;
-  width: 550px;
   display: flex;
   flex-direction: column;
   text-align: center;
+  width: 250px;
+
+  @media screen and (min-width: 550px) {
+    width: 550px;
+  }
+}
+
+
+.mobileBtns {
+    display: flex;
+    flex-flow: column;
+
+    @media screen and (min-width: 550px) {
+      display: none;
+    }
+
+    button {
+      margin-bottom: .8rem;
+    }
 }
 
 button.cancel {
@@ -154,6 +177,10 @@ button span {
   white-space: pre;
   display: block;
   text-align: left;
+
+  @media screen and (max-width: 551px) {
+    display: none;
+  }
 
   span {
     cursor: pointer;
