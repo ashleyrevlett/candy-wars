@@ -96,6 +96,6 @@ function hasSaveGame() {
   li {
     text-align: left;
     max-width: 80%;
-    margin: .5rem auto;
+    margin: .5rem 0;
   }
 </style>

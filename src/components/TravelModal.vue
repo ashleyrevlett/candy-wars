@@ -56,7 +56,7 @@ function travel(name: string) {
       clearInterval(intervalId)
       intervalId = null
     }
-  }, 1800)
+  }, 1200)
 
   intervalId = window.setInterval(advanceFrame, 300)
 }

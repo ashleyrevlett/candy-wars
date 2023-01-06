@@ -152,13 +152,17 @@ main {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   min-width: 320px;
   max-width: 800px;
   width: 98%;
   min-height: 100vh;
-  margin: 0 auto;
+  margin: 20px auto;
+
+  @media screen and (min-width: 768px) {
+    margin: 100px auto;
+  }
 }
 
 .text-green {

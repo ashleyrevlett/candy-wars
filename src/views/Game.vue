@@ -117,7 +117,7 @@ function doTurn() {
 
 function randomEvent() {
   // select random non-player good at currentLocation
-  const locationGoods = inventory.getCurrentLocationGoods
+  const locationGoods = inventory.getCurrentLocationGoods.filter(g => g.price > 0) // do not choose empty good
   const randomIndex = randomNumberInRange(0, locationGoods.length)
   const randomGood = locationGoods[randomIndex]
   if (!randomGood) return

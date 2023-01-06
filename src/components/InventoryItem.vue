@@ -25,12 +25,15 @@ const playerGood = computed(() => inventory.getPlayerGoodByName(props.good.goodT
 
 
 <template>
-  <tr>
+  <tr v-if="good.price || (!good.price && playerGood!.quantity > 0)">
     <td>
       {{good.goodType}}
     </td>
-    <td>
-      ${{good.price?.toLocaleString(undefined, {minimumFractionDigits: 2})}}
+    <td v-if="good.price">
+      ${{good.price!.toLocaleString(undefined, {minimumFractionDigits: 2})}}
+    </td>
+    <td v-else>
+      --
     </td>
     <td>
       <span v-if="(playerGood && playerGood?.price > 0)">${{playerGood?.price?.toLocaleString(undefined, {minimumFractionDigits: 2})}}</span>
@@ -42,8 +45,9 @@ const playerGood = computed(() => inventory.getPlayerGoodByName(props.good.goodT
     </td>
     <td>
       <div class="order-actions">
-        <button :disabled="((good.price > store.cash) || inventory.inventorySpace <= 0)" @click="$emit('buy', good.id)">Buy</button>
-        <button :disabled="(!playerGood?.quantity || playerGood?.quantity <= 0)" @click="$emit('sell', playerGood?.id)">Sell</button>
+        <button v-if="good.price" :disabled="((good.price > store.cash) || inventory.inventorySpace <= 0)" @click="$emit('buy', good.id)">Buy</button>
+        <button v-if="good.price" :disabled="(!playerGood?.quantity || playerGood?.quantity <= 0)" @click="$emit('sell', playerGood?.id)">Sell</button>
+        <span v-if="!good.price" class="noDemand"><em>No demand</em></span>
       </div>
     </td>
 
@@ -63,6 +67,14 @@ section {
 
 button {
   margin: 0 2px;
+}
+
+td {
+  height: 30px;
+}
+
+.noDemand {
+  padding: 0 2rem;
 }
 
 @media screen and (max-width: 767px) {

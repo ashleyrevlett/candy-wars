@@ -40,7 +40,14 @@ export const useInventoryStore = defineStore({
       Object.keys(SETTINGS.locations).forEach((city, i) => {
         Object.keys(SETTINGS.goods).forEach((good, j) => {
           const id = i.toString() + '-' + j.toString()
-          this.tradeGoods.push(generateStartingData(id, good as GoodType, city as CityName))
+          const g = generateStartingData(id, good as GoodType, city as CityName)
+          const rng = Math.random()
+          // 12% chance this good doesn't exist at this location
+          if (rng <= .12) {
+            g.price = 0
+            g.quantity = 0
+          }
+          this.tradeGoods.push(g)
         })
       })
     },
@@ -97,7 +104,7 @@ export const useInventoryStore = defineStore({
     randomizeGoods() {
       // calculatePrice
       this.tradeGoods.forEach(good => {
-        if (!good.location) return // ignore player goods
+        if (!good.location || good.price == 0) return // ignore player goods and empty goods
         good.quantity = getUpdatedQuantity(good.goodType, good.quantity)
         good.price = calculatePrice(good.goodType, good.quantity)
       });
