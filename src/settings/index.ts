@@ -50,7 +50,7 @@ const SETTINGS : Settings = {
   maxDays: 5,
   cash: 20,
   debt: 100,
-  debtAPR: 0.04,
+  debtAPR: 0.015,
   volatility: {
     min: 0.05,
     max: 0.25
